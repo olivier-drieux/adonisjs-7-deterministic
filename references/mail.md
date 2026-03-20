@@ -6,7 +6,7 @@
 - Generate classes with `node ace make:mail <intent>`.
 - Always use dedicated mail classes for application emails.
 - Build the message inside the mail class `prepare()` method.
-- Use Edge views for non-trivial email bodies.
+- Use Edge views for non-trivial email bodies only. This is allowed for mail templating and does not make Edge a UI rendering choice.
 
 ## Sending Rule
 

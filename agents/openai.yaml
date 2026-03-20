@@ -1,4 +1,4 @@
 interface:
-  display_name: "AdonisJS 7 Deterministic"
-  short_description: "Deterministic AdonisJS 7 doctrine"
-  default_prompt: "Use $adonisjs-7-deterministic to implement this AdonisJS 7 feature the official Adonis way."
+  display_name: "AdonisJS 7 Inertia React"
+  short_description: "Deterministic AdonisJS + Inertia React + Mantine"
+  default_prompt: "Use $adonisjs-7-deterministic to implement this AdonisJS + Inertia React + Mantine feature with session auth, documented Inertia/Tuyau patterns, and strict web/API separation."

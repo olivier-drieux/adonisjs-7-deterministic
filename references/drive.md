@@ -21,7 +21,7 @@
 
 - Use `getUrl` for public files.
 - Use `getSignedUrl` for private files.
-- In Edge, use `driveUrl` and `driveSignedUrl` helpers.
+- Resolve file URLs in server code or transformed props instead of hardcoding provider URLs in React components.
 
 ## Local Disk Rule
 

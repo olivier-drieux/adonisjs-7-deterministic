@@ -27,7 +27,8 @@ For every non-trivial HTTP feature, cover:
 - Inertia form submissions assert redirects and session or flash behavior.
 - When a login flow exposes remember-me, cover both cases: without remember-me and with remember-me.
 - When a page relies on shared props, treat `auth`, `flash`, `errors`, and `app { name, env }` as the only expected global props.
-- JSON API endpoints assert payload shape, pagination shape, and guard behavior.
+- JSON API endpoints assert payload shape, pagination shape, canonical status codes, and guard behavior.
+- For non-trivial list endpoints, cover query validation for `page`, `perPage`, `q`, `sort`, and `direction`.
 
 ## Unit Test Rules
 
@@ -35,6 +36,7 @@ For every non-trivial HTTP feature, cover:
 - Use `container.swap(...)` and restore methods for injected dependency fakes when needed.
 - Add browser tests only for high-value end-to-end Inertia flows. Keep most behavior in functional and unit suites.
 - If auth config is customized, unit test that `web` stays the default guard and remember-me support remains enabled with `30 days`.
+- If exception mapping is customized, unit test that API domain errors keep the flat `{ code, message }` shape and web domain errors redirect back with `flash.error`.
 - If Zustand stores contain non-trivial UI logic, unit test the store directly.
 - If client-side fetching is introduced with TanStack Query, test the query wrapper or adapter module, not raw HTTP calls inside components.
 - If TanStack Query is enabled, unit test the `inertia/client.ts` query defaults: `retry: 1`, `refetchOnWindowFocus: false`, and `staleTime: 30_000`.

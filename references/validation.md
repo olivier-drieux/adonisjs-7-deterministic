@@ -14,7 +14,7 @@
 
 - Prefer small explicit schemas over abstract inheritance.
 - Validate body, query, params, and files in the same action validator when the action depends on them.
-- Export validators with action-first names like `createPostValidator`, `updatePostValidator`, `loginValidator`, `uploadAvatarValidator`.
+- Export validators with action-first names like `createPostValidator`, `updatePostValidator`, `listPostsValidator`, `loginValidator`, `uploadAvatarValidator`.
 
 ## Canonical CRUD Validator
 

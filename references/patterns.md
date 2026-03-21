@@ -85,6 +85,10 @@ export default function PostsIndex({ posts }: Props) {
 }
 ```
 
+- Keep the authenticated shell in `inertia/layouts/app_layout.tsx`.
+- Keep guest pages like login in `inertia/layouts/guest_layout.tsx`.
+- Mount flash notifications once in the app shell, not in individual pages.
+
 ## Web Login and Session Flow
 
 ```ts
@@ -183,6 +187,69 @@ export default class PostsController {
 - Validate first.
 - Never read raw request data after validation when a validated payload already exists.
 - For normal page flows, return a redirect, not ad hoc JSON.
+
+## Canonical Service Contract
+
+```ts
+import Post from '#models/post'
+
+type ListPostsFilters = {
+  page?: number
+  perPage?: number
+  q?: string
+  sort?: 'created_at' | 'title'
+  direction?: 'asc' | 'desc'
+}
+
+type CreatePostPayload = {
+  title: string
+  body: string
+}
+
+type UpdatePostPayload = Partial<CreatePostPayload>
+
+export default class PostService {
+  async list(filters?: ListPostsFilters) {
+    const query = Post.query()
+
+    if (filters?.q) query.whereILike('title', `%${filters.q}%`)
+
+    const sort = filters?.sort === 'title' ? 'title' : 'created_at'
+    const direction = filters?.direction === 'asc' ? 'asc' : 'desc'
+
+    query.orderBy(sort, direction)
+
+    if (filters?.page || filters?.perPage) {
+      return query.paginate(filters.page ?? 1, filters.perPage ?? 20)
+    }
+
+    return query.exec()
+  }
+
+  async findOrFail(postId: number) {
+    return Post.findOrFail(postId)
+  }
+
+  async create(payload: CreatePostPayload) {
+    return Post.create(payload)
+  }
+
+  async update(postId: number, payload: UpdatePostPayload) {
+    const post = await this.findOrFail(postId)
+    post.merge(payload)
+    await post.save()
+    return post
+  }
+
+  async delete(post: Post) {
+    await post.delete()
+  }
+}
+```
+
+- Default method names to `list`, `findOrFail`, `create`, `update`, and `delete`.
+- Accept primitive ids by default.
+- Return models or domain results, not HTTP-shaped payloads.
 
 ## Inertia Shared Props
 
@@ -366,16 +433,29 @@ router
 ```
 
 ```ts
+import { inject } from '@adonisjs/core'
+import type { HttpContext } from '@adonisjs/core/http'
+import { listPostsValidator } from '#validators/post'
+import PostService from '#services/post_service'
+import PostTransformer from '#transformers/post_transformer'
+
+@inject()
 export default class ApiPostSearchController {
+  constructor(private posts: PostService) {}
+
   async index({ request, serialize }: HttpContext) {
-    const posts = await this.posts.search(request.input('q'))
-    return serialize(PostTransformer.transform(posts))
+    const query = await request.validateUsing(listPostsValidator)
+    const posts = await this.posts.list(query)
+    return serialize(PostTransformer.paginate(posts.all(), posts.getMeta()))
   }
 }
 ```
 
 - Use this pattern only when a page truly needs an API-style interaction.
 - Keep the controller separate from the Inertia page controller.
+- Keep list query parsing in a dedicated validator when the endpoint is not trivial.
+- If the query validator accepts `page` and `perPage`, return a paginator-shaped payload instead of a full list.
+- Return serialized transformer output via `serialize(...)`. Do not add a custom global `data` envelope on top of Adonis resource or paginator shapes.
 
 ## Client-side Fetch Exception
 
@@ -444,6 +524,9 @@ await this.posts.delete(post)
 return response.redirect().toRoute('posts.index')
 ```
 
+- Prefer `denies(...)` in controllers for the canonical positive flow.
+- Keep the default authorization failure as `403`.
+
 ## Email Sending Workflow
 
 ```ts
@@ -458,7 +541,7 @@ Default flow:
 1. Validate.
 2. Persist.
 3. Emit event or queue mail.
-4. Redirect or return transformed data.
+4. Redirect or return serialized transformer output.
 
 ## API-only CRUD
 
@@ -473,18 +556,30 @@ router
 ```
 
 ```ts
+import { inject } from '@adonisjs/core'
+import type { HttpContext } from '@adonisjs/core/http'
+import { createPostValidator } from '#validators/post'
+import PostPolicy from '#policies/post_policy'
+import PostService from '#services/post_service'
+import PostTransformer from '#transformers/post_transformer'
+
+@inject()
 export default class ApiPostsController {
+  constructor(private posts: PostService) {}
+
   async store({ request, bouncer, response, serialize }: HttpContext) {
     if (await bouncer.with(PostPolicy).denies('create')) return response.forbidden()
     const payload = await request.validateUsing(createPostValidator)
     const post = await this.posts.create(payload)
-    return response.created(serialize(PostTransformer.transform(post)))
+    response.status(201)
+    return serialize(PostTransformer.transform(post))
   }
 }
 ```
 
 - Use access tokens by default for external API-only applications.
-- For paginated endpoints, use the official paginator serialization shape.
+- Return serialized transformer output via `serialize(...)`.
+- Use `201` for create, `200` for update, `204` for delete, `403` for authorization failures, `404` for missing records, and `409` for conflicts.
 
 ## Access Token Provider Config
 
@@ -549,6 +644,7 @@ export default class SyncInvoices extends BaseCommand {
 
 - Commands orchestrate.
 - Services do the real work.
+- Recurring commands MUST be idempotent.
 - Do not move batch logic into controllers.
 
 ## Advanced Tables
@@ -570,15 +666,15 @@ const table = useReactTable({
 
 ```ts
 export default class ApiTokensController {
-  async store({ request, auth }: HttpContext) {
+  async store({ request, auth, response }: HttpContext) {
     const { email, password } = await request.validateUsing(issueApiTokenValidator)
     const user = await User.verifyCredentials(email, password)
 
     const token = await auth.use('api').createToken(user, ['*'])
 
-    return {
+    return response.created({
       token: token.value!.release(),
-    }
+    })
   }
 }
 ```

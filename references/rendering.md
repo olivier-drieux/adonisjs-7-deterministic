@@ -16,8 +16,10 @@
 - Controllers return `inertia.render(...)`.
 - ALWAYS pass transformed data, not raw models, `DateTime`, or complex objects.
 - Prefer `InferPageProps` from `@adonisjs/inertia/types` over duplicated ad hoc page prop interfaces when a page maps directly to a controller action.
-- Pages live in `inertia/pages/**/*`.
+- Pages live in route-like lowercase paths under `inertia/pages/**/*`.
+- Export page components in PascalCase.
 - Reusable UI lives in `inertia/components/**/*`.
+- Shared layouts live in `inertia/layouts/**/*`.
 - UI-only Zustand stores live in `inertia/stores/**/*`.
 - If explicit client-side fetching is justified, the typed API client entrypoint lives in `inertia/client.ts`.
 - Client boot lives in `inertia/app.tsx`.
@@ -35,6 +37,8 @@
 - Use `@mantine/notifications` for flash toasts and ephemeral success or info messages.
 - Use `@mantine/dates` only when the UI actually needs a date widget, and pair it with `dayjs`.
 - In `inertia/app.tsx`, use one fixed provider order: `MantineProvider`, `Notifications`, then `QueryClientProvider` only when TanStack Query is enabled.
+- Use one authenticated app layout and one guest layout by default.
+- Mount flash notification plumbing once in the app shell or root authenticated layout, not per page.
 - Keep Mantine CSS imports in this order: core, notifications, then dates only when dates are used.
 - Standard web mutations redirect to a named route and use flash or session feedback.
 - Components render props and submit requests. They do not own business rules.

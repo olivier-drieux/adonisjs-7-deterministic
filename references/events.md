@@ -5,6 +5,7 @@
 - Use the emitter for secondary side effects, not core invariants.
 - Create `start/events.ts` with `node ace make:preload events` if it is missing.
 - Prefer class-based events plus listener classes for application code.
+- Keep the primary write flow in the service. Move only secondary effects like mail, analytics, notifications, or external sync into listeners.
 
 ## Generators
 

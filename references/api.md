@@ -18,6 +18,7 @@
 - API controllers return JSON only.
 - Standard order: validate, authorize, service, transform, return.
 - Prefer explicit `bouncer.with(...).denies(...)` checks in controller code.
+- When returning transformer output, use `serialize(PostTransformer.transform(...))` or `serialize(PostTransformer.paginate(...))`.
 - No redirects, flash, or Inertia rendering in API controllers.
 
 ## Response Shapes
@@ -25,6 +26,7 @@
 - Single resource: transformed object.
 - Non-paginated list: transformed array.
 - Paginated list: use the official paginator serialization shape.
+- These shapes come from Adonis serializer output, not a custom response envelope.
 - Do not invent a universal `data/meta` envelope for every endpoint unless the target repo already requires it.
 - Domain errors use a flat `{ code, message }` shape.
 

@@ -5,6 +5,7 @@
 - Use VineJS only.
 - Generate validators by resource with `node ace make:validator <resource>`.
 - For CRUD, prefer `node ace make:validator <resource> --resource`.
+- For `node ace make:validator post --resource`, keep the generated `app/validators/post.ts` file and import validators from `#validators/post`.
 - Keep one validator file per resource or workflow and one compiled validator per action.
 - Prefer `vine.compile(vine.object(...))`.
 - In controller code, use `await request.validateUsing(...)`.
@@ -35,6 +36,25 @@ export const updatePostValidator = vine.compile(
   })
 )
 ```
+
+## Canonical List Query Validator
+
+```ts
+import vine from '@vinejs/vine'
+
+export const listPostsValidator = vine.compile(
+  vine.object({
+    page: vine.number().withoutDecimals().positive().optional(),
+    perPage: vine.number().withoutDecimals().range([1, 100]).optional(),
+    q: vine.string().trim().optional(),
+    sort: vine.enum(['created_at', 'title'] as const).optional(),
+    direction: vine.enum(['asc', 'desc'] as const).optional(),
+  })
+)
+```
+
+- Keep list query validation in the same resource validator file when the endpoint belongs to that resource.
+- Validate `page`, `perPage`, `q`, `sort`, `direction`, and business filters here instead of parsing them ad hoc in the controller.
 
 ## Canonical File Validator
 

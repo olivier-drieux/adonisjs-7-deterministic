@@ -23,6 +23,8 @@ router
 ```ts
 // app/controllers/posts_controller.ts
 import { inject } from '@adonisjs/core'
+import type { HttpContext } from '@adonisjs/core/http'
+import { createPostValidator } from '#validators/post'
 import PostPolicy from '#policies/post_policy'
 import PostService from '#services/post_service'
 import PostTransformer from '#transformers/post_transformer'
@@ -249,6 +251,8 @@ export default class PostService {
 
 - Default method names to `list`, `findOrFail`, `create`, `update`, and `delete`.
 - Accept primitive ids by default.
+- Materialize unpaginated list queries with `exec()` before returning them.
+- Return a paginator for paginated lists and loaded model instances for unpaginated lists.
 - Return models or domain results, not HTTP-shaped payloads.
 
 ## Inertia Shared Props

@@ -133,7 +133,7 @@ Follow this order unless a step is irrelevant.
 - Session cookie security: default to `httpOnly: true`, `sameSite: 'lax'`, `secure: app.inProduction`, and `path: '/'`.
 - Remember me: allowed only when the product exposes it explicitly, and keep `rememberMeTokensAge: '30 days'`.
 - Access tokens: require explicit expiration and default to `expiresIn: '30 days'`.
-- API success payloads: return the transformed payload directly, with no global `data` envelope.
+- API success payloads: use `serialize(...)` with transformers, with no custom global `data` envelope on top of Adonis resource or paginator shapes.
 - API domain errors: return flat `{ code, message }`.
 - API status codes: `201` create, `200` update, `204` delete, `403` forbidden, `404` not found, `409` conflict.
 - API list query params: `page`, `perPage`, `q`, `sort`, `direction`.

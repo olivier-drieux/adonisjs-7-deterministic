@@ -19,6 +19,7 @@ This skill is intentionally opinionated. It is designed for teams or individuals
 - [Install For VS Code](#install-for-vs-code)
   - [VS Code + Codex IDE extension](#1-vs-code--codex-ide-extension)
   - [VS Code chat agents and instructions](#2-vs-code-chat-agents-and-instructions)
+- [Validate Snippets](#validate-snippets)
 - [Practical Recommendation](#practical-recommendation)
 
 ## What This Skill Enforces
@@ -47,6 +48,30 @@ The authoritative runtime doctrine lives in:
 - [references/](./references/)
 
 If this README and `SKILL.md` ever disagree, follow `SKILL.md`.
+
+## Validate Snippets
+
+This repository includes a lightweight validation script for the canonical TypeScript snippets:
+
+```bash
+node scripts/validate_snippets.mjs
+```
+
+It checks the recurring documentation regressions that matter most for this skill:
+
+- missing imports for `request.validateUsing(...)` validators in standalone snippets
+- deprecated validator module paths like `#validators/*_validator`
+- API transformer responses that bypass `serialize(...)`
+- raw `return query` service snippets that leak a Lucid query builder
+- `response.created(serialize(...))` style response nesting
+
+If a snippet is intentionally partial and not meant to be copied as-is, mark its first code line with:
+
+```ts
+// excerpt
+```
+
+The validator skips those excerpt blocks and only enforces strict rules on snippets that claim to be standalone.
 
 ## Install For Codex
 

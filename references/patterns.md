@@ -109,6 +109,11 @@ router
 ```
 
 ```ts
+// app/controllers/session_controller.ts
+import type { HttpContext } from '@adonisjs/core/http'
+import User from '#models/user'
+import { loginValidator } from '#validators/auth'
+
 export default class SessionController {
   async create({ inertia }: HttpContext) {
     return inertia.render('auth/login')
@@ -176,6 +181,7 @@ export default defineConfig({
 ## Form Handling with VineJS
 
 ```ts
+// excerpt
 export default class PostsController {
   async update({ request, params, response, session }: HttpContext) {
     const payload = await request.validateUsing(updatePostValidator)
@@ -669,6 +675,11 @@ const table = useReactTable({
 ## External Access Token Flow
 
 ```ts
+// app/controllers/api_tokens_controller.ts
+import type { HttpContext } from '@adonisjs/core/http'
+import User from '#models/user'
+import { issueApiTokenValidator } from '#validators/auth'
+
 export default class ApiTokensController {
   async store({ request, auth, response }: HttpContext) {
     const { email, password } = await request.validateUsing(issueApiTokenValidator)
@@ -690,6 +701,7 @@ export default class ApiTokensController {
 ## Upload or Persistent Storage via Drive
 
 ```ts
+// excerpt
 const { avatar } = await request.validateUsing(updateAvatarValidator)
 const key = `avatars/${user.id}/${cuid()}.${avatar.extname}`
 await avatar.moveToDisk(key)
@@ -714,6 +726,7 @@ export default class PostTransformer extends BaseTransformer<Post> {
 ```
 
 ```ts
+// excerpt
 // API
 return serialize(PostTransformer.transform(posts))
 

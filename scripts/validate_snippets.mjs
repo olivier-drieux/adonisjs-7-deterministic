@@ -17,6 +17,80 @@ const DOC_FILES = [
 
 const FENCE_RE = /^```(ts|tsx)\s*$/
 const PARTIAL_MARKERS = new Set(['// excerpt', '// partial snippet', '// partial example'])
+const FORBIDDEN_SNIPPET_PATTERNS = [
+  {
+    pattern: /\brequest\.(all|only)\(/,
+    message: 'uses `request.all()` or `request.only()`; validate with VineJS instead',
+  },
+  {
+    pattern: /from\s+['"]@mantine\/form['"]/,
+    message: 'uses `@mantine/form`; standard forms should use `@adonisjs/inertia/react` `Form` plus VineJS',
+  },
+  {
+    pattern: /from\s+['"]react-hook-form['"]/,
+    message: 'uses `react-hook-form`; standard forms should use `@adonisjs/inertia/react` `Form` plus VineJS',
+  },
+  {
+    pattern: /from\s+['"]formik['"]/,
+    message: 'uses `formik`; standard forms should use `@adonisjs/inertia/react` `Form` plus VineJS',
+  },
+  {
+    pattern: /from\s+['"]zod['"]/,
+    message: 'uses `zod`; standard forms should use server-side VineJS validation',
+  },
+  {
+    pattern: /from\s+['"]yup['"]/,
+    message: 'uses `yup`; standard forms should use server-side VineJS validation',
+  },
+  {
+    pattern: /from\s+['"]valibot['"]/,
+    message: 'uses `valibot`; standard forms should use server-side VineJS validation',
+  },
+  {
+    pattern: /\bfetch\(/,
+    message: 'uses raw `fetch`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+  },
+  {
+    pattern: /\baxios\b/,
+    message: 'uses `axios`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+  },
+  {
+    pattern: /\bky\(/,
+    message: 'uses `ky`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+  },
+  {
+    pattern: /\bSWR\b/,
+    message: 'uses `SWR`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+  },
+  {
+    pattern: /from\s+['"]react-router-dom['"]/,
+    message: 'uses `react-router-dom`; Inertia owns navigation in this doctrine',
+  },
+  {
+    pattern: /\bnodemailer\b/,
+    message: 'uses `nodemailer`; use `@adonisjs/mail` instead',
+  },
+  {
+    pattern: /from\s+['"](node:fs|fs\/promises)['"]/,
+    message: 'uses raw persistent `fs`; use `@adonisjs/drive` for application file storage',
+  },
+  {
+    pattern: /\b(setInterval|setTimeout)\(/,
+    message: 'uses ad hoc timer logic; move recurring work into idempotent Ace commands or listeners',
+  },
+  {
+    pattern: /\b(class|interface|type)\s+\w*Repository\b|from\s+['"][^'"]*repositories?[^'"]*['"]/,
+    message: 'introduces a repository layer; use Lucid models and services directly for ordinary app code',
+  },
+  {
+    pattern: /response\.(ok|created|accepted)\(\s*\{\s*data\s*:/,
+    message: 'adds a global `data` envelope; return serialized transformer output directly',
+  },
+  {
+    pattern: /response\.(badRequest|unprocessableEntity|conflict|forbidden|notFound)\(\s*\{\s*error\s*:/,
+    message: 'adds a global `error` envelope; use flat `{ code, message }` API errors',
+  },
+]
 
 function extractBlocks(filePath) {
   const lines = fs.readFileSync(filePath, 'utf8').split('\n')
@@ -84,6 +158,18 @@ function relativeLabel(block) {
   return `${path.relative(ROOT, block.filePath)}:${block.startLine}`
 }
 
+function hasAnyTypeUsage(block) {
+  const patterns = [
+    /:\s*any\b/,
+    /\bas\s+any\b/,
+    /<\s*any\s*>/,
+    /\bArray<any>\b/,
+    /\bPromise<any>\b/,
+  ]
+
+  return patterns.some((pattern) => pattern.test(block.text))
+}
+
 function checkBlock(block) {
   const errors = []
 
@@ -97,6 +183,16 @@ function checkBlock(block) {
 
   if (block.text.includes('response.created(serialize(')) {
     errors.push('nests `serialize(...)` inside `response.created(...)`; set status first, then return `serialize(...)`')
+  }
+
+  if (hasAnyTypeUsage(block)) {
+    errors.push('uses `any`; canonical snippets must keep concrete types')
+  }
+
+  for (const { pattern, message } of FORBIDDEN_SNIPPET_PATTERNS) {
+    if (pattern.test(block.text)) {
+      errors.push(message)
+    }
   }
 
   if (!isPartial(block)) {

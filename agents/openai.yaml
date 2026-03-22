@@ -1,4 +1,18 @@
 interface:
-  display_name: "AdonisJS 7 Inertia React"
-  short_description: "Deterministic AdonisJS + Inertia React + Mantine"
-  default_prompt: "Use $adonisjs-7-deterministic to implement this AdonisJS + Inertia React + Mantine feature with session auth, documented Inertia/Tuyau patterns, and strict web/API separation."
+  display_name: "AdonisJS 7 Strict"
+  short_description: "Fail-closed deterministic AdonisJS + Inertia React doctrine"
+  default_prompt: >-
+    Use $adonisjs-7-deterministic in fail-closed mode. Follow
+    `select-profile`, `load-targeted-references`,
+    `list-applicable-hard-blockers`, `detect-conflicts`,
+    `ask-one-override-question`, and `run-final-compliance-check`. Enforce
+    `hb.official-packages`, `hb.validation-stack`,
+    `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`,
+    `hb.access-tokens-external`, `hb.web-ui-stack`,
+    `hb.web-api-controller-separation`, `hb.no-repository-layer`,
+    `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`,
+    `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`,
+    `hb.no-client-form-stack`, and `hb.no-custom-api-keys-default`. Ask
+    exactly one short override question when a hard blocker conflicts.
+    Final answers must include `selected-profile:`, `override-status:`,
+    and `hard-blocker-compliance:`.

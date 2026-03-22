@@ -1,0 +1,595 @@
+{
+  "version": 1,
+  "mode": "fail-closed",
+  "source_hierarchy": [
+    "Official AdonisJS v7 docs on docs.adonisjs.com and official package docs.",
+    "Existing repository conventions, but only when the wider correction is out of scope and mixing styles would be worse.",
+    "Personal preference only after the first two sources are exhausted."
+  ],
+  "protocol_steps": [
+    {
+      "id": "select-profile",
+      "instruction": "Choose exactly one profile: web, mixed, or api-only before designing the solution."
+    },
+    {
+      "id": "load-targeted-references",
+      "instruction": "Read only the references needed for the selected profile and the active feature slice."
+    },
+    {
+      "id": "list-applicable-hard-blockers",
+      "instruction": "Apply every hard blocker from this manifest that matches the selected profile and task context."
+    },
+    {
+      "id": "detect-conflicts",
+      "instruction": "Compare the request, repo conventions, and the applicable blockers against the source hierarchy before proceeding."
+    },
+    {
+      "id": "ask-one-override-question",
+      "instruction": "If a hard blocker conflicts with the request, stop, cite the blocking rule id, ask exactly one short override question, and wait."
+    },
+    {
+      "id": "run-final-compliance-check",
+      "instruction": "Before finalizing, confirm the selected profile, override status, and hard-blocker compliance markers."
+    }
+  ],
+  "output_contract": [
+    {
+      "id": "selected-profile",
+      "marker": "selected-profile:",
+      "instruction": "Report selected-profile: <web|mixed|api-only> in the final answer."
+    },
+    {
+      "id": "override-status",
+      "marker": "override-status:",
+      "instruction": "Report override-status: none|requested|approved in the final answer."
+    },
+    {
+      "id": "hard-blocker-compliance",
+      "marker": "hard-blocker-compliance:",
+      "instruction": "Report hard-blocker-compliance: pass|override in the final answer."
+    }
+  ],
+  "profiles": [
+    {
+      "id": "web",
+      "statement": "Inertia React only for pages, session or cookie auth for browser flows, and no JSON-first page architecture."
+    },
+    {
+      "id": "mixed",
+      "statement": "Inertia React for pages plus a separate /api route group and separate API controllers; browser clients inside the same app stay on session auth even when they call /api."
+    },
+    {
+      "id": "api-only",
+      "statement": "No inertia pages; use router.resource(...).apiOnly() for pure CRUD and explicit routes for everything else."
+    }
+  ],
+  "sync_contract": {
+    "required_headings": [
+      "## Purpose",
+      "## Execution Protocol",
+      "## Profile Selection",
+      "## Hard Blockers",
+      "## Enforced Defaults",
+      "## Override Handling",
+      "## Reference Map"
+    ],
+    "required_prompt_terms": [
+      "fail-closed",
+      "select-profile",
+      "load-targeted-references",
+      "list-applicable-hard-blockers",
+      "detect-conflicts",
+      "ask-one-override-question",
+      "run-final-compliance-check",
+      "exactly one short override question"
+    ],
+    "required_wrapper_terms": [
+      "fail-closed",
+      "select-profile",
+      "load-targeted-references",
+      "list-applicable-hard-blockers",
+      "detect-conflicts",
+      "ask-one-override-question",
+      "run-final-compliance-check",
+      "exactly one short override question"
+    ],
+    "output_markers": [
+      "selected-profile:",
+      "override-status:",
+      "hard-blocker-compliance:"
+    ],
+    "core_blocker_ids": [
+      "hb.official-packages",
+      "hb.validation-stack",
+      "hb.auth-browser-stack",
+      "hb.guard-names",
+      "hb.browser-csrf",
+      "hb.access-tokens-external",
+      "hb.web-ui-stack",
+      "hb.web-api-controller-separation",
+      "hb.no-repository-layer",
+      "hb.no-edge-feature-rendering",
+      "hb.no-request-all-only",
+      "hb.no-any",
+      "hb.no-raw-io-and-timers",
+      "hb.no-client-fetch-stack",
+      "hb.no-client-form-stack",
+      "hb.no-custom-api-keys-default"
+    ]
+  },
+  "rules": [
+    {
+      "id": "hb.official-packages",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Use official AdonisJS packages, official setup flows, and node ace add/configure/generator commands first whenever the framework already covers the need. Do not replace official packages with third-party alternatives by default.",
+      "required_patterns": ["official packages first", "node ace add", "node ace configure", "node ace make:*"],
+      "forbidden_patterns": ["third-party replacement when an official package exists"],
+      "conflict_behavior": "Stop, cite `hb.official-packages`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_unofficial_package"]
+    },
+    {
+      "id": "hb.data-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Use Lucid for SQL persistence and Luxon DateTime for model and domain dates.",
+      "required_patterns": ["Lucid", "DateTime"],
+      "forbidden_patterns": ["Prisma", "Drizzle", "plain Date for persisted domain dates"],
+      "conflict_behavior": "Stop, cite `hb.data-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_unofficial_package"]
+    },
+    {
+      "id": "hb.validation-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "HTTP validation uses VineJS and request.validateUsing(...). Inline controller validation and ad hoc payload parsing are not allowed.",
+      "required_patterns": ["VineJS", "request.validateUsing(...)"],
+      "forbidden_patterns": ["inline controller validation", "ad hoc payload parsing"],
+      "conflict_behavior": "Stop, cite `hb.validation-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_request_only"]
+    },
+    {
+      "id": "hb.auth-browser-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["web", "mixed", "browser-flows"],
+      "statement": "Use @adonisjs/auth for authentication, and keep browser-driven flows on session or cookie auth instead of bearer-token-first browser flows.",
+      "required_patterns": ["@adonisjs/auth", "session auth", "cookie auth"],
+      "forbidden_patterns": ["browser bearer-token auth as the default path"],
+      "conflict_behavior": "Stop, cite `hb.auth-browser-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api", "violation_browser_bearer_auth"]
+    },
+    {
+      "id": "hb.guard-names",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Keep auth guard names fixed to web for browser sessions and api for external access tokens.",
+      "required_patterns": ["web guard", "api guard"],
+      "forbidden_patterns": ["renamed guards for the standard browser/API split"],
+      "conflict_behavior": "Stop, cite `hb.guard-names`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "ok_api_only_resource", "violation_guard_rename"]
+    },
+    {
+      "id": "hb.browser-csrf",
+      "tier": "hard_blocker",
+      "applies_to": ["web", "mixed", "browser-flows"],
+      "statement": "Browser-facing Inertia applications keep Shield CSRF enabled with enableXsrfCookie: true.",
+      "required_patterns": ["enableXsrfCookie: true"],
+      "forbidden_patterns": ["disable browser CSRF for Inertia applications"],
+      "conflict_behavior": "Stop, cite `hb.browser-csrf`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_disable_csrf"]
+    },
+    {
+      "id": "hb.access-tokens-external",
+      "tier": "hard_blocker",
+      "applies_to": ["api-only", "mixed", "external-api"],
+      "statement": "External clients, mobile apps, scripts, and machine-to-machine integrations use official access tokens with explicit expiration when token auth is required.",
+      "required_patterns": ["official access tokens", "explicit expiration"],
+      "forbidden_patterns": ["custom token scheme for external clients"],
+      "conflict_behavior": "Stop, cite `hb.access-tokens-external`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_api_only_resource", "violation_custom_api_key"]
+    },
+    {
+      "id": "hb.web-ui-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "All web UI uses Inertia React and Mantine. Inertia owns navigation, so do not layer a second client router such as react-router-dom on top.",
+      "required_patterns": ["Inertia React", "Mantine"],
+      "forbidden_patterns": ["Vue or Edge feature rendering for web UI", "react-router-dom"],
+      "conflict_behavior": "Stop, cite `hb.web-ui-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_web_without_inertia"]
+    },
+    {
+      "id": "hb.official-side-effect-packages",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Use @adonisjs/bouncer for authorization, @adonisjs/mail for email, and @adonisjs/drive for persistent file storage and uploads when those concerns apply.",
+      "required_patterns": ["@adonisjs/bouncer", "@adonisjs/mail", "@adonisjs/drive"],
+      "forbidden_patterns": ["CASL as the default authorization path", "raw mail or storage libraries when official packages cover the need"],
+      "conflict_behavior": "Stop, cite `hb.official-side-effect-packages`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_unofficial_package"]
+    },
+    {
+      "id": "hb.web-api-controller-separation",
+      "tier": "hard_blocker",
+      "applies_to": ["mixed"],
+      "statement": "Never mix Inertia page actions and JSON API actions in the same controller. Mixed applications keep web controllers and API controllers separate.",
+      "required_patterns": ["separate web controllers", "separate API controllers"],
+      "forbidden_patterns": ["single controller handling both Inertia pages and JSON endpoints"],
+      "conflict_behavior": "Stop, cite `hb.web-api-controller-separation`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_mixed_browser_api", "violation_mixed_controller"]
+    },
+    {
+      "id": "hb.no-express-fastify-composition",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Do not compose an AdonisJS application like Express or Fastify. Use framework-native routes, middleware, services, policies, and container primitives instead.",
+      "required_patterns": ["framework-native composition"],
+      "forbidden_patterns": ["Express-style middleware pipeline", "Fastify-style composition inside AdonisJS"],
+      "conflict_behavior": "Stop, cite `hb.no-express-fastify-composition`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_express_style"]
+    },
+    {
+      "id": "hb.no-repository-layer",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Do not add repository layers on top of Lucid for ordinary application code.",
+      "required_patterns": ["direct model and service usage"],
+      "forbidden_patterns": ["repository wrapper over Lucid for normal feature work"],
+      "conflict_behavior": "Stop, cite `hb.no-repository-layer`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_repository_layer"]
+    },
+    {
+      "id": "hb.no-edge-feature-rendering",
+      "tier": "hard_blocker",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Do not use Edge as a feature rendering layer. The only allowed Edge file in this doctrine is the minimal resources/views/inertia_layout.edge boot layout.",
+      "required_patterns": ["minimal inertia_layout.edge only"],
+      "forbidden_patterns": ["feature rendering in Edge templates"],
+      "conflict_behavior": "Stop, cite `hb.no-edge-feature-rendering`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_edge_rendering"]
+    },
+    {
+      "id": "hb.no-request-all-only",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Do not use request.all() or request.only() as substitutes for real validation.",
+      "required_patterns": ["validated payloads"],
+      "forbidden_patterns": ["request.all()", "request.only()"],
+      "conflict_behavior": "Stop, cite `hb.no-request-all-only`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_request_only"]
+    },
+    {
+      "id": "hb.no-any",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Do not introduce any in product code, snippets, or canonical patterns.",
+      "required_patterns": ["concrete types"],
+      "forbidden_patterns": ["any"],
+      "conflict_behavior": "Stop, cite `hb.no-any`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_any"]
+    },
+    {
+      "id": "hb.no-raw-io-and-timers",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Do not use raw nodemailer, raw persistent fs calls, or ad hoc timer logic inside the HTTP runtime.",
+      "required_patterns": ["official Mail and Drive", "Ace commands or events for recurring work"],
+      "forbidden_patterns": ["nodemailer", "persistent fs writes in app code", "setInterval in HTTP boot"],
+      "conflict_behavior": "Stop, cite `hb.no-raw-io-and-timers`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_raw_io"]
+    },
+    {
+      "id": "hb.no-client-fetch-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Do not use raw fetch, axios, ky, or SWR as the default client-side data stack for standard Inertia application work.",
+      "required_patterns": ["Inertia props and redirects first", "Tuyau only when explicit client fetching is justified"],
+      "forbidden_patterns": ["fetch(", "axios", "ky", "SWR"],
+      "conflict_behavior": "Stop, cite `hb.no-client-fetch-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_client_fetch_stack"]
+    },
+    {
+      "id": "hb.no-client-form-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Do not use @mantine/form, react-hook-form, formik, zod, yup, or valibot as the default form stack for standard Inertia forms.",
+      "required_patterns": ["@adonisjs/inertia/react Form", "server-side VineJS validation"],
+      "forbidden_patterns": ["@mantine/form", "react-hook-form", "formik", "zod", "yup", "valibot"],
+      "conflict_behavior": "Stop, cite `hb.no-client-form-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_client_form_stack"]
+    },
+    {
+      "id": "hb.no-custom-api-keys-default",
+      "tier": "hard_blocker",
+      "applies_to": ["mixed", "api-only", "external-api"],
+      "statement": "Do not default to custom API-key auth when official access tokens cover the requirement.",
+      "required_patterns": ["official access tokens first"],
+      "forbidden_patterns": ["custom API key auth as the default path"],
+      "conflict_behavior": "Stop, cite `hb.no-custom-api-keys-default`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_api_only_resource", "violation_custom_api_key"]
+    },
+    {
+      "id": "ed.source-hierarchy",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Resolve design choices with this order: official docs and packages first, then repository conventions when the broader correction is out of scope, then personal preference. Never invent local conventions without reading the repo.",
+      "required_patterns": ["official docs first", "repo conventions before personal preference"],
+      "forbidden_patterns": ["invented local conventions"],
+      "conflict_behavior": "Apply this default hierarchy unless a hard blocker forces an explicit stop.",
+      "override_allowed": false,
+      "test_ids": ["ok_repo_conflict_out_of_scope", "ok_web_standard"]
+    },
+    {
+      "id": "ed.application-profiles",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Select one canonical profile before implementation. Web means Inertia-only pages. Mixed means separate web and /api surfaces. API-only means no inertia pages. Browser clients inside the same app stay on session auth even when they call /api.",
+      "required_patterns": ["web", "mixed", "api-only"],
+      "forbidden_patterns": ["profile switching mid-task"],
+      "conflict_behavior": "Apply the selected profile before choosing architecture details.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api", "ok_api_only_resource"]
+    },
+    {
+      "id": "ed.feature-order",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Follow the canonical build order unless a step is irrelevant: official package coverage, env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, then UI.",
+      "required_patterns": ["env/config before feature code", "tests before UI is finalized"],
+      "forbidden_patterns": ["UI-first feature implementation without backend contract"],
+      "conflict_behavior": "Apply the canonical order as the default feature sequence.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.routing-and-kernel",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Use framework-native routing and kernel structure: router from @adonisjs/core/services/router, named routes, route helpers, separate web and /api groups, resource routes only for standard CRUD, and named middleware registered in start/kernel.ts.",
+      "required_patterns": ["named routes", "separate route groups", "named middleware"],
+      "forbidden_patterns": ["hardcoded route strings when helpers exist", "inline auth logic in route handlers"],
+      "conflict_behavior": "Apply routing and middleware defaults unless repo-local conventions already match a compatible alternative.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api"]
+    },
+    {
+      "id": "ed.inertia-shared-props",
+      "tier": "enforced_default",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Shared Inertia props live in app/middleware/inertia_middleware.ts and stay minimal: auth, flash, errors, and app { name, env } only.",
+      "required_patterns": ["auth", "flash", "errors", "app { name, env }"],
+      "forbidden_patterns": ["lists, counters, filters, or page data in shared props"],
+      "conflict_behavior": "Apply the minimal shared-props contract by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.service-layer",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Business logic lives in app/services with canonical verbs like list, findOrFail, create, update, and delete. Services take primitive ids unless a preloaded model is required for policy checks and return domain objects instead of HTTP payloads.",
+      "required_patterns": ["service layer", "domain results"],
+      "forbidden_patterns": ["HTTP response shaping inside services"],
+      "conflict_behavior": "Apply service-layer defaults when business logic or orchestration is required.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api"]
+    },
+    {
+      "id": "ed.validator-layer",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Use one validator file per resource or workflow and one compiled validator per action. Prefer small duplication over clever validator inheritance.",
+      "required_patterns": ["one compiled validator per action"],
+      "forbidden_patterns": ["validator inheritance as the default pattern"],
+      "conflict_behavior": "Apply explicit action validators by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.model-and-policy-layer",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Keep relations, scopes, hooks, and date semantics in models. Use one policy per protected resource, prefer explicit denies(...) checks in controllers, and default authorization failures to 403 instead of 404.",
+      "required_patterns": ["policy per protected resource", "403 authorization failures"],
+      "forbidden_patterns": ["hiding authorization inside route closures"],
+      "conflict_behavior": "Apply explicit model and policy boundaries by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api"]
+    },
+    {
+      "id": "ed.mail-events-transformers-exceptions",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Use dedicated mail classes, class-based events and listeners for secondary side effects, one transformer per resource, and named exceptions in app/exceptions with flat API { code, message } mapping and web redirect+flash handling.",
+      "required_patterns": ["dedicated mail class", "listener for secondary side effects", "transformer per resource", "named exception"],
+      "forbidden_patterns": ["mail.send closures in product controllers", "raw models returned to HTTP"],
+      "conflict_behavior": "Apply the mail, event, transformer, and exception defaults whenever those concerns appear.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+    },
+    {
+      "id": "ed.config-and-env",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Runtime configuration lives in config/* and every new env variable must be declared in start/env.ts with type, required/optional state, defaults, and allowed values before feature code uses it.",
+      "required_patterns": ["config/*", "start/env.ts"],
+      "forbidden_patterns": ["process.env access in controllers or services"],
+      "conflict_behavior": "Apply config/env defaults before feature code reads new settings.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.auth-session-and-shield-config",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Keep config/auth.ts, config/session.ts, config/inertia.ts, and config/shield.ts aligned with the doctrine: web is the default guard, remember-me tokens are optional and stay at 30 days, sessions clear with the browser, cookies stay conservative, SSR is off by default, and browser Inertia apps keep the XSRF cookie enabled.",
+      "required_patterns": ["web as default guard", "rememberMeTokensAge: 30 days", "clearWithBrowser: true", "sameSite: lax", "SSR off", "enableXsrfCookie: true"],
+      "forbidden_patterns": ["session persistence stretched to simulate remember me"],
+      "conflict_behavior": "Apply auth, session, inertia, and shield config defaults unless the product explicitly overrides one of them.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+    },
+    {
+      "id": "ed.testing-layout",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Put request flows in tests/functional and isolated logic in tests/unit. Inertia form flows assert redirects and flash/session effects; API routes assert JSON payload shape, canonical status codes, and auth behavior.",
+      "required_patterns": ["tests/functional", "tests/unit"],
+      "forbidden_patterns": ["missing request-flow coverage for user-facing mutations"],
+      "conflict_behavior": "Apply the functional/unit split and the canonical assertions by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+    },
+    {
+      "id": "ed.inertia-filesystem-layout",
+      "tier": "enforced_default",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Use the canonical Inertia filesystem layout: inertia/pages, inertia/components, inertia/layouts, inertia/stores, inertia/theme.ts, inertia/app.tsx, optional inertia/ssr.tsx when SSR is enabled, and optional inertia/client.ts when explicit client fetching is justified. Export page components in PascalCase and keep business logic on the server.",
+      "required_patterns": ["inertia/pages", "inertia/components", "inertia/layouts", "inertia/theme.ts", "inertia/app.tsx"],
+      "forbidden_patterns": ["business logic moved into React components"],
+      "conflict_behavior": "Apply the canonical Inertia file layout by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.frontend-library-and-state-policy",
+      "tier": "enforced_default",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Default to Mantine core, Mantine notifications, Tabler icons, and @adonisjs/inertia/react Link and Form wrappers. Use @inertiajs/react only for boot-time primitives not provided by the Adonis wrapper. React local state, useReducer, and useRemember are the default state tools. Zustand is for shared UI-only state. @mantine/dates requires dayjs. Use Tuyau for explicit client fetching, TanStack Query only when truly needed, QueryClientProvider only when used, and TanStack Table only for advanced grids.",
+      "required_patterns": ["@mantine/core", "@mantine/notifications", "@tabler/icons-react", "@adonisjs/inertia/react Link", "@adonisjs/inertia/react Form", "Tuyau when explicit client fetching is needed"],
+      "forbidden_patterns": ["second component library by default", "QueryClientProvider mounted preemptively"],
+      "conflict_behavior": "Apply the canonical frontend library and state policy unless a repo-local standard already matches an allowed alternative.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "violation_client_fetch_stack", "violation_client_form_stack"]
+    },
+    {
+      "id": "ed.generators-and-naming",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Use node ace generators for controllers, validators, services, policies, mails, events, listeners, commands, transformers, and tests. Keep canonical naming for route names, policy abilities, services, validators, and command names.",
+      "required_patterns": ["node ace make:controller", "node ace make:validator", "node ace make:service", "verb-first command names"],
+      "forbidden_patterns": ["manual scaffolding when a generator exists"],
+      "conflict_behavior": "Apply generator-first naming defaults unless the repository already standardizes a compatible variant.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.api-contracts",
+      "tier": "enforced_default",
+      "applies_to": ["mixed", "api-only", "api"],
+      "statement": "Serialize API success payloads with transformers and no extra global data envelope. Use flat { code, message } domain errors and canonical statuses: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.",
+      "required_patterns": ["serialize(...)", "{ code, message }", "201/200/204/403/404/409"],
+      "forbidden_patterns": ["global data envelope", "global error envelope"],
+      "conflict_behavior": "Apply the canonical API payload defaults unless a surrounding contract already requires a compatible alternative.",
+      "override_allowed": false,
+      "test_ids": ["ok_api_only_resource", "ok_mixed_browser_api"]
+    },
+    {
+      "id": "ed.query-pagination",
+      "tier": "enforced_default",
+      "applies_to": ["mixed", "api-only", "api"],
+      "statement": "For non-trivial list endpoints, create a dedicated query validator and validate page, perPage, q, sort, direction, and business filters. Default perPage to 20 and cap it at 100.",
+      "required_patterns": ["page", "perPage", "q", "sort", "direction", "perPage default 20", "perPage max 100"],
+      "forbidden_patterns": ["query parsing in controllers without a validator"],
+      "conflict_behavior": "Apply the canonical query and pagination defaults by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_api_only_resource"]
+    },
+    {
+      "id": "ed.transactions-side-effects-and-commands",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Create a service for non-trivial writes and orchestration. Open managed transactions in services when two or more writes must succeed together. Keep external I/O outside the transaction when possible. Use listeners for secondary side effects. Use Ace commands for imports, exports, backfills, recurring jobs, cleanup, syncs, and operator tasks, and keep recurring commands idempotent.",
+      "required_patterns": ["service orchestration", "managed transaction", "idempotent commands"],
+      "forbidden_patterns": ["side effects buried in controllers", "external I/O inside long transactions by default"],
+      "conflict_behavior": "Apply service, transaction, side-effect, and command defaults when the use case coordinates more than one dependency.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+    },
+    {
+      "id": "ed.web-mutations-and-browser-api-auth",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Web mutations default to redirect plus flash/session feedback. JSON responses from web controllers are the exception. In mixed apps, browser-called /api endpoints stay on session auth unless an external client requirement exists. API-only apps serving external clients default to official access tokens.",
+      "required_patterns": ["redirect + flash", "session auth for browser-called /api", "official access tokens for external clients"],
+      "forbidden_patterns": ["JSON-first page flows by default"],
+      "conflict_behavior": "Apply the web mutation and browser/API auth defaults unless an explicit product requirement says otherwise.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api", "ok_api_only_resource"]
+    },
+    {
+      "id": "adv.controller-boundaries",
+      "tier": "advisory",
+      "applies_to": ["all"],
+      "statement": "Keep controllers thin and observable: no direct DB orchestration, Mail, Drive, transactions, or durable business logic in controllers beyond simple request coordination.",
+      "required_patterns": ["thin controller"],
+      "forbidden_patterns": ["heavy controller logic"],
+      "conflict_behavior": "Note this preference when controller boundaries drift, but do not stop unless a hard blocker is also violated.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "violation_mixed_controller"]
+    },
+    {
+      "id": "adv.prefer-adonis-primitives",
+      "tier": "advisory",
+      "applies_to": ["all"],
+      "statement": "Prefer AdonisJS services, middleware, URL builders, test helpers, fakes, and container features over generic Node.js patterns when both options are viable.",
+      "required_patterns": ["framework-native primitives"],
+      "forbidden_patterns": ["generic Node.js pattern chosen without need"],
+      "conflict_behavior": "Apply this preference when it materially improves consistency, but do not stop unless a hard blocker is also involved.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_repo_conflict_out_of_scope"]
+    },
+    {
+      "id": "adv.small-duplication",
+      "tier": "advisory",
+      "applies_to": ["all"],
+      "statement": "Prefer small, explicit duplication over clever abstractions in validators, controllers, and support code when the abstraction would obscure the doctrine.",
+      "required_patterns": ["small duplication"],
+      "forbidden_patterns": ["generic helpers.ts or utils.ts with no bounded purpose"],
+      "conflict_behavior": "Note this preference when abstractions become diffuse, but do not stop unless a harder rule is also involved.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "adv.service-when-unsure",
+      "tier": "advisory",
+      "applies_to": ["all"],
+      "statement": "If you are unsure whether logic belongs in a service, create the service. The doctrine prefers service extraction over controller expansion for ambiguous cases.",
+      "required_patterns": ["service extraction"],
+      "forbidden_patterns": ["controller growth from uncertainty"],
+      "conflict_behavior": "Apply this tie-breaker when structure is ambiguous.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api"]
+    },
+    {
+      "id": "adv.keep-doctrine-observable",
+      "tier": "advisory",
+      "applies_to": ["all"],
+      "statement": "Keep the doctrine observable: prefer rule ids, profile markers, and compliance markers in prompts, wrappers, and evaluations so drift can be tested quickly.",
+      "required_patterns": ["rule ids", "compliance markers"],
+      "forbidden_patterns": ["hidden doctrine drift"],
+      "conflict_behavior": "Apply this observability preference when maintaining the skill pack itself.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_repo_conflict_out_of_scope"]
+    }
+  ]
+}

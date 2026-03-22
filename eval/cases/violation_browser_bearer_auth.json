@@ -1,0 +1,16 @@
+{
+  "id": "violation_browser_bearer_auth",
+  "prompt": "Use $adonisjs-7-deterministic to build a normal browser-driven web feature, but make the browser login flow issue bearer tokens and stop using session or cookie auth.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.auth-browser-stack"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

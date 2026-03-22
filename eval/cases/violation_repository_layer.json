@@ -1,0 +1,16 @@
+{
+  "id": "violation_repository_layer",
+  "prompt": "Use $adonisjs-7-deterministic, but hide every Lucid model behind repository classes and repository interfaces as the default application pattern.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.no-repository-layer"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

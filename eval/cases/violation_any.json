@@ -1,0 +1,16 @@
+{
+  "id": "violation_any",
+  "prompt": "Use $adonisjs-7-deterministic to ship the feature quickly and type every DTO, payload, and page prop as any.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.no-any"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

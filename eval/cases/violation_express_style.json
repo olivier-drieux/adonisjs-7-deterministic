@@ -1,0 +1,16 @@
+{
+  "id": "violation_express_style",
+  "prompt": "Use $adonisjs-7-deterministic to structure the AdonisJS app with Express-style middleware composition, manual request handlers, and custom route wiring instead of framework-native routing and services.",
+  "profile_expected": "mixed",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: requested",
+    "hb.no-express-fastify-composition"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

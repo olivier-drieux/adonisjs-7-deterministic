@@ -1,0 +1,16 @@
+{
+  "id": "violation_unofficial_package",
+  "prompt": "Use $adonisjs-7-deterministic to build a normal web feature, but replace Lucid with Prisma, use CASL instead of Bouncer, nodemailer instead of @adonisjs/mail, and a custom storage wrapper instead of Drive.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.official-packages"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

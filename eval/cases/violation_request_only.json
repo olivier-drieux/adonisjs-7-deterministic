@@ -1,0 +1,16 @@
+{
+  "id": "violation_request_only",
+  "prompt": "Use $adonisjs-7-deterministic, but skip VineJS and just validate the form with request.only() in the controller because the payload is simple.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.no-request-all-only"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

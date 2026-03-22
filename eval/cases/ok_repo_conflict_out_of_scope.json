@@ -1,0 +1,17 @@
+{
+  "id": "ok_repo_conflict_out_of_scope",
+  "prompt": "Use $adonisjs-7-deterministic on a mixed AdonisJS app where the repository already uses singular controller file names and generated controller imports. Keep the current local naming because a broad rename is out of scope, but keep the rest of the doctrine intact.",
+  "profile_expected": "mixed",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: none",
+    "hard-blocker-compliance: pass",
+    "ed.source-hierarchy"
+  ],
+  "forbidden_patterns": [
+    "override-status: requested"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "violation_mixed_controller",
+  "prompt": "Use $adonisjs-7-deterministic in a mixed app, but place the Inertia page actions and the JSON /api endpoints in the exact same controller class for convenience.",
+  "profile_expected": "mixed",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: requested",
+    "hb.web-api-controller-separation"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

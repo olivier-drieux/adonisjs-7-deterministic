@@ -7,219 +7,97 @@ description: Use when implementing or reviewing private AdonisJS v7 applications
 
 ## Purpose
 
-Use this skill to force AdonisJS v7 code toward one stable, framework-native structure. Prefer the most official AdonisJS path with the fewest moving parts.
+Use this skill to keep private AdonisJS v7 work on one stable, framework-native path. Runtime doctrine is `fail-closed`.
 
-## Source Hierarchy
+`rules/manifest.yaml` is the canonical source of truth. This file is the short runtime protocol. Longer rationale stays in `references/*`.
 
-1. Official AdonisJS v7 docs on `docs.adonisjs.com`.
-2. Official AdonisJS packages and their official setup/docs.
-3. Existing conventions already present in the target repository.
-4. Personal preference.
+## Execution Protocol
 
-- NEVER invent local conventions. Read them from the repo.
-- If official docs and repo style conflict, prefer the repo only when changing it is out of scope and mixing styles would make the feature worse.
-- NEVER replace an official AdonisJS package with a third-party package when the official package covers the need.
+1. `select-profile`: Choose exactly one profile: `web`, `mixed`, or `api-only`.
+2. `load-targeted-references`: Read only the references needed for that profile and the current feature slice.
+3. `list-applicable-hard-blockers`: Apply every matching `hard_blocker` from `rules/manifest.yaml`.
+4. `detect-conflicts`: Compare the request, repo conventions, and blockers against the source hierarchy before proceeding.
+5. `ask-one-override-question`: If a `hard_blocker` conflicts with the request, stop, cite the rule id, ask exactly one short override question, and wait.
+6. `run-final-compliance-check`: Before finalizing, confirm the compliance markers below.
 
-## Non-Negotiables
+Final answer markers:
 
-- MUST use `node ace` generators, `add`, or `configure` commands when the framework provides them.
-- MUST use Lucid for SQL persistence.
-- MUST use VineJS and `request.validateUsing(...)` for HTTP validation.
-- MUST use `@adonisjs/auth` for authentication.
-- MUST use `@adonisjs/bouncer` for authorization.
-- MUST use `@adonisjs/mail` for email.
-- MUST use `@adonisjs/drive` for persistent file storage and uploads.
-- MUST use Luxon `DateTime` for model and domain dates.
-- MUST use Inertia React for every web UI.
-- MUST use Mantine as the default React component library.
-- MUST use session or cookie auth for browser-driven flows.
-- MUST keep auth guard names fixed to `web` for browser sessions and `api` for external access tokens.
-- MUST enable Shield CSRF protection with `enableXsrfCookie: true` for browser-driven Inertia applications.
-- MUST use official access tokens for external API clients when token auth is required.
-- MUST use `@adonisjs/inertia/react` `Link` and `Form` wrappers for standard page navigation and form submissions.
-- MUST use `@tabler/icons-react` as the default icon library.
-- MUST keep controllers thin.
-- MUST use transformers for API JSON and Inertia props.
-- MUST prefer AdonisJS services, middleware, URL builders, test helpers, fakes, and container features over generic Node.js patterns.
-- NEVER write Express/Fastify style composition inside an AdonisJS app.
-- NEVER add repository layers on top of Lucid for ordinary application code.
-- NEVER use Edge as a feature rendering layer. The official `resources/views/inertia_layout.edge` file is allowed as Inertia boot plumbing only.
-- NEVER use `any`, inline controller validation, raw `nodemailer`, raw persistent `fs` calls, custom API-key auth as the default path, or ad-hoc timer logic inside the HTTP runtime.
+- `selected-profile: <web|mixed|api-only>`
+- `override-status: none|requested|approved`
+- `hard-blocker-compliance: pass|override`
 
-## Application Profiles
+## Profile Selection
 
-- Web app: Inertia React only, session or cookie auth, no JSON-first page architecture.
-- Mixed app: Inertia React for pages plus a separate `/api` route group and separate API controllers.
-- API-only app: no `inertia/*` pages. Use `router.resource(...).apiOnly()` for pure CRUD and explicit routes for everything else.
-- Browser clients inside the same app stay on session auth, even when hitting `/api`.
-- External clients, scripts, mobile apps, and machine-to-machine integrations use official access tokens.
+- `web`: Inertia React only for pages, session or cookie auth for browser flows, no JSON-first page architecture.
+- `mixed`: Inertia React for pages plus a separate `/api` group and separate API controllers. Browser clients inside the same app stay on session auth even when they hit `/api`.
+- `api-only`: no `inertia/*` pages. Use `router.resource(...).apiOnly()` for pure CRUD and explicit routes for everything else.
 
-## Canonical Feature Order
+## Hard Blockers
 
-Follow this order unless a step is irrelevant.
+Apply every matching `hard_blocker` from `rules/manifest.yaml`. The sync core is:
 
-1. Check official package coverage. Install/configure the official package first.
-2. Add env vars in `start/env.ts` and config in `config/*`.
-3. Create the migration.
-4. Create or update the Lucid model and relations.
-5. Create action-specific VineJS validators.
-6. Create or update the policy when authorization depends on actor plus resource.
-7. Create or update the service.
-8. Create or update the transformer for any HTTP payload.
-9. Add mail, Drive, events/listeners, or Ace command support if needed.
-10. Create or update the controller.
-11. Register routes.
-12. Write functional tests, then targeted unit tests.
-13. Only then add `inertia/*` UI code when the application profile includes a web UI.
+- `hb.official-packages`: official AdonisJS packages and `node ace` setup/generators come first.
+- `hb.validation-stack`: HTTP validation uses VineJS with `request.validateUsing(...)`.
+- `hb.auth-browser-stack`: browser-driven flows use `@adonisjs/auth` with session or cookie auth.
+- `hb.guard-names`: keep guard names fixed to `web` and `api`.
+- `hb.browser-csrf`: browser-facing Inertia apps keep `enableXsrfCookie: true`.
+- `hb.access-tokens-external`: external clients use official access tokens with explicit expiration.
+- `hb.web-ui-stack`: web UI uses Inertia React and Mantine, with no second client router.
+- `hb.web-api-controller-separation`: mixed apps never reuse the same controller for Inertia pages and JSON API endpoints.
+- `hb.no-repository-layer`: no repository layer over Lucid for ordinary app code.
+- `hb.no-edge-feature-rendering`: Edge is allowed only for the minimal `resources/views/inertia_layout.edge` boot layout.
+- `hb.no-request-all-only`: `request.all()` and `request.only()` never replace validation.
+- `hb.no-any`: no `any`.
+- `hb.no-raw-io-and-timers`: no raw `nodemailer`, no persistent raw `fs`, no ad hoc timers in the HTTP runtime.
+- `hb.no-client-fetch-stack`: no raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack.
+- `hb.no-client-form-stack`: no `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
+- `hb.no-custom-api-keys-default`: no custom API-key auth as the default external auth path.
 
-## Layer Rules
+Other active blockers still live in `rules/manifest.yaml`, including `hb.data-stack`, `hb.official-side-effect-packages`, and `hb.no-express-fastify-composition`.
 
-- `start/routes.ts`: import `router` from `@adonisjs/core/services/router`. Default to `#generated/controllers`. Keep web routes and `/api` routes in separate groups. Use named routes and route helpers instead of hardcoded URLs.
-- `router.resource`: use it for standard web CRUD or pure API CRUD only. Use `.apiOnly()` for API resources. Use explicit routes for custom actions, mixed middleware, nested workflow endpoints, or non-CRUD flows.
-- `start/kernel.ts`: register named middleware here. Apply middleware at route or group level. Do not inline authentication or authorization logic into route handlers.
-- `app/controllers`: web Inertia controllers live at the main controller layer. API controllers live under an `api` namespace or folder. Never mix Inertia page actions and JSON API actions in the same controller.
-- `app/middleware/inertia_middleware.ts`: this is the canonical place for shared Inertia props. Share only `auth`, `flash`, `errors`, and `app`. Use `ctx.inertia.always(...)`. Keep `app` flat and minimal: `name` and `env` only.
-- `app/services`: default location for business logic. Use canonical method names like `list`, `findOrFail`, `create`, `update`, and `delete`. Services accept primitive ids by default unless a preloaded model is already needed for policy checks. Services return models or domain results, not HTTP-ready payloads.
-- `app/validators`: one file per resource or workflow, one compiled validator per action. Prefer small duplication over clever validator inheritance.
-- `app/models`: one model per aggregate root or table. Keep relations, scopes, hooks, and date semantics here. Do not hide Lucid behind repositories.
-- `app/policies`: one policy per protected resource. Use abilities only for simple cross-cutting checks that do not deserve a full policy.
-- `app/mails`: always use a dedicated mail class for application emails.
-- `app/events` and `app/listeners`: use class-based events and listener classes for secondary side effects.
-- `app/transformers`: use one transformer per resource returned to JSON or Inertia. Do not send raw models or `DateTime` instances directly. API singletons return a transformed object, non-paginated lists return a transformed array, and paginated endpoints may use the official paginator serialization shape.
-- `app/exceptions`: put reusable domain and HTTP exception types here. Name them `<Subject>Exception`. Throw named exceptions when the same failure semantics appear in multiple actions. Map them globally. API exceptions default to a flat `{ code, message }` JSON shape. Web exceptions default to `redirect back + flash.error`.
-- `config/*`: keep runtime configuration here. Use one file per official package or bounded concern. Import `env` here, not in controllers or services.
-- `config/auth.ts`: keep auth guard names fixed to `web` and `api`. `web` is the default guard. Enable remember-me token support on `web`, but only use it when the product explicitly exposes a remember-me choice. Keep `rememberMeTokensAge` at `30 days`.
-- `config/inertia.ts`: keep Inertia runtime config here. Default to SSR off. Fix one canonical root view. Do not vary root view names between features.
-- `config/session.ts`: keep browser sessions non-persistent by default. Clear the session with the browser. Use conservative cookie settings: `httpOnly: true`, `sameSite: 'lax'`, `secure: app.inProduction`, and the root path `/`.
-- `config/shield.ts`: browser-facing Inertia apps MUST keep CSRF enabled with `enableXsrfCookie: true`. Do not treat this as optional in web or mixed profiles.
-- `start/env.ts`: define every new env var with type, required or optional status, defaults, and allowed values before feature code uses it. Never read `process.env` directly in app code.
-- `tests/*`: `tests/functional` for request flows, `tests/unit` for isolated logic. Inertia form flows assert redirects and flash/session effects. API routes assert JSON payload shape, canonical status codes, and auth guard behavior.
-- `inertia/*`: use React only. Pages live in route-like lowercase paths under `inertia/pages`, reusable UI lives in `inertia/components`, shared layouts live in `inertia/layouts`, UI-only Zustand stores live in `inertia/stores`, the Mantine theme lives in `inertia/theme.ts`, client boot lives in `inertia/app.tsx`, SSR entry lives in `inertia/ssr.tsx` when enabled, and the typed API client entrypoint lives in `inertia/client.ts` when client-side fetching is justified. Export React page components in PascalCase. Business logic stays on the server. Shared props stay minimal: `auth`, `flash`, `errors`, and `app { name, env }` only. Mount flash notifications once in the app shell.
+## Enforced Defaults
 
-## Frontend Library Policy
+When no `hard_blocker` is violated, apply the manifest defaults:
 
-- `@mantine/core` is the default source for buttons, inputs, layout primitives, overlays, menus, and page-level UI.
-- `@mantine/hooks` is allowed for local UI behavior only.
-- `@mantine/notifications` is the default path for flash toasts and ephemeral success or info feedback.
-- `@mantine/dates` is allowed only when the UI truly needs a date widget. It MUST be paired with `dayjs`, because `@mantine/dates` requires it.
-- `@adonisjs/inertia/react` is the default source for `Link` and `Form`.
-- `@inertiajs/react` may be used only for app boot and primitives not provided by the Adonis wrapper, such as `createInertiaApp`, `Head`, `router`, `usePage`, and `useRemember`.
-- `@tabler/icons-react` is the default icon set. Do not introduce a second icon family in new code unless the repo already standardized one.
-- React local state, `useReducer`, and `useRemember` are the default state tools.
-- `zustand` is allowed only for client-side UI state like sidebar state, modal stacks, local filter drafts, or wizard progress. It MUST NOT store server data, auth state, standard form state, or domain truth.
-- Inertia props, partial reloads, deferred props, mergeable props, and normal page redirects are the default data flow.
-- If client-side data fetching is truly needed, the default typed client is Tuyau. Expose a single configured client from `inertia/client.ts`.
-- `@tanstack/react-query` is allowed only on top of the typed API client for explicit client-side fetching needs.
-- `QueryClientProvider` is allowed only when TanStack Query is actually used. Do not install or mount it preemptively.
-- `@tanstack/react-table` is allowed only for genuinely advanced grids. Simple tables stay with Mantine or plain table markup.
-- `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, `valibot`, raw `fetch`, raw `axios`, `ky`, `SWR`, and `react-router-dom` are forbidden by default for standard Inertia application work.
+- `ed.source-hierarchy`: official docs/packages first, then repo conventions, then personal preference.
+- `ed.application-profiles`: choose one profile first and keep it stable.
+- `ed.feature-order`: package coverage, env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, UI.
+- `ed.routing-and-kernel`: named routes, route helpers, separate route groups, and middleware in `start/kernel.ts`.
+- `ed.inertia-shared-props`: only `auth`, `flash`, `errors`, and `app { name, env }`.
+- `ed.service-layer`, `ed.validator-layer`, `ed.model-and-policy-layer`: keep logic, validation, models, and policies in the canonical layers.
+- `ed.mail-events-transformers-exceptions`: dedicated mail classes, listeners for secondary side effects, transformers, named exceptions.
+- `ed.config-and-env` and `ed.auth-session-and-shield-config`: keep runtime config in `config/*`, env declarations in `start/env.ts`, and use the canonical auth/session/shield defaults.
+- `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
+- `ed.inertia-filesystem-layout` and `ed.frontend-library-and-state-policy`: keep the canonical `inertia/*` structure, Mantine-first UI, `@adonisjs/inertia/react` wrappers, limited `@inertiajs/react`, UI-only Zustand, and Tuyau/TanStack only when justified.
+- `ed.generators-and-naming`: use `node ace` generators and canonical names.
+- `ed.api-contracts`, `ed.query-pagination`, `ed.transactions-side-effects-and-commands`, and `ed.web-mutations-and-browser-api-auth`: keep the canonical API, list, transaction, side-effect, command, and redirect/flash behavior.
 
-## Deterministic Defaults
-
-- Controllers: generate plural controllers with `node ace make:controller <resource> --resource` or explicit actions.
-- Validators: generate by resource with `node ace make:validator <resource>` or `--resource`. Export `createPostValidator`, `updatePostValidator`, `listPostsValidator`, `loginValidator`, `uploadAvatarValidator`.
-- Services: generate with `node ace make:service <resource-or-workflow>`. Default names are `PostService`, `SessionService`, `InvoiceExportService`.
-- Policies: generate with `node ace make:policy <resource>`. Default names are `PostPolicy`, `InvoicePolicy`.
-- Mails: generate with `node ace make:mail <intent>`. Keep the default `Notification` suffix unless the repo already standardizes a different intent.
-- Events and listeners: use `node ace make:event <LifecycleEvent>` and `node ace make:listener <ActionName>`, or `node ace make:listener <ActionName> --event=<event_name>` for paired scaffolding.
-- Commands: generate with `node ace make:command <actionName>`. Command names MUST be verb-first and namespaced when appropriate, like `invoices:sync`.
-- Transformers: generate with `node ace make:transformer <resource>`. Create them by default for any JSON or Inertia payload.
-- Tests: generate with `node ace make:test <path> --suite=functional|unit`.
-- Web route names: use conventional names like `posts.index`, `posts.store`, `login`, `logout`.
-- API route names: keep them under an `api` prefix, like `api.posts.index`.
-- Policy abilities: use `viewList`, `view`, `create`, `update`, `delete`, then explicit business verbs like `publish`, `archive`, or `export`.
-- Auth guards: `web` is the default session guard and `api` is the external access-token guard.
-- Session cookies: default to browser-session behavior with `clearWithBrowser: true`.
-- Session cookie security: default to `httpOnly: true`, `sameSite: 'lax'`, `secure: app.inProduction`, and `path: '/'`.
-- Remember me: allowed only when the product exposes it explicitly, and keep `rememberMeTokensAge: '30 days'`.
-- Access tokens: require explicit expiration and default to `expiresIn: '30 days'`.
-- API success payloads: use `serialize(...)` with transformers, with no custom global `data` envelope on top of Adonis resource or paginator shapes.
-- API domain errors: return flat `{ code, message }`.
-- API status codes: `201` create, `200` update, `204` delete, `403` forbidden, `404` not found, `409` conflict.
-- API list query params: `page`, `perPage`, `q`, `sort`, `direction`.
-- API pagination defaults: `perPage` default `20`, max `100`.
-- Frontend UI: default to Mantine primitives, Mantine notifications, and Tabler icons.
-- Frontend Inertia config: default to `config/inertia.ts` with SSR off and one fixed root view.
-- Frontend shared props: `auth`, `flash`, `errors`, and `app { name, env }` only.
-- Frontend forms: default to `Form` from `@adonisjs/inertia/react` plus VineJS server validation.
-- Frontend bootstrap: default to `inertia/theme.ts` plus `inertia/app.tsx` with one fixed provider order, one app layout, one guest layout, and flash notifications mounted once.
-- Frontend page props: prefer `InferPageProps` from `@adonisjs/inertia/types` over duplicated ad hoc page prop interfaces.
-- Frontend client fetching: default to no client fetching. When explicit client fetching is required, use a single Tuyau client in `inertia/client.ts` plus TanStack Query.
-- Frontend API client exports: always export `client` and `urlFor`. Export `queryClient` and `api` only when TanStack Query is enabled.
-- Frontend query defaults: when TanStack Query is enabled, use `retry: 1`, `refetchOnWindowFocus: false`, and `staleTime: 30_000`.
-- Frontend stores: when UI-only shared state is required, place Zustand stores in `inertia/stores` and name them like `useSidebarStore`.
-
-## Decision Rules
-
-- Create a service when the use case writes state, coordinates more than one dependency, emits events, uses Drive or Mail, opens a transaction, or is reused. If unsure, create the service.
-- Create a transformer for every API response and every Inertia prop payload. Skip only pure redirects, `204` responses, or trivial scalar responses.
-- Use Inertia pages and forms first. Do not introduce internal JSON endpoints for ordinary page flows when a normal Inertia controller action is sufficient.
-- Use Mantine components first for page UI instead of plain ad hoc markup or a second component library.
-- Use `serialize(...)` with transformers for API success responses. Do not add a custom global `data` envelope on top of Adonis resource or paginator shapes.
-- Use flat `{ code, message }` for API domain errors.
-- Use the canonical API status codes: `201 / 200 / 204 / 403 / 404 / 409`.
-- For non-trivial list endpoints, create a dedicated query validator. Validate `page`, `perPage`, `q`, `sort`, `direction`, and business filters there.
-- Use `@mantine/dates` only when a native date input or a formatted string is not enough for the UX.
-- Use Zustand only when UI state must survive navigation or be shared between multiple client components without becoming server state.
-- Use TanStack Query only when the page needs client-initiated refetching, polling, optimistic updates, infinite scroll, or an isolated API widget that should not become a full Inertia page refresh.
-- Use QueryClientProvider only on repositories or features that actually use TanStack Query. Keep it out of the default Inertia bootstrap otherwise.
-- Use TanStack Table only when sorting, column visibility, resizing, selection, pinning, or virtualization needs exceed a simple Mantine table.
-- Create a policy when access depends on the current user and a resource or tenant. Use auth middleware alone only for logged-in versus logged-out checks. Prefer explicit `denies(...)` checks in controllers. Default authorization failure is `403`, not `404`.
-- Keep session persistence short by default. Do not stretch the base session cookie to simulate remember-me behavior.
-- Use remember-me tokens only when the product explicitly exposes a remember-me choice.
-- Configure remember-me token lifetime to `30 days`.
-- Configure external access tokens with explicit expiration at `30 days`.
-- Create a mail class for every email. Do not inline `mail.send` closures in controllers for product code.
-- Create an Ace command for imports, exports, backfills, recurring jobs, cleanup, syncs, and operator tasks. Commands orchestrate only and recurring commands MUST be idempotent.
-- Open a managed transaction in the service when two or more writes must succeed together or when consistency depends on read-modify-write behavior.
-- Keep external I/O outside the transaction whenever possible. Persist first, then emit an event or run the secondary side effect.
-- Side effects belong in services and listeners. Controllers only trigger the orchestration. Use listeners for secondary side effects only.
-- New env vars belong in `start/env.ts` and related `config/*` before feature code uses them.
-- Web mutations default to redirect plus flash/session feedback. JSON responses from web controllers are the exception, not the default.
-- Mixed apps keep browser-called `/api` endpoints on session auth unless an external client requirement exists.
-- API-only apps that serve external clients default to official access tokens, not custom API keys.
+Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `adv.prefer-adonis-primitives`, `adv.small-duplication`, `adv.service-when-unsure`, and `adv.keep-doctrine-observable`.
 
 ## Override Handling
 
-- If the user requests a decision that contradicts this skill, the agent MUST stop before implementing the divergent path.
-- The agent MUST name the conflicting rule in one short sentence.
-- The agent MUST ask one short clarifying question before proceeding.
-- The agent MUST NOT implement the divergent path unless the user explicitly confirms a one-off override for the current task.
-- If the user confirms a one-off override, the agent MUST keep all other skill rules unchanged.
-- If the user confirms a one-off override, the agent MUST mention that override explicitly in the final response.
+- Only `hard_blocker` ids can stop execution.
+- On conflict, cite the blocking rule id in one short sentence, ask exactly one short override question, and wait.
+- Do not implement the divergent path until the user explicitly confirms a one-off override for the current task.
+- Approved overrides do not weaken any other rule and must be mentioned in the final answer.
+- `enforced_default` and `advisory` rules never trigger the override flow.
 
-## Anti-Patterns
+## Reference Map
 
-- `request.all()` or `request.only()` as a substitute for validation.
-- Heavy controller logic.
-- Business logic in React or Inertia components, or in the minimal Edge boot layout used by Inertia.
-- Shared props sprawl. Do not put page data, counters, filters, lists, or nested branding structures into global Inertia shared props.
-- Global `data` envelopes or `error` envelopes added by default to every private API response.
-- `@mantine/form`, `react-hook-form`, `formik`, or client-side schema validation stacks as the default path for standard Inertia forms.
-- Raw `fetch`, `axios`, `ky`, `SWR`, or direct HTTP helpers inside page components.
-- Mounting QueryClientProvider when TanStack Query is not used.
-- `react-router-dom` or any client-side router layered on top of Inertia.
-- Parsing non-trivial list query params directly inside controllers or services without a validator.
-- Generic `helpers.ts`, `utils.ts`, or repository wrappers with no clear bounded purpose.
-- Hardcoded route strings when `toRoute`, `urlFor`, `route`, `Link`, or `Form` can derive them.
-- Raw `nodemailer` or raw persistent `fs` calls.
-- Cron or timer loops started from HTTP boot code.
-- Reusing the same controller for Inertia pages and JSON API endpoints in a mixed app.
-- Treating internal page flows as ad hoc JSON mini-APIs.
-- Mixing old and new Lucid model styles inside the same repo slice unless the task is a deliberate migration.
-
-## Read These References As Needed
-
-- [references/routing.md](references/routing.md)
-- [references/validation.md](references/validation.md)
-- [references/lucid.md](references/lucid.md)
-- [references/auth.md](references/auth.md)
-- [references/api.md](references/api.md)
-- [references/bouncer.md](references/bouncer.md)
-- [references/mail.md](references/mail.md)
-- [references/drive.md](references/drive.md)
-- [references/events.md](references/events.md)
-- [references/inertia-libraries.md](references/inertia-libraries.md)
-- [references/rendering.md](references/rendering.md)
-- [references/testing.md](references/testing.md)
-- [references/patterns.md](references/patterns.md)
+- `rules/manifest.yaml`: canonical protocol, profiles, rule tiers, and eval coverage.
+- `references/rules.md`: human-readable rule index.
+- `references/routing.md`
+- `references/validation.md`
+- `references/lucid.md`
+- `references/auth.md`
+- `references/api.md`
+- `references/bouncer.md`
+- `references/mail.md`
+- `references/drive.md`
+- `references/events.md`
+- `references/inertia-libraries.md`
+- `references/rendering.md`
+- `references/testing.md`
+- `references/patterns.md`
+- `assets/wrappers/codex.md`, `assets/wrappers/claude.md`, `assets/wrappers/vscode.instructions.md`
+- `eval/cases/*.json`, `scripts/score_eval.mjs`, and `scripts/validate_all.mjs`

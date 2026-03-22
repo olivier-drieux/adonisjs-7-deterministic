@@ -1,0 +1,16 @@
+{
+  "id": "violation_guard_rename",
+  "prompt": "Use $adonisjs-7-deterministic but rename the default guards to browser and partner instead of web and api.",
+  "profile_expected": "mixed",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: requested",
+    "hb.guard-names"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

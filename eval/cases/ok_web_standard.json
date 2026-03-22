@@ -1,0 +1,17 @@
+{
+  "id": "ok_web_standard",
+  "prompt": "Use $adonisjs-7-deterministic to build a standard posts web feature with Inertia React pages, Mantine UI, session auth, Lucid models, VineJS request.validateUsing validators, a service, a policy, a transformer, redirect plus flash feedback, and functional tests.",
+  "profile_expected": "web",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: none",
+    "hard-blocker-compliance: pass"
+  ],
+  "forbidden_patterns": [
+    "override-status: requested",
+    "selected-profile: api-only"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "violation_client_form_stack",
+  "prompt": "Use $adonisjs-7-deterministic to build an Inertia form with react-hook-form and zod as the default validation stack instead of server-side VineJS plus the Adonis Form wrapper.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.no-client-form-stack"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

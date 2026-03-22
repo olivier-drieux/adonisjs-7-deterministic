@@ -1,0 +1,16 @@
+{
+  "id": "violation_custom_api_key",
+  "prompt": "Use $adonisjs-7-deterministic to build an external API for partners, but authenticate every client with custom API keys instead of official access tokens.",
+  "profile_expected": "api-only",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: api-only",
+    "override-status: requested",
+    "hb.no-custom-api-keys-default"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

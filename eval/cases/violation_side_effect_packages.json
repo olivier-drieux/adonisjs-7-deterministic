@@ -1,0 +1,16 @@
+{
+  "id": "violation_side_effect_packages",
+  "prompt": "Use $adonisjs-7-deterministic to add authorization to the posts feature. I want to use CASL instead of Bouncer because CASL supports attribute-level permissions.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.official-side-effect-packages"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

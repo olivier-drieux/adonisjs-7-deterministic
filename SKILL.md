@@ -9,13 +9,13 @@ description: Use when implementing or reviewing private AdonisJS v7 applications
 
 Use this skill to keep private AdonisJS v7 work on one stable, framework-native path. Runtime doctrine is `fail-closed`.
 
-`rules/manifest.yaml` is the canonical source of truth. This file is the short runtime protocol. Longer rationale stays in `references/*`.
+`rules/manifest.json` is the canonical source of truth. This file is the short runtime protocol. Longer rationale stays in `references/*`.
 
 ## Execution Protocol
 
 1. `select-profile`: Choose exactly one profile: `web`, `mixed`, or `api-only`.
 2. `load-targeted-references`: Read only the references needed for that profile and the current feature slice.
-3. `list-applicable-hard-blockers`: Apply every matching `hard_blocker` from `rules/manifest.yaml`.
+3. `list-applicable-hard-blockers`: Apply every matching `hard_blocker` from `rules/manifest.json`.
 4. `detect-conflicts`: Compare the request, repo conventions, and blockers against the source hierarchy before proceeding.
 5. `ask-one-override-question`: If a `hard_blocker` conflicts with the request, stop, cite the rule id, ask exactly one short override question, and wait.
 6. `run-final-compliance-check`: Before finalizing, confirm the compliance markers below.
@@ -34,16 +34,19 @@ Final answer markers:
 
 ## Hard Blockers
 
-Apply every matching `hard_blocker` from `rules/manifest.yaml`. The sync core is:
+Apply every matching `hard_blocker` from `rules/manifest.json`. The sync core is:
 
 - `hb.official-packages`: official AdonisJS packages and `node ace` setup/generators come first.
+- `hb.data-stack`: use Lucid for SQL persistence and Luxon DateTime for model and domain dates.
 - `hb.validation-stack`: HTTP validation uses VineJS with `request.validateUsing(...)`.
 - `hb.auth-browser-stack`: browser-driven flows use `@adonisjs/auth` with session or cookie auth.
 - `hb.guard-names`: keep guard names fixed to `web` and `api`.
 - `hb.browser-csrf`: browser-facing Inertia apps keep `enableXsrfCookie: true`.
 - `hb.access-tokens-external`: external clients use official access tokens with explicit expiration.
 - `hb.web-ui-stack`: web UI uses Inertia React and Mantine, with no second client router.
+- `hb.official-side-effect-packages`: use `@adonisjs/bouncer` for authorization, `@adonisjs/mail` for email, and `@adonisjs/drive` for persistent file storage.
 - `hb.web-api-controller-separation`: mixed apps never reuse the same controller for Inertia pages and JSON API endpoints.
+- `hb.no-express-fastify-composition`: use framework-native routes, middleware, services, policies, and container primitives instead of Express or Fastify patterns.
 - `hb.no-repository-layer`: no repository layer over Lucid for ordinary app code.
 - `hb.no-edge-feature-rendering`: Edge is allowed only for the minimal `resources/views/inertia_layout.edge` boot layout.
 - `hb.no-request-all-only`: `request.all()` and `request.only()` never replace validation.
@@ -52,8 +55,6 @@ Apply every matching `hard_blocker` from `rules/manifest.yaml`. The sync core is
 - `hb.no-client-fetch-stack`: no raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack.
 - `hb.no-client-form-stack`: no `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
 - `hb.no-custom-api-keys-default`: no custom API-key auth as the default external auth path.
-
-Other active blockers still live in `rules/manifest.yaml`, including `hb.data-stack`, `hb.official-side-effect-packages`, and `hb.no-express-fastify-composition`.
 
 ## Enforced Defaults
 
@@ -84,7 +85,8 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 
 ## Reference Map
 
-- `rules/manifest.yaml`: canonical protocol, profiles, rule tiers, and eval coverage.
+- `rules/manifest.json`: canonical protocol, profiles, rule tiers, and eval coverage.
+- `FORBIDDEN.md`: flat forbidden-pattern lookup table for agents with limited context.
 - `references/rules.md`: human-readable rule index.
 - `references/routing.md`
 - `references/validation.md`
@@ -97,7 +99,14 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 - `references/events.md`
 - `references/inertia-libraries.md`
 - `references/rendering.md`
+- `references/transformers.md`
 - `references/testing.md`
-- `references/patterns.md`
-- `assets/wrappers/codex.md`, `assets/wrappers/claude.md`, `assets/wrappers/vscode.instructions.md`
+- `references/patterns/crud-web.md`: standard Inertia CRUD pattern.
+- `references/patterns/auth-flow.md`: login, session, and config patterns.
+- `references/patterns/api-resource.md`: API-only CRUD and mixed-app API endpoints.
+- `references/patterns/frontend-bootstrap.md`: Inertia app bootstrap, shared props, flash, Zustand, config.
+- `references/patterns/advanced.md`: date widgets, file export, commands, tables, uploads.
+- `references/examples.md`: few-shot interaction examples (prompt → expected behavior).
+- `assets/wrappers/`: self-contained wrappers per agent (Claude, Codex, VS Code).
+- `assets/entrypoints/`: ready-to-copy entry points (`.cursorrules`, `copilot-instructions.md`, `AGENTS.md`).
 - `eval/cases/*.json`, `scripts/score_eval.mjs`, and `scripts/validate_all.mjs`

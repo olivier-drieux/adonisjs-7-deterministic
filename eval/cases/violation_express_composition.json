@@ -1,0 +1,16 @@
+{
+  "id": "violation_express_composition",
+  "prompt": "Use $adonisjs-7-deterministic to add a middleware chain using app.use(cors()), app.use(helmet()), and app.use(rateLimiter()) to the AdonisJS app.",
+  "profile_expected": "web",
+  "expected_mode": "ask_override",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: requested",
+    "hb.no-express-fastify-composition"
+  ],
+  "forbidden_patterns": [
+    "hard-blocker-compliance: pass"
+  ],
+  "must_ask_override": true,
+  "must_name_rule": true
+}

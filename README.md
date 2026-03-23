@@ -7,11 +7,11 @@ Fail-closed multi-agent skill pack for private AdonisJS v7 applications that nee
 Keep these layers in sync:
 
 - [SKILL.md](./SKILL.md): short runtime protocol used by agents
-- [rules/manifest.yaml](./rules/manifest.yaml): canonical machine-readable rules, protocol markers, and eval coverage
+- [rules/manifest.json](./rules/manifest.json): canonical machine-readable rules, protocol markers, and eval coverage
 - [references/](./references/): longer human-readable guidance
 - [assets/wrappers/](./assets/wrappers/): condensed cross-agent wrappers
 
-If two files disagree, follow `rules/manifest.yaml`, then `SKILL.md`.
+If two files disagree, follow `rules/manifest.json`, then `SKILL.md`.
 
 ## Install
 
@@ -40,16 +40,34 @@ Copy or symlink the folder to either:
 
 Use [assets/wrappers/claude.md](./assets/wrappers/claude.md) if you also want a short wrapper for `CLAUDE.md` or a subagent prompt.
 
-### VS Code
+### Cursor
 
-VS Code does not natively load `SKILL.md` skills. Use [assets/wrappers/vscode.instructions.md](./assets/wrappers/vscode.instructions.md) as the condensed instruction layer for:
+Copy [assets/entrypoints/.cursorrules](./assets/entrypoints/.cursorrules) to your project root:
 
-```text
-.github/copilot-instructions.md
-AGENTS.md
-CLAUDE.md
-.github/instructions/*.instructions.md
+```bash
+cp assets/entrypoints/.cursorrules /path/to/project/.cursorrules
 ```
+
+### GitHub Copilot
+
+Copy [assets/entrypoints/copilot-instructions.md](./assets/entrypoints/copilot-instructions.md) to your project:
+
+```bash
+mkdir -p /path/to/project/.github
+cp assets/entrypoints/copilot-instructions.md /path/to/project/.github/copilot-instructions.md
+```
+
+### Codex / opencode / Other Agents
+
+Copy [assets/entrypoints/AGENTS.md](./assets/entrypoints/AGENTS.md) to your project root:
+
+```bash
+cp assets/entrypoints/AGENTS.md /path/to/project/AGENTS.md
+```
+
+### VS Code (generic instructions)
+
+Use [assets/wrappers/vscode.instructions.md](./assets/wrappers/vscode.instructions.md) as a self-contained instruction layer for `.github/instructions/*.instructions.md`.
 
 ## Validation
 
@@ -74,6 +92,6 @@ node scripts/score_eval.mjs --case ok_web_standard --response /path/to/response.
 
 ## Notes
 
-- `rules/manifest.yaml` is stored as JSON-compatible YAML so the validation scripts stay zero-dependency.
+- `rules/manifest.json` is the canonical source of truth, stored as plain JSON so the validation scripts stay zero-dependency.
 - `eval/cases/*.json` are provider-neutral prompt fixtures.
-- Wrappers stay short on purpose; they point back to `SKILL.md` and `rules/manifest.yaml` instead of duplicating the doctrine.
+- Wrappers stay short on purpose; they point back to `SKILL.md` and `rules/manifest.json` instead of duplicating the doctrine.

@@ -6,10 +6,11 @@ interface:
     `select-profile`, `load-targeted-references`,
     `list-applicable-hard-blockers`, `detect-conflicts`,
     `ask-one-override-question`, and `run-final-compliance-check`. Enforce
-    `hb.official-packages`, `hb.validation-stack`,
+    `hb.official-packages`, `hb.data-stack`, `hb.validation-stack`,
     `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`,
     `hb.access-tokens-external`, `hb.web-ui-stack`,
-    `hb.web-api-controller-separation`, `hb.no-repository-layer`,
+    `hb.official-side-effect-packages`, `hb.web-api-controller-separation`,
+    `hb.no-express-fastify-composition`, `hb.no-repository-layer`,
     `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`,
     `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`,
     `hb.no-client-form-stack`, and `hb.no-custom-api-keys-default`. Ask

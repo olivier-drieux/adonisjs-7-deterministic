@@ -100,13 +100,16 @@
     ],
     "core_blocker_ids": [
       "hb.official-packages",
+      "hb.data-stack",
       "hb.validation-stack",
       "hb.auth-browser-stack",
       "hb.guard-names",
       "hb.browser-csrf",
       "hb.access-tokens-external",
       "hb.web-ui-stack",
+      "hb.official-side-effect-packages",
       "hb.web-api-controller-separation",
+      "hb.no-express-fastify-composition",
       "hb.no-repository-layer",
       "hb.no-edge-feature-rendering",
       "hb.no-request-all-only",
@@ -138,7 +141,7 @@
       "forbidden_patterns": ["Prisma", "Drizzle", "plain Date for persisted domain dates"],
       "conflict_behavior": "Stop, cite `hb.data-stack`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
-      "test_ids": ["ok_web_standard", "violation_unofficial_package"]
+      "test_ids": ["ok_web_standard", "violation_data_stack"]
     },
     {
       "id": "hb.validation-stack",
@@ -193,7 +196,7 @@
       "forbidden_patterns": ["custom token scheme for external clients"],
       "conflict_behavior": "Stop, cite `hb.access-tokens-external`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
-      "test_ids": ["ok_api_only_resource", "violation_custom_api_key"]
+      "test_ids": ["ok_api_only_resource", "violation_custom_api_key", "violation_api_only_session_auth"]
     },
     {
       "id": "hb.web-ui-stack",
@@ -215,7 +218,7 @@
       "forbidden_patterns": ["CASL as the default authorization path", "raw mail or storage libraries when official packages cover the need"],
       "conflict_behavior": "Stop, cite `hb.official-side-effect-packages`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
-      "test_ids": ["ok_web_standard", "violation_unofficial_package"]
+      "test_ids": ["ok_web_standard", "violation_side_effect_packages"]
     },
     {
       "id": "hb.web-api-controller-separation",
@@ -237,7 +240,7 @@
       "forbidden_patterns": ["Express-style middleware pipeline", "Fastify-style composition inside AdonisJS"],
       "conflict_behavior": "Stop, cite `hb.no-express-fastify-composition`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
-      "test_ids": ["ok_web_standard", "violation_express_style"]
+      "test_ids": ["ok_web_standard", "violation_express_style", "violation_express_composition"]
     },
     {
       "id": "hb.no-repository-layer",

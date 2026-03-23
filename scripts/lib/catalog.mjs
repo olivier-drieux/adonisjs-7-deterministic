@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 export const ROOT = path.resolve(import.meta.dirname, '../..')
-export const MANIFEST_PATH = path.join(ROOT, 'rules', 'manifest.yaml')
+export const MANIFEST_PATH = path.join(ROOT, 'rules', 'manifest.json')
 export const EVAL_CASES_DIR = path.join(ROOT, 'eval', 'cases')
 export const WRAPPERS_DIR = path.join(ROOT, 'assets', 'wrappers')
 
@@ -23,7 +23,7 @@ export function readJsonDocument(filePath) {
     return JSON.parse(text)
   } catch (error) {
     throw new Error(
-      `Failed to parse ${relativeFromRoot(filePath)} as JSON-compatible YAML: ${error.message}`
+      `Failed to parse ${relativeFromRoot(filePath)} as JSON: ${error.message}`
     )
   }
 }
@@ -53,7 +53,8 @@ export function missingTerms(text, terms) {
 }
 
 export function countQuestions(text) {
-  return Array.from(String(text).matchAll(/\?/g)).length
+  const stripped = String(text).replace(/```[\s\S]*?```/g, '')
+  return Array.from(stripped.matchAll(/\?/g)).length
 }
 
 export function looksLikeRuleId(value) {

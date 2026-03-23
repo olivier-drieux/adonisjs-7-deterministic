@@ -1,6 +1,6 @@
 # Rule Catalog
 
-`rules/manifest.yaml` is the canonical source of truth for this skill pack.
+`rules/manifest.json` is the canonical source of truth for this skill pack.
 
 Use this file as the human-readable index:
 

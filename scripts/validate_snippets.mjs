@@ -6,16 +6,24 @@ import process from 'node:process'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const REFERENCES_DIR = path.join(ROOT, 'references')
-const DOC_FILES = [
-  path.join(ROOT, 'SKILL.md'),
-  ...fs
-    .readdirSync(REFERENCES_DIR)
+const PATTERNS_DIR = path.join(REFERENCES_DIR, 'patterns')
+
+function collectMdFiles(dir) {
+  if (!fs.existsSync(dir)) return []
+  return fs
+    .readdirSync(dir)
     .filter((name) => name.endsWith('.md'))
     .sort()
-    .map((name) => path.join(REFERENCES_DIR, name)),
+    .map((name) => path.join(dir, name))
+}
+
+const DOC_FILES = [
+  path.join(ROOT, 'SKILL.md'),
+  ...collectMdFiles(REFERENCES_DIR),
+  ...collectMdFiles(PATTERNS_DIR),
 ]
 
-const FENCE_RE = /^```(ts|tsx)\s*$/
+const FENCE_RE = /^```(ts|tsx|typescript)\s*$/
 const PARTIAL_MARKERS = new Set(['// excerpt', '// partial snippet', '// partial example'])
 const FORBIDDEN_SNIPPET_PATTERNS = [
   {
@@ -47,7 +55,7 @@ const FORBIDDEN_SNIPPET_PATTERNS = [
     message: 'uses `valibot`; standard forms should use server-side VineJS validation',
   },
   {
-    pattern: /\bfetch\(/,
+    pattern: /(?<![a-zA-Z])fetch\(/,
     message: 'uses raw `fetch`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
   },
   {

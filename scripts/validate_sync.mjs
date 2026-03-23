@@ -35,6 +35,15 @@ const sharedSkillTerms = [
 const missingInSkill = missingTerms(skillText, sharedSkillTerms)
 assert(missingInSkill.length === 0, `SKILL.md is missing sync terms: ${missingInSkill.join(', ')}`)
 
+const allHardBlockerIds = manifest.rules
+  .filter((rule) => rule.tier === 'hard_blocker')
+  .map((rule) => rule.id)
+const missingHbInSkill = missingTerms(skillText, allHardBlockerIds)
+assert(missingHbInSkill.length === 0, `SKILL.md is missing hard blocker ids: ${missingHbInSkill.join(', ')}`)
+
+const missingHbInCore = allHardBlockerIds.filter((id) => !manifest.sync_contract.core_blocker_ids.includes(id))
+assert(missingHbInCore.length === 0, `sync_contract.core_blocker_ids is missing hard blockers: ${missingHbInCore.join(', ')}`)
+
 const promptTerms = [
   ...manifest.sync_contract.required_prompt_terms,
   ...manifest.sync_contract.core_blocker_ids,

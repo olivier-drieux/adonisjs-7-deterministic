@@ -6,15 +6,23 @@
 // app/middleware/inertia_middleware.ts
 import config from '@adonisjs/core/services/config'
 import type { HttpContext } from '@adonisjs/core/http'
+import type { NextFn } from '@adonisjs/core/types/http'
+import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
+import type { InferSharedProps } from '@adonisjs/inertia/types'
 import UserTransformer from '#transformers/user_transformer'
 
-export default class InertiaMiddleware {
+export default class InertiaMiddleware extends BaseInertiaMiddleware {
   share(ctx: HttpContext) {
+    /**
+     * The share method can be invoked before the session or auth
+     * middleware has run (for example during a 404). Always treat
+     * context properties as potentially undefined.
+     */
     const { session, auth } = ctx as Partial<HttpContext>
 
     return {
-      auth: ctx.inertia.always(
-        auth?.user ? UserTransformer.transform(auth.user) : null
+      user: ctx.inertia.always(
+        auth?.user ? UserTransformer.transform(auth.user) : undefined
       ),
       flash: ctx.inertia.always({
         success: session?.flashMessages.get('success'),
@@ -27,12 +35,27 @@ export default class InertiaMiddleware {
       }),
     }
   }
+
+  async handle(ctx: HttpContext, next: NextFn) {
+    await this.init(ctx)
+    const output = await next()
+    this.dispose(ctx)
+    return output
+  }
+}
+
+declare module '@adonisjs/inertia/types' {
+  type MiddlewareSharedProps = InferSharedProps<InertiaMiddleware>
+  export interface SharedProps extends MiddlewareSharedProps {}
 }
 ```
 
-- Share only `auth`, `flash`, `errors`, and `app`.
+- The middleware **must extend `BaseInertiaMiddleware`** so `this.init`, `this.dispose`, and `this.getValidationErrors` are available.
+- Share only `user`, `flash`, `errors`, and `app`.
+- `user` holds the transformed authenticated user or `undefined`. `user` is the canonical v7 shared-prop name for the authenticated user (not `auth`).
 - Keep `app` flat and tiny: `name` and `env` only.
-- Do not put page data or branding payloads into shared props.
+- Always augment `SharedProps` through `declare module '@adonisjs/inertia/types'` so `usePage().props` and `InertiaProps<...>` stay fully typed.
+- Do not put lists, counters, filters, or page data into shared props.
 
 ## Inertia App Bootstrap
 
@@ -79,6 +102,7 @@ import { defineConfig } from '@adonisjs/inertia'
 
 export default defineConfig({
   rootView: 'inertia_layout',
+  encryptHistory: true,
   ssr: {
     enabled: false,
     entrypoint: 'inertia/ssr.tsx',
@@ -88,6 +112,7 @@ export default defineConfig({
 
 - Keep one fixed root view: `inertia_layout`.
 - Keep `ssr.enabled` false by default.
+- In AdonisJS v7 the top-level `entrypoint` option has been **removed** from `config/inertia.ts` (it was unused). The `history.encrypt` nested option has been renamed to the top-level `encryptHistory`. The `sharedData` option has been **removed** — shared props live in the Inertia middleware.
 
 ## Flash Notifications with Mantine
 

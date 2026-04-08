@@ -38,7 +38,8 @@ return inertia.render('posts/index', {
 ## Rules
 
 - Do not return raw Lucid models to HTTP responses. Always transform.
-- Do not add a global `data` envelope around transformer output. Return the serialized output directly.
+- Use the framework `serialize(...)` helper in API controllers. The helper produces the canonical v7 envelope: single resources become `{ data: { ... } }`, paginated lists become `{ data: [ ... ], meta: { ... } }`. This envelope **is** the Adonis serializer output; it is correct, expected, and must not be wrapped in an additional custom envelope.
+- Do not add a second custom wrapper (e.g. `response.ok({ data: serialize(...) })`). The serializer already provides `data`.
 - Do not add a global `error` envelope. Use flat `{ code, message }` for API errors.
 - Use `this.pick(this.resource, [...fields])` for explicit field selection.
 - Keep transformation logic simple: field selection, renaming, computed fields. No I/O or business logic.
@@ -55,3 +56,20 @@ export default class PostTransformer extends BaseTransformer<Post> {
   }
 }
 ```
+
+## Generated Type Surface
+
+Once `indexEntities({ transformers: { enabled: true, withSharedProps: true } })` is configured in `adonisrc.ts` (see [setup.md](setup.md)), every transformer is mirrored into a generated `Data` namespace:
+
+```ts
+// consumed by page components and API consumers
+import { Data } from '@generated/data'
+
+type PostShape = Data.Post
+type PostDetailed = Data.Post.Variants['forDetailedView']
+```
+
+- `Data.<Resource>` resolves to the default shape produced by `toObject()`.
+- `Data.<Resource>.Variants['<variantName>']` resolves to any additional variants you expose through the transformer. Variants are the v7 way to publish multiple shapes for the same resource (list vs. detail, admin vs. public) without duplicating transformers.
+
+At the type level, the primitives are `InferData<Transformer>` and `InferVariants<Transformer>` from `@adonisjs/core/types/transformers`. Prefer `@generated/data` in application code; use the primitives only when writing generators or custom type helpers.

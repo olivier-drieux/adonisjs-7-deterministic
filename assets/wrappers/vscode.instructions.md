@@ -32,7 +32,7 @@ Each stops execution on conflict. Cite the rule id, ask one override question, w
 
 - `hb.official-packages`: Use official AdonisJS packages and `node ace` generators first. No third-party replacements when an official package exists.
 - `hb.data-stack`: Use Lucid for SQL persistence and Luxon DateTime for model/domain dates. No Prisma, Drizzle, or plain Date for persisted domain dates.
-- `hb.validation-stack`: HTTP validation uses VineJS with `request.validateUsing(...)`. No inline controller validation.
+- `hb.validation-stack`: HTTP validation uses VineJS with `vine.create(...)` as the root schema and `request.validateUsing(...)`. No inline controller validation, and no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: Browser flows use `@adonisjs/auth` with session/cookie auth. No bearer-token-first browser flows.
 - `hb.guard-names`: Keep guard names fixed to `web` and `api`.
 - `hb.browser-csrf`: Browser-facing Inertia apps keep `enableXsrfCookie: true`.
@@ -61,3 +61,17 @@ Each stops execution on conflict. Cite the rule id, ask one override question, w
 
 - `SKILL.md`
 - `rules/manifest.json`
+
+## v7 API Notes (Critical)
+
+These are exact v7 forms that LLMs frequently hallucinate:
+
+- VineJS root schema: `vine.create({...})` — not `vine.compile(vine.object({...}))`. `vine.object` is still valid inside nested sub-schemas.
+- Routes: `import { controllers } from '#generated/controllers'` then reference controllers as `controllers.Posts`, `controllers.Session`, `controllers.ApiPosts` — **not** `controllers.PostsController`.
+- Inertia `Link` and `Form` from `@adonisjs/inertia/react`: pass route parameters with `routeParams={{ id: post.id }}` — **not** `params={{ id: post.id }}`. Tuyau's `urlFor('route', { id })` still uses a flat positional argument.
+- Inertia shared-props middleware must `extends BaseInertiaMiddleware` from `@adonisjs/inertia/inertia_middleware`; share `user`, `flash`, `errors`, and `app { name, env }` only; augment `SharedProps` via `declare module '@adonisjs/inertia/types'`.
+- Inertia page props: use `InertiaProps<{...}>` from `~/types` and `Data.<Resource>` from `@generated/data`.
+- API response shape: `serialize(...)` produces `{ data }` or `{ data, meta }` natively. Return it directly — never wrap it in a second custom envelope.
+- `config/inertia.ts`: `entrypoint` removed; `history.encrypt` renamed to top-level `encryptHistory`; `sharedData` removed (use the middleware).
+- Prerequisites: Node.js ≥ 24, npm ≥ 11. Scaffold with `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. Dev server: `node ace serve --hmr`.
+- `adonisrc.ts` declares `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack. These hooks produce `#generated/controllers`, `@generated/data`, and `@generated/registry`.

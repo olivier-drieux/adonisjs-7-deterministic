@@ -33,8 +33,10 @@ node ace add @adonisjs/auth --guard=access_tokens
 - For a dedicated external API service, prefer the API starter kit configured for access tokens:
 
 ```sh
-npm init adonisjs@latest -- -K=api --auth-guard=access_tokens
+npm create adonisjs@latest my-api -- --kit=api --auth-guard=access_tokens
 ```
+
+- The `api` kit is a Turborepo monorepo (`apps/backend` + `apps/frontend`). Run backend-level commands from inside `apps/backend` or through the root `turbo` pipeline.
 
 ## Config Defaults
 

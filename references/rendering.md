@@ -12,10 +12,12 @@
 - If not already installed, follow the official package setup:
   - `npm i @adonisjs/inertia`
   - `node ace configure @adonisjs/inertia`
+- Register the Inertia and Tuyau hooks in `adonisrc.ts` (see [setup.md](setup.md)) so `#generated/controllers`, `@generated/data`, and `@generated/registry` are produced.
 
 - Controllers return `inertia.render(...)`.
 - ALWAYS pass transformed data, not raw models, `DateTime`, or complex objects.
-- Prefer `InferPageProps` from `@adonisjs/inertia/types` over duplicated ad hoc page prop interfaces when a page maps directly to a controller action.
+- Type page props with `InertiaProps<{...}>` imported from `~/types` and reference data shapes through `Data.<Resource>` imported from `@generated/data`. These types are generated from your transformers by `indexEntities({ transformers: { enabled: true, withSharedProps: true } })`.
+- `InferPageProps` from `@adonisjs/inertia/types` remains available as a lower-level primitive for custom hooks or edge cases where the generated `Data` types do not fit. Prefer `InertiaProps<{...}>` for day-to-day page typing.
 - Pages live in route-like lowercase paths under `inertia/pages/**/*`.
 - Export page components in PascalCase.
 - Reusable UI lives in `inertia/components/**/*`.
@@ -25,13 +27,16 @@
 - Client boot lives in `inertia/app.tsx`.
 - Mantine theme configuration lives in `inertia/theme.ts`.
 - SSR entry lives in `inertia/ssr.tsx` when SSR is enabled.
-- `config/inertia.ts` is the canonical place for Inertia runtime configuration. Keep one fixed root view and keep SSR disabled by default.
-- `app/middleware/inertia_middleware.ts` is the canonical place for shared props.
-- Shared props stay minimal: `auth`, `flash`, `errors`, and `app`.
+- `config/inertia.ts` is the canonical place for Inertia runtime configuration. Keep one fixed root view and keep SSR disabled by default. In v7, the `entrypoint` option is removed and `history.encrypt` is renamed to the top-level `encryptHistory`. `sharedData` is also removed in favor of the Inertia middleware.
+- `app/middleware/inertia_middleware.ts` is the canonical place for shared props. The middleware **must extend `BaseInertiaMiddleware`** from `@adonisjs/inertia/inertia_middleware` so it can reuse `this.init(ctx)`, `this.dispose(ctx)`, and `this.getValidationErrors(ctx)`.
+- Shared props stay minimal: `user`, `flash`, `errors`, and `app`.
+- `user` holds the transformed authenticated user (via `UserTransformer`) or `undefined`.
 - `app` stays flat and tiny: `name` and `env` only.
-- Share `auth`, `flash`, `errors`, and `app` with `ctx.inertia.always(...)`.
+- Share `user`, `flash`, `errors`, and `app` with `ctx.inertia.always(...)`.
+- Augment the `SharedProps` type with `declare module '@adonisjs/inertia/types' { type MiddlewareSharedProps = InferSharedProps<InertiaMiddleware>; export interface SharedProps extends MiddlewareSharedProps {} }` at the bottom of the middleware file.
 - For browser-facing Inertia apps, keep Shield CSRF enabled with `enableXsrfCookie: true`.
-- Use `@adonisjs/inertia/react` `Link` and `Form` wrappers with named routes.
+- Use `@adonisjs/inertia/react` `Link` and `Form` wrappers with named routes. Pass route parameters via a flat `routeParams` prop: `<Link route="posts.show" routeParams={{ id: post.id }}>`. **`routeParams` is the correct prop name in v7 — never `params`.**
+- `Link` and `Form` trigger Inertia XHR navigation and expect an Inertia JSON response. For routes that return binary files (PDF, CSV, ZIP), use a native `<a href>` or `window.location.href` instead.
 - Use `@inertiajs/react` only for app boot and primitives not provided by Adonis wrappers, such as `Head`, `router`, `usePage`, or `useRemember`.
 - Use Mantine as the default component library and `@tabler/icons-react` as the default icon set.
 - Use `@mantine/notifications` for flash toasts and ephemeral success or info messages.

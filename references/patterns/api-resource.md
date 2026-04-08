@@ -3,9 +3,13 @@
 ## API-only CRUD
 
 ```ts
+import router from '@adonisjs/core/services/router'
+import { controllers } from '#generated/controllers'
+import { middleware } from '#start/kernel'
+
 router
   .group(() => {
-    router.resource('posts', controllers.ApiPostsController).apiOnly()
+    router.resource('posts', controllers.ApiPosts).apiOnly()
   })
   .prefix('/api')
   .as('api')
@@ -35,15 +39,19 @@ export default class ApiPostsController {
 ```
 
 - Use access tokens by default for external API-only applications.
-- Return serialized transformer output via `serialize(...)`.
+- Return serialized transformer output via `serialize(...)`. The v7 serializer wraps single resources in `{ data: { ... } }` and paginated lists in `{ data: [ ... ], meta: { ... } }`; that is the expected output, not an additional custom envelope.
 - Use `201` for create, `200` for update, `204` for delete, `403` for authorization failures, `404` for missing records, and `409` for conflicts.
 
 ## Mixed App Dedicated API Endpoint
 
 ```ts
+import router from '@adonisjs/core/services/router'
+import { controllers } from '#generated/controllers'
+import { middleware } from '#start/kernel'
+
 router
   .group(() => {
-    router.get('posts/search', [controllers.ApiPostSearchController, 'index']).as('posts.search')
+    router.get('posts/search', [controllers.ApiPostSearch, 'index']).as('posts.search')
   })
   .prefix('/api')
   .as('api')
@@ -72,7 +80,7 @@ export default class ApiPostSearchController {
 - Use this pattern only when a page truly needs an API-style interaction.
 - Keep the controller separate from the Inertia page controller.
 - Keep list query parsing in a dedicated validator when the endpoint is not trivial.
-- Return serialized transformer output via `serialize(...)`. Do not add a custom global `data` envelope.
+- Return serialized transformer output via `serialize(...)`. The helper already produces the canonical `{ data, meta }` paginator envelope; do not wrap it in a second custom payload.
 
 ## Client-side Fetch Exception
 

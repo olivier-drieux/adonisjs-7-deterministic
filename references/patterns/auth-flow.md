@@ -3,16 +3,20 @@
 ## Web Login and Session Flow
 
 ```ts
+import router from '@adonisjs/core/services/router'
+import { controllers } from '#generated/controllers'
+import { middleware } from '#start/kernel'
+
 router
   .group(() => {
-    router.get('login', [controllers.SessionController, 'create'])
-    router.post('login', [controllers.SessionController, 'store'])
+    router.get('login', [controllers.Session, 'create'])
+    router.post('login', [controllers.Session, 'store'])
   })
   .use(middleware.guest())
 
 router
   .group(() => {
-    router.post('logout', [controllers.SessionController, 'destroy'])
+    router.post('logout', [controllers.Session, 'destroy'])
   })
   .use(middleware.auth())
 ```

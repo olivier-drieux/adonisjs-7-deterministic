@@ -32,13 +32,18 @@
 
 ```tsx
 import { Form, Link } from '@adonisjs/inertia/react'
-import type { InferPageProps } from '@adonisjs/inertia/types'
+import { InertiaProps } from '~/types'
+import { Data } from '@generated/data'
 import { Head, router, useRemember } from '@inertiajs/react'
 import { Button, Card, Stack, TextInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconPlus } from '@tabler/icons-react'
 import { client, urlFor } from '~/client'
 ```
+
+- `InertiaProps<T>` from `~/types` is the default page-prop helper in v7 starter kits. It composes the generated `SharedProps` with the page-specific shape.
+- `Data.<Resource>` from `@generated/data` exposes the shape emitted by `<Resource>Transformer`. Variant types are available as `Data.Post.Variants['<variantName>']`.
+- `InferPageProps` from `@adonisjs/inertia/types` is still exported as a low-level primitive for custom assembler hooks or advanced typing. It is **not** the day-to-day default.
 
 ## Root Provider Stack
 
@@ -81,6 +86,76 @@ export const urlFor = client.urlFor
 - Always export `client`.
 - Always export `urlFor`.
 - Do not export `queryClient` or `api` unless TanStack Query is actually used.
+
+### Tuyau `urlFor` and `client` API Signatures
+
+`urlFor` generates a URL string from a named route. Parameters are passed as a **flat object** — not nested under a `params` key:
+
+```ts
+import { urlFor } from '~/client'
+
+// Correct — flat parameters
+urlFor('posts.show', { id: 42 })
+// => '/posts/42'
+
+urlFor('users.posts.show', { userId: 1, id: 42 })
+// => '/users/1/posts/42'
+
+// No parameters
+urlFor('posts.index')
+// => '/posts'
+
+// WRONG — do not nest under params
+urlFor('posts.show', { params: { id: 42 } })
+```
+
+> Note: Tuyau's `urlFor(route, params)` takes a flat `params` positional argument. Separately, the `@adonisjs/inertia/react` `Link` and `Form` components use a **`routeParams` prop** (documented below). Do not confuse the two — `<Link route="..." routeParams={{ id }}>` is required in JSX; `urlFor('route', { id })` is used in plain TypeScript.
+
+`client` exposes typed route methods for making API calls:
+
+```ts
+import { client } from '~/client'
+
+// GET request
+const { data } = await client.posts.$get({ query: { page: 1, perPage: 20 } })
+
+// POST request
+const { data } = await client.posts.$post({ title: 'Hello', body: 'World' })
+
+// Route with parameters
+const { data } = await client.posts({ id: 42 }).$get()
+```
+
+Before using any Tuyau method for the first time, verify the exact signature by reading the types exported from `@generated/registry` or the Tuyau source. The API surface between `urlFor`, `client.getRoute`, and the chained route methods differs.
+
+### `@adonisjs/inertia/react` `Link` and `Form` props
+
+```tsx
+import { Form, Link } from '@adonisjs/inertia/react'
+
+// Single parameter
+<Link route="posts.show" routeParams={{ id: post.id }}>
+  {post.title}
+</Link>
+
+// Multiple parameters
+<Link route="users.posts.show" routeParams={{ userId: user.id, postId: post.id }}>
+  View post
+</Link>
+
+// Form
+<Form route="posts.update" routeParams={{ id: post.id }}>
+  {({ errors }) => (
+    <>
+      {/* fields */}
+    </>
+  )}
+</Form>
+```
+
+- The prop is **`routeParams`** — not `params`. Passing `params={...}` is an obsolete shape that no longer applies.
+- `routeParams` takes a flat object keyed by route parameter name: `{ id: 42 }`, never `{ params: { id: 42 } }`.
+- Always use named routes via `route` + `routeParams` instead of hardcoded URL strings.
 
 If TanStack Query is enabled, extend `inertia/client.ts` like this:
 

@@ -147,9 +147,9 @@
       "id": "hb.validation-stack",
       "tier": "hard_blocker",
       "applies_to": ["all"],
-      "statement": "HTTP validation uses VineJS and request.validateUsing(...). Inline controller validation and ad hoc payload parsing are not allowed.",
-      "required_patterns": ["VineJS", "request.validateUsing(...)"],
-      "forbidden_patterns": ["inline controller validation", "ad hoc payload parsing"],
+      "statement": "HTTP validation uses VineJS with vine.create(...) as the root schema and request.validateUsing(...) inside controllers. Inline controller validation and ad hoc payload parsing are not allowed.",
+      "required_patterns": ["VineJS", "vine.create(", "request.validateUsing(...)"],
+      "forbidden_patterns": ["inline controller validation", "ad hoc payload parsing", "vine.compile(vine.object(...)) as a root schema"],
       "conflict_behavior": "Stop, cite `hb.validation-stack`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
       "test_ids": ["ok_web_standard", "violation_request_only"]
@@ -378,9 +378,9 @@
       "id": "ed.inertia-shared-props",
       "tier": "enforced_default",
       "applies_to": ["web", "mixed", "frontend"],
-      "statement": "Shared Inertia props live in app/middleware/inertia_middleware.ts and stay minimal: auth, flash, errors, and app { name, env } only.",
-      "required_patterns": ["auth", "flash", "errors", "app { name, env }"],
-      "forbidden_patterns": ["lists, counters, filters, or page data in shared props"],
+      "statement": "Shared Inertia props live in app/middleware/inertia_middleware.ts. The middleware extends BaseInertiaMiddleware from @adonisjs/inertia/inertia_middleware and stays minimal: user (via UserTransformer), flash, errors, and app { name, env } only. Augment SharedProps through declare module '@adonisjs/inertia/types'.",
+      "required_patterns": ["extends BaseInertiaMiddleware", "user", "flash", "errors", "app { name, env }", "declare module '@adonisjs/inertia/types'"],
+      "forbidden_patterns": ["lists, counters, filters, or page data in shared props", "InertiaMiddleware without a base class"],
       "conflict_behavior": "Apply the minimal shared-props contract by default.",
       "override_allowed": false,
       "test_ids": ["ok_web_standard"]
@@ -488,20 +488,42 @@
       "id": "ed.generators-and-naming",
       "tier": "enforced_default",
       "applies_to": ["all"],
-      "statement": "Use node ace generators for controllers, validators, services, policies, mails, events, listeners, commands, transformers, and tests. Keep canonical naming for route names, policy abilities, services, validators, and command names.",
-      "required_patterns": ["node ace make:controller", "node ace make:validator", "node ace make:service", "verb-first command names"],
-      "forbidden_patterns": ["manual scaffolding when a generator exists"],
+      "statement": "Use node ace generators for controllers, validators, services, policies, mails, events, listeners, commands, transformers, and tests. Keep canonical naming for route names, policy abilities, services, validators, and command names. Reference controllers through the generated barrel: import { controllers } from '#generated/controllers' then use the PascalCase resource name (controllers.Posts), not a suffixed alias.",
+      "required_patterns": ["node ace make:controller", "node ace make:validator", "node ace make:service", "#generated/controllers", "controllers.Posts", "verb-first command names"],
+      "forbidden_patterns": ["manual scaffolding when a generator exists", "controllers.PostsController as a barrel entry"],
       "conflict_behavior": "Apply generator-first naming defaults unless the repository already standardizes a compatible variant.",
       "override_allowed": false,
       "test_ids": ["ok_web_standard"]
     },
     {
+      "id": "ed.runtime-prerequisites",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "AdonisJS v7 requires Node.js 24 or higher and npm 11 or higher. Use npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api> to scaffold new applications. Start the dev server with node ace serve --hmr for development.",
+      "required_patterns": ["Node.js >= 24", "npm >= 11", "npm create adonisjs@latest", "node ace serve --hmr"],
+      "forbidden_patterns": ["Node.js < 24 in documentation or CI", "npm init adonisjs@latest as the canonical scaffold command"],
+      "conflict_behavior": "Apply the v7 runtime prerequisites as the default environment contract.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.adonisrc-hooks",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "adonisrc.ts declares the v7 hooks pipeline under hooks.init: indexEntities() from @adonisjs/core is mandatory. Inertia apps add indexPages({ framework: 'react' }) from @adonisjs/inertia plus generateRegistry() from @tuyau/core/hooks and indexEntities({ transformers: { enabled: true, withSharedProps: true } }). Bouncer apps add indexPolicies() from @adonisjs/bouncer. Vite apps add @adonisjs/vite/build_hook under buildStarting. These hooks generate #generated/controllers, @generated/data, @generated/registry, and the typed shared-props surface.",
+      "required_patterns": ["hooks.init", "indexEntities()", "indexPages({ framework: 'react' })", "generateRegistry()", "indexPolicies()", "@adonisjs/vite/build_hook"],
+      "forbidden_patterns": ["adonisrc.ts without indexEntities()", "missing indexPages for Inertia apps", "missing generateRegistry for Tuyau-backed apps"],
+      "conflict_behavior": "Apply the canonical hooks pipeline whenever Inertia, Tuyau, Bouncer, or Vite are in use.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+    },
+    {
       "id": "ed.api-contracts",
       "tier": "enforced_default",
       "applies_to": ["mixed", "api-only", "api"],
-      "statement": "Serialize API success payloads with transformers and no extra global data envelope. Use flat { code, message } domain errors and canonical statuses: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.",
+      "statement": "Serialize API success payloads with transformers through the framework serialize(...) helper. The helper produces the canonical AdonisJS v7 envelope ({ data: ... } for resources, paginator shape for lists); do not wrap it in a second custom envelope. Use flat { code, message } domain errors and canonical statuses: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.",
       "required_patterns": ["serialize(...)", "{ code, message }", "201/200/204/403/404/409"],
-      "forbidden_patterns": ["global data envelope", "global error envelope"],
+      "forbidden_patterns": ["custom wrapper around serialize() output", "global error envelope"],
       "conflict_behavior": "Apply the canonical API payload defaults unless a surrounding contract already requires a compatible alternative.",
       "override_allowed": false,
       "test_ids": ["ok_api_only_resource", "ok_mixed_browser_api"]
@@ -593,6 +615,17 @@
       "conflict_behavior": "Apply this observability preference when maintaining the skill pack itself.",
       "override_allowed": false,
       "test_ids": ["ok_web_standard", "ok_repo_conflict_out_of_scope"]
+    },
+    {
+      "id": "adv.verify-api-before-use",
+      "tier": "advisory",
+      "applies_to": ["all"],
+      "statement": "Before using a package API for the first time in a session, read the exported types or source to confirm the exact signature. AdonisJS ecosystem packages (@adonisjs/inertia/react Link and Form, Tuyau urlFor and client, pdfkit, @adonisjs/mail attach) have specific APIs that LLMs frequently hallucinate. Guessing a signature and fixing it later costs more than reading the type first.",
+      "required_patterns": ["verify type signature before first use"],
+      "forbidden_patterns": ["guessed API signatures without reading types"],
+      "conflict_behavior": "Note this preference when integrating a package API. Do not stop execution, but prefer reading types over guessing.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
     }
   ]
 }

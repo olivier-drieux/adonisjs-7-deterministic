@@ -13,9 +13,13 @@ Recommended order:
 
 ```ts
 // start/routes.ts
+import router from '@adonisjs/core/services/router'
+import { controllers } from '#generated/controllers'
+import { middleware } from '#start/kernel'
+
 router
   .group(() => {
-    router.resource('posts', controllers.PostsController)
+    router.resource('posts', controllers.Posts)
   })
   .use(middleware.auth())
 ```
@@ -54,12 +58,14 @@ export default class PostsController {
 ```tsx
 // inertia/pages/posts/index.tsx
 import { Form, Link } from '@adonisjs/inertia/react'
-import type { InferPageProps } from '@adonisjs/inertia/types'
+import { InertiaProps } from '~/types'
+import { Data } from '@generated/data'
 import { Button, Card, Group, Stack, TextInput, Title } from '@mantine/core'
-import { IconPlus } from '@tabler/icons-react'
-import type PostsController from '#controllers/posts_controller'
+import { IconEye, IconPlus } from '@tabler/icons-react'
 
-type Props = InferPageProps<PostsController, 'index'>
+type Props = InertiaProps<{
+  posts: Data.Post[]
+}>
 
 export default function PostsIndex({ posts }: Props) {
   return (
@@ -70,6 +76,17 @@ export default function PostsIndex({ posts }: Props) {
           <Button leftSection={<IconPlus size={16} />}>New post</Button>
         </Link>
       </Group>
+
+      {posts.map((post) => (
+        <Card key={post.id} withBorder>
+          <Group justify="space-between">
+            <span>{post.title}</span>
+            <Link route="posts.show" routeParams={{ id: post.id }}>
+              <Button variant="subtle" leftSection={<IconEye size={16} />}>View</Button>
+            </Link>
+          </Group>
+        </Card>
+      ))}
 
       <Card withBorder>
         <Form route="posts.store">
@@ -86,6 +103,25 @@ export default function PostsIndex({ posts }: Props) {
   )
 }
 ```
+
+### Link with Dynamic Parameters
+
+The `@adonisjs/inertia/react` `Link` component accepts a `routeParams` prop for named route parameters. Pass route parameters as a flat object:
+
+```tsx
+// Navigation to a resource page — use routeParams with flat key/value pairs
+<Link route="posts.show" routeParams={{ id: post.id }}>View</Link>
+<Link route="posts.edit" routeParams={{ id: post.id }}>Edit</Link>
+
+// Form targeting a specific resource
+<Form route="posts.update" routeParams={{ id: post.id }}>
+  {({ errors }) => (/* ... */)}
+</Form>
+```
+
+- The prop is **`routeParams`** — not `params`. In AdonisJS v7, `params` is not a valid prop name for `Link` or `Form`.
+- `routeParams` takes a flat object matching the route parameter names: `{ id: post.id }`, never `{ routeParams: { id: post.id } }` nested, and never `{ params: { id: post.id } }`.
+- Always use named routes with `route` + `routeParams` instead of hardcoded URL strings.
 
 - Keep the authenticated shell in `inertia/layouts/app_layout.tsx`.
 - Keep guest pages like login in `inertia/layouts/guest_layout.tsx`.

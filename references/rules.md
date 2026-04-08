@@ -12,7 +12,7 @@ Use this file as the human-readable index:
 
 - `hb.official-packages`: official AdonisJS packages, official setup flows, and `node ace` generators come first.
 - `hb.data-stack`: Lucid for SQL persistence and Luxon `DateTime` for domain/model dates.
-- `hb.validation-stack`: VineJS plus `request.validateUsing(...)`; no inline validation.
+- `hb.validation-stack`: VineJS with `vine.create(...)` as the root schema plus `request.validateUsing(...)`; no inline validation and no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: `@adonisjs/auth` plus session/cookie auth for browser-driven flows.
 - `hb.guard-names`: fixed guard names `web` and `api`.
 - `hb.browser-csrf`: browser-facing Inertia apps keep `enableXsrfCookie: true`.
@@ -36,7 +36,7 @@ Use this file as the human-readable index:
 - `ed.application-profiles`: choose `web`, `mixed`, or `api-only` first and keep the profile stable.
 - `ed.feature-order`: package coverage, env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, UI.
 - `ed.routing-and-kernel`: named routes, helpers, separate route groups, and middleware in `start/kernel.ts`.
-- `ed.inertia-shared-props`: only `auth`, `flash`, `errors`, and `app { name, env }`.
+- `ed.inertia-shared-props`: middleware extends `BaseInertiaMiddleware`; share only `user`, `flash`, `errors`, and `app { name, env }`; augment `SharedProps` via `declare module '@adonisjs/inertia/types'`.
 - `ed.service-layer`: business logic in services with canonical verbs and domain returns.
 - `ed.validator-layer`: one validator per action, prefer explicit duplication over inheritance.
 - `ed.model-and-policy-layer`: model relations/hooks stay in models; policies stay explicit and default to `403`.
@@ -46,8 +46,10 @@ Use this file as the human-readable index:
 - `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
 - `ed.inertia-filesystem-layout`: canonical `inertia/*` directory structure and server-owned business logic.
 - `ed.frontend-library-and-state-policy`: Mantine-first UI, limited `@inertiajs/react`, UI-only Zustand, Tuyau for explicit client fetches, TanStack only when justified.
-- `ed.generators-and-naming`: `node ace` generators and canonical names for routes, services, validators, policies, and commands.
-- `ed.api-contracts`: `serialize(...)` with transformers, flat `{ code, message }` errors, canonical status codes.
+- `ed.generators-and-naming`: `node ace` generators and canonical names for routes, services, validators, policies, and commands. Reference controllers as `controllers.Posts` through `#generated/controllers`, not `controllers.PostsController`.
+- `ed.runtime-prerequisites`: Node.js ≥ 24, npm ≥ 11, `npm create adonisjs@latest ... -- --kit=<name>`, `node ace serve --hmr`.
+- `ed.adonisrc-hooks`: `adonisrc.ts` declares `hooks.init` with `indexEntities()` (mandatory), `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack; `buildStarting` wires `@adonisjs/vite/build_hook` for Vite apps.
+- `ed.api-contracts`: `serialize(...)` with transformers (the helper already produces the canonical `{ data }` / `{ data, meta }` envelope — do not add a second wrapper), flat `{ code, message }` errors, canonical status codes.
 - `ed.query-pagination`: dedicated list validators, `page`, `perPage`, `q`, `sort`, `direction`, default `20`, max `100`.
 - `ed.transactions-side-effects-and-commands`: services orchestrate writes, transactions stay explicit, external I/O stays outside when possible, recurring Ace commands are idempotent.
 - `ed.web-mutations-and-browser-api-auth`: redirects plus flash for web mutations, session auth for browser-called `/api`, tokens for external APIs.

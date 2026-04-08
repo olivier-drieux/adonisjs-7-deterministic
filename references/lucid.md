@@ -8,10 +8,48 @@
 
 ## Current AdonisJS 7 Default
 
-- Current AdonisJS 7 Lucid docs use generated schema-backed models.
-- New models may extend schema classes from `#database/schema`.
-- Keep custom logic in the model class, not in generated schema files.
+- Lucid v7 follows a **migrations-first** approach: after every migration run, the assembler scans the database and generates a fresh `database/schema.ts` barrel with one `<Name>Schema` class per table. Columns, primary keys, camelCase names, and Luxon `DateTime` timestamps are inferred directly from the schema.
+- Keep generated schema classes untouched. They are rewritten whenever migrations change.
+- Domain logic and relations still live in `app/models/*.ts`. Extend the generated schema class from `database/schema.ts` inside the application model, then add relations, scopes, hooks, and typed helpers on top. The generated class owns the column set; the application model owns behavior.
 - If the repo still uses classic in-model column decorators, stay consistent within that repo slice. Do not mix both styles in one feature unless migrating intentionally.
+
+```ts
+// database/schema.ts — generated, do not edit by hand
+import { DateTime } from 'luxon'
+import { BaseModel, column } from '@adonisjs/lucid/orm'
+
+export class PostsSchema extends BaseModel {
+  static table = 'posts'
+
+  @column({ isPrimary: true })
+  declare id: number
+
+  @column()
+  declare title: string
+
+  @column()
+  declare content: string
+
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+```
+
+```ts
+// app/models/post.ts — application model (domain logic)
+import { PostsSchema } from '../../database/schema.js'
+import { belongsTo } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import User from '#models/user'
+
+export default class Post extends PostsSchema {
+  @belongsTo(() => User)
+  declare author: BelongsTo<typeof User>
+}
+```
 
 ## Model Rules
 

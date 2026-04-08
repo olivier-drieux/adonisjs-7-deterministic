@@ -33,6 +33,34 @@ return { url }
 - Store the key.
 - Return a signed URL or persist export metadata.
 
+### Binary Downloads vs Inertia Navigation
+
+Inertia `<Link>` triggers XHR navigation and expects an Inertia JSON response. A route that returns a binary (PDF, CSV, ZIP, image) will break if called through `<Link>` because the XHR response is not an Inertia page.
+
+**Rule: binary download routes never go through Inertia navigation.** Use a native `<a>` tag or `window.location.href` instead.
+
+```tsx
+// Correct — native anchor for a binary download
+import { urlFor } from '~/client'
+
+<a href={urlFor('invoices.export', { id: invoice.id })} download>
+  <Button>Download PDF</Button>
+</a>
+
+// Correct — programmatic download
+function handleExport(id: number) {
+  window.location.href = urlFor('invoices.export', { id })
+}
+
+// WRONG — Inertia Link for a binary route
+<Link route="invoices.export" routeParams={{ id: invoice.id }}>Download</Link>
+```
+
+- If the route returns a **page**, use `<Link>` with `routeParams`.
+- If the route returns a **file or binary stream**, use `<a href>` or `window.location.href`.
+- For signed URLs from Drive, render the signed URL in a plain `<a>` tag.
+- Tuyau's `urlFor('route', { id })` uses a flat positional argument. The `@adonisjs/inertia/react` `Link` and `Form` props use the named prop `routeParams`. They are two different APIs for two different contexts — do not confuse `params` with `routeParams`.
+
 ## Upload or Persistent Storage via Drive
 
 ```ts

@@ -18,6 +18,11 @@ These patterns are **never** allowed by default. If the user explicitly requests
 | Prisma, Drizzle | Lucid ORM + Luxon DateTime | `hb.data-stack` |
 | `request.all()`, `request.only()` | `request.validateUsing(validator)` | `hb.no-request-all-only` |
 | Inline controller validation | VineJS validator file + `request.validateUsing(...)` | `hb.validation-stack` |
+| `vine.compile(vine.object({...}))` as a root schema | `vine.create({...})` (v7 canonical form) | `hb.validation-stack` |
+| `<Link params={{ id }}>` / `<Form params={{ id }}>` | `<Link routeParams={{ id }}>` / `<Form routeParams={{ id }}>` | `ed.inertia-filesystem-layout` |
+| `controllers.PostsController` from `#generated/controllers` | `controllers.Posts` (PascalCase resource name, no suffix) | `ed.generators-and-naming` |
+| `InertiaMiddleware` without a base class | `extends BaseInertiaMiddleware` from `@adonisjs/inertia/inertia_middleware` | `ed.inertia-shared-props` |
+| Wrapping `serialize(...)` in a second `{ data: ... }` envelope | Return `serialize(...)` directly — the helper already emits `{ data }` / `{ data, meta }` | `ed.api-contracts` |
 | Bearer tokens for browser auth | `@adonisjs/auth` session/cookie auth | `hb.auth-browser-stack` |
 | Renamed guard names | Fixed `web` and `api` guard names | `hb.guard-names` |
 | Disabling CSRF for Inertia | `enableXsrfCookie: true` | `hb.browser-csrf` |
@@ -43,14 +48,23 @@ package coverage → env/config → migration → model → validator → policy
 
 ## Key Defaults
 
-- Named routes and route helpers, separate web and `/api` groups.
+- Named routes and route helpers, separate web and `/api` groups. Controllers via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`.
 - Services with canonical verbs: `list`, `findOrFail`, `create`, `update`, `delete`.
-- One validator per action. One policy per protected resource. Prefer `denies(...)` checks.
-- Web mutations: redirect + flash. API: `serialize(...)` with transformers, flat `{ code, message }` errors.
+- One validator per action built with `vine.create({...})`. One policy per protected resource. Prefer `denies(...)` checks.
+- Web mutations: redirect + flash. API: `serialize(...)` with transformers (already produces `{ data }` / `{ data, meta }`), flat `{ code, message }` errors.
 - Status codes: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found.
-- Shared Inertia props: only `auth`, `flash`, `errors`, `app { name, env }`.
+- Shared Inertia props: only `user`, `flash`, `errors`, `app { name, env }`. Middleware extends `BaseInertiaMiddleware`.
+- Page props typed with `InertiaProps<{...}>` from `~/types` and `Data.<Resource>` from `@generated/data`.
+- Inertia `Link` and `Form` take `routeParams={{ id }}` — never `params={{ id }}`.
 - SSR off by default. Mantine + Tabler icons. `@adonisjs/inertia/react` Link and Form.
 - Tests: `tests/functional` for request flows, `tests/unit` for isolated logic.
+
+## Runtime Prerequisites
+
+- Node.js ≥ 24, npm ≥ 11.
+- Scaffold: `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. The `api` kit is a Turborepo monorepo.
+- Dev server: `node ace serve --hmr`.
+- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack.
 
 ## Source of Truth
 

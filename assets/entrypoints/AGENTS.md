@@ -24,7 +24,7 @@ Each stops execution on conflict. Cite the rule id and ask before proceeding.
 
 - `hb.official-packages`: Use official AdonisJS packages and `node ace` generators first.
 - `hb.data-stack`: Lucid for SQL persistence, Luxon DateTime for dates. No Prisma/Drizzle.
-- `hb.validation-stack`: VineJS with `request.validateUsing(...)`. No inline validation.
+- `hb.validation-stack`: VineJS with `vine.create(...)` as the root schema and `request.validateUsing(...)`. No inline validation, no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: `@adonisjs/auth` session/cookie for browser flows.
 - `hb.guard-names`: Fixed guard names `web` and `api`.
 - `hb.browser-csrf`: `enableXsrfCookie: true` for browser-facing Inertia apps.
@@ -48,13 +48,22 @@ package coverage → env/config → migration → model → validator → policy
 
 ## Key Defaults
 
-- Named routes, route helpers, separate web and `/api` groups.
+- Named routes, route helpers, separate web and `/api` groups. Controllers imported via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`, not `controllers.PostsController`.
 - Services: `list`, `findOrFail`, `create`, `update`, `delete`.
-- One validator per action. One policy per resource. `denies(...)` checks.
-- Web: redirect + flash. API: `serialize(...)`, flat `{ code, message }` errors, 201/200/204/403/404.
-- Shared Inertia props: `auth`, `flash`, `errors`, `app { name, env }` only.
+- One validator per action (built with `vine.create({...})`). One policy per resource. `denies(...)` checks.
+- Web: redirect + flash. API: `serialize(...)` (already emits `{ data }` / `{ data, meta }`; do not wrap a second time), flat `{ code, message }` errors, 201/200/204/403/404.
+- Shared Inertia props: `user`, `flash`, `errors`, `app { name, env }` only. Middleware extends `BaseInertiaMiddleware`. Augment `SharedProps` via `declare module '@adonisjs/inertia/types'`.
+- Inertia `Link` and `Form` from `@adonisjs/inertia/react` take `routeParams={{ id }}` — never `params={{ id }}`.
+- Page props typed with `InertiaProps<{...}>` from `~/types` and `Data.<Resource>` from `@generated/data`.
 - SSR off. Mantine + Tabler icons. `@adonisjs/inertia/react` Link and Form.
 - `tests/functional` for request flows, `tests/unit` for isolated logic.
+
+## Runtime Prerequisites
+
+- Node.js ≥ 24, npm ≥ 11. TypeScript 5.9/6.0, Vite 7 for Inertia stacks.
+- Scaffold: `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. The `api` kit is a Turborepo monorepo (`apps/backend` + `apps/frontend`).
+- Dev server: `node ace serve --hmr`.
+- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack.
 
 ## Source of Truth
 

@@ -7,7 +7,8 @@
 - For CRUD, prefer `node ace make:validator <resource> --resource`.
 - For `node ace make:validator post --resource`, keep the generated `app/validators/post.ts` file and import validators from `#validators/post`.
 - Keep one validator file per resource or workflow and one compiled validator per action.
-- Prefer `vine.compile(vine.object(...))`.
+- Use `vine.create({...})` as the canonical root schema (new in AdonisJS v7 VineJS).
+- Do not wrap the root schema in `vine.compile(vine.object(...))`; that pattern is obsolete at the top level. `vine.object(...)` is still valid for nested schemas (filters, params, etc.).
 - In controller code, use `await request.validateUsing(...)`.
 - Do not use `request.all()` or `request.only()` as feature-level validation shortcuts.
 
@@ -22,19 +23,15 @@
 ```ts
 import vine from '@vinejs/vine'
 
-export const createPostValidator = vine.compile(
-  vine.object({
-    title: vine.string().trim().minLength(3).maxLength(255),
-    body: vine.string().trim(),
-  })
-)
+export const createPostValidator = vine.create({
+  title: vine.string().trim().minLength(3).maxLength(255),
+  body: vine.string().trim(),
+})
 
-export const updatePostValidator = vine.compile(
-  vine.object({
-    title: vine.string().trim().minLength(3).maxLength(255),
-    body: vine.string().trim(),
-  })
-)
+export const updatePostValidator = vine.create({
+  title: vine.string().trim().minLength(3).maxLength(255),
+  body: vine.string().trim(),
+})
 ```
 
 ## Canonical List Query Validator
@@ -42,15 +39,13 @@ export const updatePostValidator = vine.compile(
 ```ts
 import vine from '@vinejs/vine'
 
-export const listPostsValidator = vine.compile(
-  vine.object({
-    page: vine.number().withoutDecimals().positive().optional(),
-    perPage: vine.number().withoutDecimals().range([1, 100]).optional(),
-    q: vine.string().trim().optional(),
-    sort: vine.enum(['created_at', 'title'] as const).optional(),
-    direction: vine.enum(['asc', 'desc'] as const).optional(),
-  })
-)
+export const listPostsValidator = vine.create({
+  page: vine.number().withoutDecimals().positive().optional(),
+  perPage: vine.number().withoutDecimals().range([1, 100]).optional(),
+  q: vine.string().trim().optional(),
+  sort: vine.enum(['created_at', 'title'] as const).optional(),
+  direction: vine.enum(['asc', 'desc'] as const).optional(),
+})
 ```
 
 - Keep list query validation in the same resource validator file when the endpoint belongs to that resource.
@@ -61,14 +56,30 @@ export const listPostsValidator = vine.compile(
 ```ts
 import vine from '@vinejs/vine'
 
-export const updateAvatarValidator = vine.compile(
-  vine.object({
-    avatar: vine.file({
-      size: '2mb',
-      extnames: ['jpg', 'jpeg', 'png', 'webp'],
-    }),
-  })
-)
+export const updateAvatarValidator = vine.create({
+  avatar: vine.file({
+    size: '2mb',
+    extnames: ['jpg', 'jpeg', 'png', 'webp'],
+  }),
+})
+```
+
+## Multi-Source Validation
+
+`vine.create` accepts arbitrary sections (body, query, params, headers, cookies). Use nested `vine.object(...)` for these subtrees when the same action must validate several request parts.
+
+```ts
+import vine from '@vinejs/vine'
+
+export const showUserValidator = vine.create({
+  username: vine.string(),
+  params: vine.object({
+    id: vine.number(),
+  }),
+  headers: vine.object({
+    'x-api-key': vine.string(),
+  }),
+})
 ```
 
 ## Custom Messages and Reporters

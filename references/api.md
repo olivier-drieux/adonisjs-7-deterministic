@@ -23,12 +23,12 @@
 
 ## Response Shapes
 
-- Single resource: transformed object.
-- Non-paginated list: transformed array.
-- Paginated list: use the official paginator serialization shape.
-- These shapes come from Adonis serializer output, not a custom response envelope.
-- Do not invent a universal `data/meta` envelope for every endpoint unless the target repo already requires it.
-- Domain errors use a flat `{ code, message }` shape.
+- Single resource: `{ data: { ... } }` — the serializer wraps the transformed object in a `data` key.
+- Non-paginated list: `{ data: [ ... ] }` — the serializer wraps the transformed array in `data`.
+- Paginated list: `{ data: [ ... ], meta: { ... } }` — the serializer emits the standard paginator envelope.
+- These shapes are produced **by the framework `serialize(...)` helper** in AdonisJS v7. They are the canonical Adonis serializer output, not a custom response envelope.
+- Do not add a second custom wrapper around `serialize(...)` output (no `response.ok({ data: serialize(...) })`, no `{ success: true, payload: ... }`).
+- Domain errors use a flat `{ code, message }` shape; do not introduce a global `error` envelope.
 
 ## Status Codes
 

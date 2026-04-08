@@ -9,6 +9,15 @@ This flat table summarizes every hard blocker as a forbidden import, API call, o
 | `request.all()` | `request.validateUsing(validator)` | `hb.no-request-all-only` |
 | `request.only(...)` | `request.validateUsing(validator)` | `hb.no-request-all-only` |
 | Inline validation logic in controller | VineJS validator file + `request.validateUsing(...)` | `hb.validation-stack` |
+| `vine.compile(vine.object({...}))` as a root schema | `vine.create({...})` (v7 canonical form) | `hb.validation-stack` |
+| `<Link params={{ id }}>` / `<Form params={{ id }}>` | `<Link routeParams={{ id }}>` / `<Form routeParams={{ id }}>` | `ed.inertia-filesystem-layout`, `adv.verify-api-before-use` |
+| `controllers.PostsController` from `#generated/controllers` | `controllers.Posts` (PascalCase resource name, no suffix) | `ed.generators-and-naming` |
+| `InertiaMiddleware` without extending a base class | `extends BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'` | `ed.inertia-shared-props` |
+| `auth` as the Inertia shared-prop name for the current user | `user` (v7 default) | `ed.inertia-shared-props` |
+| `adonisrc.ts` without `indexEntities()` in `hooks.init` | Add `indexEntities()` (mandatory) + per-stack hooks | `ed.adonisrc-hooks` |
+| `history.encrypt` / `sharedData` / `entrypoint` in `config/inertia.ts` | Top-level `encryptHistory`; shared data in the Inertia middleware; `entrypoint` removed | `ed.config-and-env`, `ed.inertia-shared-props` |
+| `npm init adonisjs@latest` as the canonical scaffold | `npm create adonisjs@latest my-app -- --kit=<name>` | `ed.runtime-prerequisites` |
+| Node.js < 24 / npm < 11 in CI or Docker | Node.js ≥ 24, npm ≥ 11 | `ed.runtime-prerequisites` |
 | `Authorization: Bearer` for browser auth | `@adonisjs/auth` session/cookie guard | `hb.auth-browser-stack` |
 | Custom guard names (`admin`, `user`, etc.) | Fixed `web` and `api` guard names | `hb.guard-names` |
 | `enableXsrfCookie: false` in Inertia apps | `enableXsrfCookie: true` | `hb.browser-csrf` |

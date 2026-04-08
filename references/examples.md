@@ -10,8 +10,9 @@ These few-shot examples show how the doctrine behaves in practice. Use them to c
 1. Select profile `web`.
 2. No hard blocker conflict — proceed.
 3. Follow canonical build order: migration → model → validator → policy → service → transformer → controller → routes → tests → pages.
-4. Use `@adonisjs/inertia/react` Form, Mantine components, `request.validateUsing(...)`, redirect + flash.
-5. Final markers:
+4. Use `@adonisjs/inertia/react` Form with `routeParams`, Mantine components, VineJS `vine.create(...)` validators invoked with `request.validateUsing(...)`, redirect + flash.
+5. Reference controllers through `#generated/controllers` as `controllers.Posts`; type pages with `InertiaProps<{ posts: Data.Post[] }>`.
+6. Final markers:
    - `selected-profile: web`
    - `override-status: none`
    - `hard-blocker-compliance: pass`

@@ -3,7 +3,9 @@
 ## Defaults
 
 - Import `router` from `@adonisjs/core/services/router`.
-- Default to controller routes via `#generated/controllers`.
+- Default to controller routes via the generated barrel: `import { controllers } from '#generated/controllers'`.
+- Reference controllers by their **PascalCase resource name** (the v7 barrel convention), e.g. `controllers.Posts`, `controllers.Session`, `controllers.ApiPosts`. Do not use the full class-name suffix (`controllers.PostsController`) — that is not how the v7 barrel exposes entries.
+- The dev server must be running so the assembler can keep `#generated/controllers` in sync when you add or rename a controller file.
 - Use `router.on().renderInertia(...)` only for truly static pages with no controller logic.
 - Put static routes before dynamic routes.
 - Name every closure route with `.as(...)`.
@@ -20,8 +22,8 @@
 
 ## `router.resource` Versus Explicit Routes
 
-- Use `router.resource('posts', controllers.PostsController)` only when one web controller owns standard CRUD pages and actions.
-- Use `router.resource('posts', controllers.ApiPostsController).apiOnly()` only for pure API CRUD.
+- Use `router.resource('posts', controllers.Posts)` only when one web controller owns standard CRUD pages and actions.
+- Use `router.resource('posts', controllers.ApiPosts).apiOnly()` only for pure API CRUD.
 - Use explicit routes for:
   - custom actions like `publish`, `archive`, `impersonate`, `export`
   - mixed middleware or policy shape
@@ -37,23 +39,23 @@ import { middleware } from '#start/kernel'
 
 router
   .group(() => {
-    router.get('login', [controllers.SessionController, 'create'])
-    router.post('login', [controllers.SessionController, 'store'])
+    router.get('login', [controllers.Session, 'create'])
+    router.post('login', [controllers.Session, 'store'])
   })
   .use(middleware.guest())
 
 router
   .group(() => {
-    router.post('logout', [controllers.SessionController, 'destroy'])
-    router.resource('posts', controllers.PostsController)
-    router.post('posts/:id/publish', [controllers.PostPublishController, 'store']).as('posts.publish')
+    router.post('logout', [controllers.Session, 'destroy'])
+    router.resource('posts', controllers.Posts)
+    router.post('posts/:id/publish', [controllers.PostPublish, 'store']).as('posts.publish')
   })
   .use(middleware.auth())
 
 router
   .group(() => {
-    router.resource('posts', controllers.ApiPostsController).apiOnly()
-    router.get('posts/search', [controllers.ApiPostSearchController, 'index']).as('posts.search')
+    router.resource('posts', controllers.ApiPosts).apiOnly()
+    router.get('posts/search', [controllers.ApiPostSearch, 'index']).as('posts.search')
   })
   .prefix('/api')
   .as('api')

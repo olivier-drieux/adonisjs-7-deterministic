@@ -10,6 +10,7 @@ Keep these layers in sync:
 - [rules/manifest.json](./rules/manifest.json): canonical machine-readable rules, protocol markers, and eval coverage
 - [references/](./references/): longer human-readable guidance
 - [assets/wrappers/](./assets/wrappers/): condensed cross-agent wrappers
+- [MAINTENANCE.md](./MAINTENANCE.md): quarterly sync cadence, Context7 queries, divergence-report template, and fix workflow
 
 If two files disagree, follow `rules/manifest.json`, then `SKILL.md`.
 

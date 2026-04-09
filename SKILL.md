@@ -53,7 +53,7 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 
 ## Reference Map
 
-- **Source of truth**: `rules/manifest.json`, `references/rules.md`.
+- **Source of truth**: `rules/manifest.json`, `references/rules.md`, `MAINTENANCE.md` (sync cadence and fix workflow).
 - **Setup**: `references/setup.md` (Node 24 / npm 11, starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks).
 - **Core references**: `routing.md`, `validation.md`, `lucid.md`, `auth.md`, `api.md`, `bouncer.md`, `mail.md`, `drive.md`, `events.md`, `inertia-libraries.md`, `rendering.md`, `transformers.md`, `testing.md`, `examples.md`.
 - **Patterns**: `patterns/crud-web.md`, `patterns/auth-flow.md`, `patterns/api-resource.md`, `patterns/frontend-bootstrap.md`, `patterns/advanced.md`.

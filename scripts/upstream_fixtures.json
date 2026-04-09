@@ -1,0 +1,115 @@
+{
+  "description": "Local invariants that capture what the skill expects from the AdonisJS v7 upstream surface. scripts/check_upstream.mjs asserts every positive fingerprint is present at least once in SKILL.md, references/**/*.md, and references/patterns/**/*.md, and that every anti-pattern is absent from the same files. MAINTENANCE.md documents how to update this file during a quarterly Context7 sync.",
+  "positive_fingerprints": [
+    {
+      "pattern": "controllers.Posts",
+      "topic": "generators-and-naming",
+      "rule_id": "ed.generators-and-naming",
+      "why": "v7 exposes controllers through #generated/controllers barrel by PascalCase resource name, not with a Controller suffix."
+    },
+    {
+      "pattern": "vine.create(",
+      "topic": "validation",
+      "rule_id": "hb.validation-stack",
+      "why": "v7 canonical root schema helper. v6 used vine.compile(vine.object(...)) which is now an anti-pattern."
+    },
+    {
+      "pattern": "request.validateUsing",
+      "topic": "validation",
+      "rule_id": "hb.validation-stack",
+      "why": "Controllers must validate via request.validateUsing(validator), never via request.all() or request.only()."
+    },
+    {
+      "pattern": "extends BaseInertiaMiddleware",
+      "topic": "inertia",
+      "rule_id": "ed.inertia-shared-props",
+      "why": "v7 shared-props middleware must extend BaseInertiaMiddleware from @adonisjs/inertia/inertia_middleware."
+    },
+    {
+      "pattern": "enableXsrfCookie: true",
+      "topic": "shield",
+      "rule_id": "hb.browser-csrf",
+      "why": "Browser-facing Inertia apps keep CSRF XSRF cookie enabled."
+    },
+    {
+      "pattern": "routeParams=",
+      "topic": "inertia",
+      "rule_id": "ed.inertia-filesystem-layout",
+      "why": "@adonisjs/inertia/react Link and Form use the routeParams prop in v7, never params."
+    },
+    {
+      "pattern": "indexEntities()",
+      "topic": "adonisrc-hooks",
+      "rule_id": "ed.adonisrc-hooks",
+      "why": "Mandatory v7 hook: generates #generated/controllers and enables transformer types."
+    },
+    {
+      "pattern": "encryptHistory",
+      "topic": "inertia",
+      "rule_id": "ed.config-and-env",
+      "why": "v7 config/inertia.ts top-level option. v6 used history.encrypt which is now an anti-pattern."
+    },
+    {
+      "pattern": "npm create adonisjs@latest",
+      "topic": "setup",
+      "rule_id": "ed.runtime-prerequisites",
+      "why": "Canonical v7 scaffold command. v6 used npm init adonisjs@latest which still resolves but is not the documented form."
+    },
+    {
+      "pattern": "node ace serve --hmr",
+      "topic": "setup",
+      "rule_id": "ed.runtime-prerequisites",
+      "why": "Canonical v7 dev server invocation."
+    }
+  ],
+  "anti_patterns": [
+    {
+      "pattern": "controllers.PostsController",
+      "topic": "generators-and-naming",
+      "rule_id": "ed.generators-and-naming",
+      "why": "Old barrel shape. #generated/controllers exposes PascalCase resource names without the Controller suffix in v7."
+    },
+    {
+      "pattern": "vine.compile(vine.object(",
+      "topic": "validation",
+      "rule_id": "hb.validation-stack",
+      "why": "v6 form. v7 uses vine.create(...) as the root schema."
+    },
+    {
+      "pattern": " params={{",
+      "topic": "inertia",
+      "rule_id": "ed.inertia-filesystem-layout",
+      "why": "v6-style Link/Form prop. v7 uses routeParams={{ ... }}."
+    },
+    {
+      "pattern": "history.encrypt",
+      "topic": "inertia",
+      "rule_id": "ed.config-and-env",
+      "why": "v6 config/inertia.ts option. v7 renamed it to top-level encryptHistory."
+    },
+    {
+      "pattern": "sharedData:",
+      "topic": "inertia",
+      "rule_id": "ed.inertia-shared-props",
+      "why": "v6 config/inertia.ts shared-props field. v7 moves this into an InertiaMiddleware that extends BaseInertiaMiddleware."
+    },
+    {
+      "pattern": "npm init adonisjs@latest",
+      "topic": "setup",
+      "rule_id": "ed.runtime-prerequisites",
+      "why": "v6 scaffold form. v7 documents npm create adonisjs@latest."
+    },
+    {
+      "pattern": "Turborepo monorepo",
+      "topic": "setup",
+      "rule_id": "ed.runtime-prerequisites",
+      "why": "The --kit=api starter is a flat AdonisJS app, not a Turborepo monorepo. The monorepo layout only ships with the optional --kit=api-monorepo variant which is out of scope for this skill."
+    },
+    {
+      "pattern": "apps/backend",
+      "topic": "setup",
+      "rule_id": "ed.runtime-prerequisites",
+      "why": "Same as above: the flat --kit=api template does not use an apps/backend workspace."
+    }
+  ]
+}

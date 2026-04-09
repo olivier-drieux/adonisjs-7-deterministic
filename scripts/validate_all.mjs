@@ -10,6 +10,7 @@ const scripts = [
   'validate_rules.mjs',
   'validate_evals.mjs',
   'validate_sync.mjs',
+  'check_upstream.mjs',
 ]
 
 for (const script of scripts) {

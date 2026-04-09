@@ -53,7 +53,11 @@ The assembler watches the filesystem while the dev server runs. New controllers,
 
 ## adonisrc.ts Hooks Pipeline
 
-AdonisJS v7 introduces an explicit hooks system in `adonisrc.ts`. These hooks feed the assembler and generate the type-safe surface the skill relies on. **`indexEntities()` is mandatory for every app**; additional hooks are added per stack.
+AdonisJS v7 introduces an explicit hooks system in `adonisrc.ts`. These hooks feed the assembler and generate the type-safe surface the skill relies on. **`indexEntities()` is mandatory for every app**; additional hooks are added per profile. Use the variant that matches your `select-profile` choice — mixing them causes build errors (for example, `indexPages` in an `api-only` app tries to index `inertia/pages/**/*` which does not exist).
+
+### Variant A — `web` and `mixed` profiles
+
+This is the canonical pipeline for an Inertia app (kit `react` or `vue`):
 
 ```ts
 // adonisrc.ts
@@ -66,32 +70,67 @@ import { generateRegistry } from '@tuyau/core/hooks'
 export default defineConfig({
   hooks: {
     init: [
-      // Always required.
+      // Always required — produces #generated/controllers.
       indexEntities(),
 
-      // Inertia + Tuyau stack (web, mixed).
+      // Inertia page indexing for type-safe inertia.render().
       indexPages({ framework: 'react' }),
+
+      // Tuyau registry for createTuyau() and urlFor() on the client.
       generateRegistry(),
+
+      // Transformer types (Data.*) + typed Inertia SharedProps surface.
       indexEntities({ transformers: { enabled: true, withSharedProps: true } }),
 
-      // Bouncer authorization.
+      // Bouncer authorization container + type inference.
       indexPolicies(),
     ],
     buildStarting: [
-      // Vite build hook.
+      // Vite production build wiring.
       () => import('@adonisjs/vite/build_hook'),
     ],
   },
 })
 ```
 
-What each hook produces:
+### Variant B — `api-only` profile
+
+Drop `indexPages` entirely (no Inertia pages to index), drop `withSharedProps` (no Inertia shared props), and drop the Vite `build_hook` unless the backend has its own Vite pipeline:
+
+```ts
+// adonisrc.ts (api-only)
+import { indexEntities } from '@adonisjs/core'
+import { indexPolicies } from '@adonisjs/bouncer'
+import { defineConfig } from '@adonisjs/core/app'
+import { generateRegistry } from '@tuyau/core/hooks'
+
+export default defineConfig({
+  hooks: {
+    init: [
+      // Always required — produces #generated/controllers.
+      indexEntities(),
+
+      // Transformer types (Data.*) — no SharedProps in an api-only app.
+      indexEntities({ transformers: { enabled: true, withSharedProps: false } }),
+
+      // Tuyau registry — optional, keep it only if an external client
+      // consumes the registry over the network.
+      generateRegistry(),
+
+      // Bouncer authorization container + type inference.
+      indexPolicies(),
+    ],
+  },
+})
+```
+
+### What each hook produces
 
 - `indexEntities()` — discovers controllers and generates `#generated/controllers` (the barrel that exposes `controllers.Posts`, `controllers.Session`, etc.).
-- `indexPages({ framework: 'react' })` — indexes `inertia/pages/**/*` so `inertia.render('posts/index', ...)` is type-safe.
+- `indexPages({ framework: 'react' })` — indexes `inertia/pages/**/*` so `inertia.render('posts/index', ...)` is type-safe. **Only relevant in `web` and `mixed` profiles.**
 - `generateRegistry()` — produces `@generated/registry` consumed by `createTuyau(...)` and `urlFor(...)`.
-- `indexEntities({ transformers: { enabled: true, withSharedProps: true } })` — emits the `Data.*` namespace (`@generated/data`) and the typed `SharedProps` surface.
+- `indexEntities({ transformers: { enabled: true, withSharedProps: <true|false> } })` — emits the `Data.*` namespace (`@generated/data`). `withSharedProps: true` additionally emits the typed Inertia `SharedProps` surface and must stay `false` in `api-only` apps.
 - `indexPolicies()` — registers bouncer policies for the container and type inference.
-- `@adonisjs/vite/build_hook` — wires Vite's production build into the assembler `buildStarting` phase.
+- `@adonisjs/vite/build_hook` — wires Vite's production build into the assembler `buildStarting` phase. **Only relevant when the profile actually uses Vite** (typically `web` and `mixed`).
 
 Omitting any required hook breaks generated imports (`#generated/controllers`, `@generated/data`, `@generated/registry`). If those imports fail to resolve, the first step is to check this file, not the consumer.

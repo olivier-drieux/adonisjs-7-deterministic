@@ -67,6 +67,7 @@ export const theme = createTheme({})
 ```
 
 ```tsx
+// excerpt
 // inertia/app.tsx
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'

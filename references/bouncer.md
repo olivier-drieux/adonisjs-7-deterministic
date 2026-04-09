@@ -27,6 +27,7 @@
 - Abort before the service call if unauthorized.
 
 ```ts
+// excerpt
 import PostPolicy from '#policies/post_policy'
 
 if (await bouncer.with(PostPolicy).denies('update', post)) {

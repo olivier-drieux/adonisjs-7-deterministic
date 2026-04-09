@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process'
 
 const scripts = [
   'validate_snippets.mjs',
+  'typecheck_snippets.mjs',
   'validate_rules.mjs',
   'validate_evals.mjs',
   'validate_sync.mjs',

@@ -22,6 +22,7 @@ Transformers serialize domain models into client-safe payloads. They are the sin
 ## Usage
 
 ```ts
+// excerpt
 // API controller — set status then return serialized output
 response.status(201)
 return serialize(PostTransformer.transform(post))

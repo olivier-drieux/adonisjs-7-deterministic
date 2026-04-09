@@ -40,6 +40,7 @@ Inertia `<Link>` triggers XHR navigation and expects an Inertia JSON response. A
 **Rule: binary download routes never go through Inertia navigation.** Use a native `<a>` tag or `window.location.href` instead.
 
 ```tsx
+// excerpt
 // Correct — native anchor for a binary download
 import { urlFor } from '~/client'
 
@@ -78,6 +79,7 @@ await user.save()
 ## Recurring Task via Ace Command
 
 ```ts
+// excerpt
 export default class SyncInvoices extends BaseCommand {
   static commandName = 'invoices:sync'
 
@@ -112,6 +114,7 @@ const table = useReactTable({
 ## Unit and Functional Tests
 
 ```ts
+// excerpt
 test('stores a post through the web flow', async ({ client, route }) => {
   const user = await UserFactory.create()
 
@@ -125,6 +128,7 @@ test('stores a post through the web flow', async ({ client, route }) => {
 ```
 
 ```ts
+// excerpt
 test('lists posts through the external API', async ({ client, route }) => {
   const user = await UserFactory.create()
 
@@ -137,6 +141,7 @@ test('lists posts through the external API', async ({ client, route }) => {
 ```
 
 ```ts
+// excerpt
 test('queues verification mail', async ({ cleanup }) => {
   const { mails } = mail.fake()
   cleanup(() => mail.restore())

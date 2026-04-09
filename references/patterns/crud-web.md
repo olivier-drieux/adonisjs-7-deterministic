@@ -109,6 +109,7 @@ export default function PostsIndex({ posts }: Props) {
 The `@adonisjs/inertia/react` `Link` component accepts a `routeParams` prop for named route parameters. Pass route parameters as a flat object:
 
 ```tsx
+// excerpt
 // Navigation to a resource page — use routeParams with flat key/value pairs
 <Link route="posts.show" routeParams={{ id: post.id }}>View</Link>
 <Link route="posts.edit" routeParams={{ id: post.id }}>Edit</Link>

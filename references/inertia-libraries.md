@@ -48,6 +48,7 @@ import { client, urlFor } from '~/client'
 ## Root Provider Stack
 
 ```tsx
+// excerpt
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import { MantineProvider } from '@mantine/core'
@@ -114,6 +115,7 @@ urlFor('posts.show', { params: { id: 42 } })
 `client` exposes typed route methods for making API calls:
 
 ```ts
+// excerpt
 import { client } from '~/client'
 
 // GET request
@@ -131,6 +133,7 @@ Before using any Tuyau method for the first time, verify the exact signature by 
 ### `@adonisjs/inertia/react` `Link` and `Form` props
 
 ```tsx
+// excerpt
 import { Form, Link } from '@adonisjs/inertia/react'
 
 // Single parameter
@@ -160,6 +163,7 @@ import { Form, Link } from '@adonisjs/inertia/react'
 If TanStack Query is enabled, extend `inertia/client.ts` like this:
 
 ```ts
+// excerpt
 import { QueryClient } from '@tanstack/react-query'
 import { createTuyauReactQueryClient } from '@tuyau/react-query'
 
@@ -191,6 +195,7 @@ export const api = createTuyauReactQueryClient({ client })
 ## Client Fetch Exception
 
 ```tsx
+// excerpt
 import { useQuery } from '@tanstack/react-query'
 import { api } from '~/client'
 

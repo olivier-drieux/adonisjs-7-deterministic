@@ -39,6 +39,7 @@ export class PostsSchema extends BaseModel {
 ```
 
 ```ts
+// excerpt
 // app/models/post.ts — application model (domain logic)
 import { PostsSchema } from '../../database/schema.js'
 import { belongsTo } from '@adonisjs/lucid/orm'

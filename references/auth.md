@@ -74,6 +74,7 @@ export default defineConfig({
 ```
 
 ```ts
+// excerpt
 // app/models/user.ts
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 

@@ -1,0 +1,15 @@
+# Temporary snippet files materialized by scripts/typecheck_snippets.mjs
+scripts/stubs/.snippets-cache/
+
+# Node / npm
+node_modules/
+.npm/
+
+# Editor noise
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# OS noise
+Thumbs.db

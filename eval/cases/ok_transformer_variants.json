@@ -1,0 +1,21 @@
+{
+  "id": "ok_transformer_variants",
+  "prompt": "Use $adonisjs-7-deterministic to build a posts resource where the transformer exposes two variants (a lightweight list variant and a detailed variant for the show page) and explain how to consume them from both an Inertia page prop and an API controller response.",
+  "profile_expected": "mixed",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: none",
+    "hard-blocker-compliance: pass",
+    "PostTransformer",
+    "@generated/data",
+    "Variants"
+  ],
+  "forbidden_patterns": [
+    "override-status: requested",
+    "return Post.query",
+    "response.ok({ data:"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": false
+}

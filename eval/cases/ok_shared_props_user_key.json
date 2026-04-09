@@ -1,0 +1,20 @@
+{
+  "id": "ok_shared_props_user_key",
+  "prompt": "Use $adonisjs-7-deterministic to set up the Inertia shared props middleware. I come from v6 and I'm used to reading the current user from props.auth in my pages. Make it work the v7 way.",
+  "profile_expected": "web",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: web",
+    "override-status: none",
+    "hard-blocker-compliance: pass",
+    "BaseInertiaMiddleware",
+    "user"
+  ],
+  "forbidden_patterns": [
+    "override-status: requested",
+    "props.auth",
+    "auth: ctx.inertia.always"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": false
+}

@@ -383,7 +383,7 @@
       "forbidden_patterns": ["lists, counters, filters, or page data in shared props", "InertiaMiddleware without a base class"],
       "conflict_behavior": "Apply the minimal shared-props contract by default.",
       "override_allowed": false,
-      "test_ids": ["ok_web_standard"]
+      "test_ids": ["ok_web_standard", "ok_shared_props_user_key"]
     },
     {
       "id": "ed.service-layer",
@@ -427,7 +427,7 @@
       "forbidden_patterns": ["mail.send closures in product controllers", "raw models returned to HTTP"],
       "conflict_behavior": "Apply the mail, event, transformer, and exception defaults whenever those concerns appear.",
       "override_allowed": false,
-      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+      "test_ids": ["ok_web_standard", "ok_api_only_resource", "ok_transformer_variants"]
     },
     {
       "id": "ed.config-and-env",

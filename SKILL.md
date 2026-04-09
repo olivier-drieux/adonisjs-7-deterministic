@@ -90,7 +90,6 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 ## Reference Map
 
 - `rules/manifest.json`: canonical protocol, profiles, rule tiers, and eval coverage.
-- `FORBIDDEN.md`: flat forbidden-pattern lookup table for agents with limited context.
 - `references/rules.md`: human-readable rule index.
 - `references/setup.md`: prerequisites (Node 24 / npm 11), starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks pipeline, monorepo layout.
 - `references/routing.md`

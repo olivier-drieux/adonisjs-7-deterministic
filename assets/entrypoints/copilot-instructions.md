@@ -62,7 +62,7 @@ package coverage → env/config → migration → model → validator → policy
 ## Runtime Prerequisites
 
 - Node.js ≥ 24, npm ≥ 11.
-- Scaffold: `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. The `api` kit is a Turborepo monorepo.
+- Scaffold: `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. All four kits produce a flat AdonisJS application.
 - Dev server: `node ace serve --hmr`.
 - `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack.
 

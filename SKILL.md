@@ -11,7 +11,7 @@ Use this skill to keep private AdonisJS v7 work on one stable, framework-native 
 
 `rules/manifest.json` is the canonical source of truth. This file is the short runtime protocol. Longer rationale stays in `references/*`.
 
-Target stack prerequisites: **Node.js ≥ 24**, **npm ≥ 11**, TypeScript 5.9 or 6.0, Vite 7 for Inertia stacks. Use `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>` to scaffold, and `node ace serve --hmr` for development. The `api` kit is a Turborepo monorepo (`apps/backend` + `apps/frontend`) — all canonical paths in this skill apply inside `apps/backend`.
+Target stack prerequisites: **Node.js ≥ 24**, **npm ≥ 11**, TypeScript 5.9 or 6.0, Vite 7 for Inertia stacks. Use `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>` to scaffold, and `node ace serve --hmr` for development. All four kits produce a flat AdonisJS application.
 
 ## Execution Protocol
 
@@ -91,7 +91,7 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 
 - `rules/manifest.json`: canonical protocol, profiles, rule tiers, and eval coverage.
 - `references/rules.md`: human-readable rule index.
-- `references/setup.md`: prerequisites (Node 24 / npm 11), starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks pipeline, monorepo layout.
+- `references/setup.md`: prerequisites (Node 24 / npm 11), starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks pipeline.
 - `references/routing.md`
 - `references/validation.md`
 - `references/lucid.md`

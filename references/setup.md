@@ -24,19 +24,19 @@ npm create adonisjs@latest my-app
 npm create adonisjs@latest my-app -- --kit=hypermedia  # Edge + Alpine.js
 npm create adonisjs@latest my-app -- --kit=react       # Inertia + React
 npm create adonisjs@latest my-app -- --kit=vue         # Inertia + Vue
-npm create adonisjs@latest my-app -- --kit=api         # API-only Turborepo monorepo
+npm create adonisjs@latest my-app -- --kit=api         # API-only flat app
 ```
 
 ### Starter kits map
 
-| Kit | Layout | Use |
-| --- | --- | --- |
-| `hypermedia` | flat | Server-rendered Edge + Alpine.js, no Inertia. Not the default path in this skill. |
-| `react` | flat | Canonical `web` and `mixed` profiles in this skill. |
-| `vue` | flat | Allowed only with an explicit override (see `hb.web-ui-stack`). |
-| `api` | Turborepo monorepo (`apps/backend` + `apps/frontend`) | Canonical `api-only` profile for external or integration APIs. |
+| Kit | Use |
+| --- | --- |
+| `hypermedia` | Server-rendered Edge + Alpine.js, no Inertia. Not the default path in this skill. |
+| `react` | Canonical `web` and `mixed` profiles in this skill. |
+| `vue` | Allowed only with an explicit override (see `hb.web-ui-stack`). |
+| `api` | Canonical `api-only` profile for external or integration APIs. Flat AdonisJS app layout. |
 
-The `api` kit is a **monorepo** managed by Turborepo. It uses `apps/backend` for the AdonisJS application and `apps/frontend` for an empty workspace you can point at TanStack Start, Nuxt, Next.js, or any other frontend. Package exports (`./registry`, `./data`) wire end-to-end types between the two workspaces.
+All four kits produce a **flat AdonisJS application** with `app/`, `start/`, `config/`, `database/`, `adonisrc.ts`, `package.json` at the root. Any canonical path in this skill (for example `start/routes.ts`, `config/auth.ts`, `app/controllers/`) refers to that single root.
 
 ## Development Server
 
@@ -95,27 +95,3 @@ What each hook produces:
 - `@adonisjs/vite/build_hook` — wires Vite's production build into the assembler `buildStarting` phase.
 
 Omitting any required hook breaks generated imports (`#generated/controllers`, `@generated/data`, `@generated/registry`). If those imports fail to resolve, the first step is to check this file, not the consumer.
-
-## Monorepo API Kit Layout
-
-The `api` kit lays out:
-
-```
-.
-├── apps
-│   ├── backend          # AdonisJS application (this skill applies here)
-│   │   ├── adonisrc.ts
-│   │   ├── app
-│   │   ├── bin
-│   │   ├── config
-│   │   ├── database
-│   │   ├── start
-│   │   └── tests
-│   └── frontend         # Your chosen frontend framework
-├── package.json
-└── turbo.json
-```
-
-- Run commands from the repository root (`npm run dev`, `turbo run test`, etc.).
-- `apps/backend` hosts the canonical AdonisJS layout the rest of the skill references (`app/`, `start/`, `config/`, `database/`, `tests/`).
-- The monorepo package exports wire `@my-app/backend/registry` and `@my-app/backend/data` so the frontend workspace consumes the generated Tuyau registry and transformer types without duplication.

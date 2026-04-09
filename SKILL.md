@@ -7,11 +7,7 @@ description: Use when implementing or reviewing private AdonisJS v7 applications
 
 ## Purpose
 
-Use this skill to keep private AdonisJS v7 work on one stable, framework-native path. Runtime doctrine is `fail-closed`.
-
-`rules/manifest.json` is the canonical source of truth. This file is the short runtime protocol. Longer rationale stays in `references/*`.
-
-Target stack prerequisites: **Node.js ≥ 24**, **npm ≥ 11**, TypeScript 5.9 or 6.0, Vite 7 for Inertia stacks. Use `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>` to scaffold, and `node ace serve --hmr` for development. All four kits produce a flat AdonisJS application.
+Use this skill to keep private AdonisJS v7 work on one stable, framework-native path. Runtime doctrine is `fail-closed`. `rules/manifest.json` is the canonical source of truth; this file is the short runtime protocol and `references/*` carries the rationale. Target stack: **Node.js ≥ 24**, **npm ≥ 11**, TypeScript 5.9 or 6.0, Vite 7 for Inertia stacks. Scaffold with `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`, run `node ace serve --hmr` for development. See `references/setup.md` for the full `adonisrc.ts` hooks pipeline.
 
 ## Execution Protocol
 
@@ -22,11 +18,7 @@ Target stack prerequisites: **Node.js ≥ 24**, **npm ≥ 11**, TypeScript 5.9 o
 5. `ask-one-override-question`: If a `hard_blocker` conflicts with the request, stop, cite the rule id, ask exactly one short override question, and wait.
 6. `run-final-compliance-check`: Before finalizing, confirm the compliance markers below.
 
-Final answer markers:
-
-- `selected-profile: <web|mixed|api-only>`
-- `override-status: none|requested|approved`
-- `hard-blocker-compliance: pass|override`
+Final answer markers: `selected-profile: <web|mixed|api-only>`, `override-status: none|requested|approved`, `hard-blocker-compliance: pass|override`.
 
 ## Profile Selection
 
@@ -36,46 +28,18 @@ Final answer markers:
 
 ## Hard Blockers
 
-Apply every matching `hard_blocker` from `rules/manifest.json`. The sync core is:
-
-- `hb.official-packages`: official AdonisJS packages and `node ace` setup/generators come first.
-- `hb.data-stack`: use Lucid for SQL persistence and Luxon DateTime for model and domain dates.
-- `hb.validation-stack`: HTTP validation uses VineJS with `vine.create(...)` as the root schema and `request.validateUsing(...)`.
-- `hb.auth-browser-stack`: browser-driven flows use `@adonisjs/auth` with session or cookie auth.
-- `hb.guard-names`: keep guard names fixed to `web` and `api`.
-- `hb.browser-csrf`: browser-facing Inertia apps keep `enableXsrfCookie: true`.
-- `hb.access-tokens-external`: external clients use official access tokens with explicit expiration.
-- `hb.web-ui-stack`: web UI uses Inertia React and Mantine, with no second client router.
-- `hb.official-side-effect-packages`: use `@adonisjs/bouncer` for authorization, `@adonisjs/mail` for email, and `@adonisjs/drive` for persistent file storage.
-- `hb.web-api-controller-separation`: mixed apps never reuse the same controller for Inertia pages and JSON API endpoints.
-- `hb.no-express-fastify-composition`: use framework-native routes, middleware, services, policies, and container primitives instead of Express or Fastify patterns.
-- `hb.no-repository-layer`: no repository layer over Lucid for ordinary app code.
-- `hb.no-edge-feature-rendering`: Edge is allowed only for the minimal `resources/views/inertia_layout.edge` boot layout.
-- `hb.no-request-all-only`: `request.all()` and `request.only()` never replace validation.
-- `hb.no-any`: no `any`.
-- `hb.no-raw-io-and-timers`: no raw `nodemailer`, no persistent raw `fs`, no ad hoc timers in the HTTP runtime.
-- `hb.no-client-fetch-stack`: no raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack.
-- `hb.no-client-form-stack`: no `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
-- `hb.no-custom-api-keys-default`: no custom API-key auth as the default external auth path.
+Apply every matching `hard_blocker` from `rules/manifest.json`. See `references/rules.md` for the full catalog with statements. The sync core: `hb.official-packages`, `hb.data-stack`, `hb.validation-stack`, `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`, `hb.access-tokens-external`, `hb.web-ui-stack`, `hb.official-side-effect-packages`, `hb.web-api-controller-separation`, `hb.no-express-fastify-composition`, `hb.no-repository-layer`, `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`, `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`, `hb.no-client-form-stack`, `hb.no-custom-api-keys-default`.
 
 ## Enforced Defaults
 
-When no `hard_blocker` is violated, apply the manifest defaults:
+When no `hard_blocker` is violated, apply every `enforced_default` from `rules/manifest.json`. See `references/rules.md#enforced-defaults` for the full list. Load-bearing reminders to keep in mind at all times:
 
-- `ed.source-hierarchy`: official docs/packages first, then repo conventions, then personal preference.
-- `ed.application-profiles`: choose one profile first and keep it stable.
-- `ed.feature-order`: package coverage, env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, UI.
-- `ed.routing-and-kernel`: named routes, route helpers, separate route groups, and middleware in `start/kernel.ts`.
-- `ed.inertia-shared-props`: middleware extends `BaseInertiaMiddleware`; share only `user`, `flash`, `errors`, and `app { name, env }`.
-- `ed.service-layer`, `ed.validator-layer`, `ed.model-and-policy-layer`: keep logic, validation, models, and policies in the canonical layers.
-- `ed.mail-events-transformers-exceptions`: dedicated mail classes, listeners for secondary side effects, transformers, named exceptions.
-- `ed.config-and-env` and `ed.auth-session-and-shield-config`: keep runtime config in `config/*`, env declarations in `start/env.ts`, and use the canonical auth/session/shield defaults.
-- `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
-- `ed.inertia-filesystem-layout` and `ed.frontend-library-and-state-policy`: keep the canonical `inertia/*` structure, Mantine-first UI, `@adonisjs/inertia/react` wrappers (`Link` and `Form` take a `routeParams` prop — never `params`), limited `@inertiajs/react`, UI-only Zustand, and Tuyau/TanStack only when justified.
-- `ed.generators-and-naming`: use `node ace` generators and canonical names; reference controllers through `#generated/controllers` as `controllers.Posts` (PascalCase resource name, no `Controller` suffix).
-- `ed.runtime-prerequisites`: Node.js ≥ 24, npm ≥ 11, `npm create adonisjs@latest ... -- --kit=<name>`, `node ace serve --hmr` for development.
-- `ed.adonisrc-hooks`: `adonisrc.ts` declares the hooks pipeline (`indexEntities()` mandatory; `indexPages({ framework: 'react' })`, `generateRegistry()`, `indexPolicies()`, and `@adonisjs/vite/build_hook` per stack) so `#generated/controllers`, `@generated/data`, and `@generated/registry` are produced.
-- `ed.api-contracts`, `ed.query-pagination`, `ed.transactions-side-effects-and-commands`, and `ed.web-mutations-and-browser-api-auth`: keep the canonical API, list, transaction, side-effect, command, and redirect/flash behavior. The framework `serialize(...)` helper already produces the canonical `{ data }` / `{ data, meta }` envelope — do not wrap it in a second custom envelope.
+- Controllers are imported via `import { controllers } from '#generated/controllers'` and referenced by PascalCase resource name (`controllers.Posts`, not `controllers.PostsController`).
+- `@adonisjs/inertia/react` `Link` and `Form` components take a **`routeParams`** prop — never `params`.
+- HTTP validation uses `vine.create({...})` as the root schema. `vine.compile(vine.object(...))` is the v6 form and must not appear.
+- Inertia shared props live in a middleware that `extends BaseInertiaMiddleware` and shares only `user`, `flash`, `errors`, and `app { name, env }`.
+- The framework `serialize(...)` helper already produces the canonical `{ data }` / `{ data, meta }` envelope — do not wrap it in a second custom envelope.
+- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory) plus the per-stack hooks that generate `#generated/controllers`, `@generated/data`, and `@generated/registry`.
 
 Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `adv.prefer-adonis-primitives`, `adv.small-duplication`, `adv.service-when-unsure`, `adv.keep-doctrine-observable`, and `adv.verify-api-before-use`.
 
@@ -89,28 +53,9 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 
 ## Reference Map
 
-- `rules/manifest.json`: canonical protocol, profiles, rule tiers, and eval coverage.
-- `references/rules.md`: human-readable rule index.
-- `references/setup.md`: prerequisites (Node 24 / npm 11), starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks pipeline.
-- `references/routing.md`
-- `references/validation.md`
-- `references/lucid.md`
-- `references/auth.md`
-- `references/api.md`
-- `references/bouncer.md`
-- `references/mail.md`
-- `references/drive.md`
-- `references/events.md`
-- `references/inertia-libraries.md`
-- `references/rendering.md`
-- `references/transformers.md`
-- `references/testing.md`
-- `references/patterns/crud-web.md`: standard Inertia CRUD pattern.
-- `references/patterns/auth-flow.md`: login, session, and config patterns.
-- `references/patterns/api-resource.md`: API-only CRUD and mixed-app API endpoints.
-- `references/patterns/frontend-bootstrap.md`: Inertia app bootstrap, shared props, flash, Zustand, config.
-- `references/patterns/advanced.md`: date widgets, file export, commands, tables, uploads.
-- `references/examples.md`: few-shot interaction examples (prompt → expected behavior).
-- `assets/wrappers/`: self-contained wrappers per agent (Claude, Codex, VS Code).
-- `assets/entrypoints/`: ready-to-copy entry points (`.cursorrules`, `copilot-instructions.md`, `AGENTS.md`).
-- `eval/cases/*.json`, `scripts/score_eval.mjs`, and `scripts/validate_all.mjs`
+- **Source of truth**: `rules/manifest.json`, `references/rules.md`.
+- **Setup**: `references/setup.md` (Node 24 / npm 11, starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks).
+- **Core references**: `routing.md`, `validation.md`, `lucid.md`, `auth.md`, `api.md`, `bouncer.md`, `mail.md`, `drive.md`, `events.md`, `inertia-libraries.md`, `rendering.md`, `transformers.md`, `testing.md`, `examples.md`.
+- **Patterns**: `patterns/crud-web.md`, `patterns/auth-flow.md`, `patterns/api-resource.md`, `patterns/frontend-bootstrap.md`, `patterns/advanced.md`.
+- **Distribution**: `assets/wrappers/` (per-agent Claude, Codex, VS Code), `assets/entrypoints/` (`copilot-instructions.md`, `AGENTS.md`).
+- **Validation**: `eval/cases/*.json`, `scripts/validate_all.mjs`.

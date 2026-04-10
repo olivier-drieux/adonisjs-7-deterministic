@@ -30,6 +30,7 @@ Use this file as the human-readable index:
 - `hb.no-client-form-stack`: no `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
 - `hb.no-custom-api-keys-default`: no custom API-key auth as the default external auth path.
 - `hb.queue-stack`: use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling as the default queue path.
+- `hb.encryption-sensitive-columns`: proactively detect sensitive data (SSN, credit cards, API secrets, medical records, phone numbers, etc.) in every model and migration. Stop, flag the columns, explain why they need encryption, and recommend the built-in `@adonisjs/core/services/encryption` service — even when the user has not mentioned security.
 
 ## Enforced Defaults
 
@@ -43,7 +44,6 @@ Use this file as the human-readable index:
 - `ed.model-and-policy-layer`: model relations/hooks stay in models; policies stay explicit and default to `403`.
 - `ed.mail-events-transformers-exceptions`: dedicated mail classes, class-based events/listeners, transformers, and named exceptions.
 - `ed.config-and-env`: runtime config in `config/*`; env declarations in `start/env.ts`.
-- `ed.encryption`: use `@adonisjs/core/services/encryption` for sensitive database columns (PII, tokens, secrets). Encrypt via `@beforeSave()` hooks, decrypt via model methods. Keep `APP_KEY` secret and environment-specific.
 - `ed.auth-session-and-shield-config`: canonical auth/session/shield/inertia defaults, including remember-me and cookie policy.
 - `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
 - `ed.inertia-filesystem-layout`: canonical `inertia/*` directory structure and server-owned business logic.

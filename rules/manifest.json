@@ -118,7 +118,8 @@
       "hb.no-client-fetch-stack",
       "hb.no-client-form-stack",
       "hb.no-custom-api-keys-default",
-      "hb.queue-stack"
+      "hb.queue-stack",
+      "hb.encryption-sensitive-columns"
     ]
   },
   "rules": [
@@ -453,15 +454,15 @@
       "test_ids": ["ok_web_standard"]
     },
     {
-      "id": "ed.encryption",
-      "tier": "enforced_default",
+      "id": "hb.encryption-sensitive-columns",
+      "tier": "hard_blocker",
       "applies_to": ["all"],
-      "statement": "Use the framework-native encryption service (import encryption from '@adonisjs/core/services/encryption') for encrypting sensitive data stored in the database (PII, tokens, secrets). Encrypt via Lucid @beforeSave() hooks and expose a decrypt method on the model. Keep APP_KEY secret, never commit it, and use a different key per environment. Do not use third-party encryption libraries or manual crypto when the built-in service covers the need.",
-      "required_patterns": ["@adonisjs/core/services/encryption", "@beforeSave()", "encryption.encrypt(", "encryption.decrypt("],
-      "forbidden_patterns": ["third-party encryption library when the built-in service covers the need", "manual node:crypto for application-level field encryption"],
-      "conflict_behavior": "Apply the built-in encryption service for sensitive database columns unless a specific compliance requirement demands a different algorithm or key management scheme.",
-      "override_allowed": false,
-      "test_ids": ["ok_web_standard"]
+      "statement": "Proactively detect sensitive data in every model and migration. When a column matches a sensitive-data indicator (social security numbers, national ID numbers, tax identifiers, credit card or bank account numbers, API keys or secret tokens not managed by @adonisjs/auth, passwords or security answers stored outside the auth hash pipeline, medical or health records, biometric data, passport or driver license numbers, personal phone numbers, precise home addresses, dates of birth combined with other PII), stop and recommend encryption using the framework-native encryption service (import encryption from '@adonisjs/core/services/encryption'). Encrypt via Lucid @beforeSave() hooks and expose a decrypt method on the model. The agent MUST flag sensitive columns even when the user has not mentioned security — the user may not be aware that this data requires protection. If the user explicitly declines encryption for a flagged column, record the override. Keep APP_KEY secret, never commit it, and use a different key per environment. Do not use third-party encryption libraries or manual node:crypto when the built-in service covers the need.",
+      "required_patterns": ["@adonisjs/core/services/encryption", "@beforeSave()", "encryption.encrypt(", "encryption.decrypt(", "sensitive-data detection"],
+      "forbidden_patterns": ["sensitive data stored in plaintext without explicit user override", "third-party encryption library when the built-in service covers the need", "manual node:crypto for application-level field encryption"],
+      "conflict_behavior": "Stop, cite `hb.encryption-sensitive-columns`, list the columns identified as sensitive, explain why they need encryption, and ask one override question: 'These columns contain sensitive data. I will encrypt them with the AdonisJS encryption service. Do you want to skip encryption for any of them?' Wait for explicit confirmation before proceeding.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_plaintext_sensitive_data"]
     },
     {
       "id": "ed.auth-session-and-shield-config",

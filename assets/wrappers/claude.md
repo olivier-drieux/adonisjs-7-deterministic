@@ -50,6 +50,7 @@ Each stops execution on conflict. Cite the rule id, ask one override question, w
 - `hb.no-client-form-stack`: No `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
 - `hb.no-custom-api-keys-default`: No custom API-key auth as the default external auth path.
 - `hb.queue-stack`: Use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling.
+- `hb.encryption-sensitive-columns`: Proactively detect sensitive data (SSN, credit cards, API secrets, medical records, phone numbers) in models. Stop, flag the columns, explain the risk, and encrypt with `@adonisjs/core/services/encryption` — even when the user has not mentioned security.
 
 ## Override Handling
 

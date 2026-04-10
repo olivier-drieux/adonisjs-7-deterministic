@@ -28,6 +28,7 @@ These patterns are **never** allowed by default. If the user explicitly requests
 | Disabling CSRF for Inertia | `enableXsrfCookie: true` | `hb.browser-csrf` |
 | Custom API-key auth | Official access tokens with expiration | `hb.no-custom-api-keys-default` |
 | Raw BullMQ, bee-queue, agenda, Redis polling for jobs | `@adonisjs/queue` Job classes + `node ace queue:work` | `hb.queue-stack` |
+| Sensitive data (SSN, cards, secrets, phone) stored in plaintext | `@adonisjs/core/services/encryption` via `@beforeSave()` hooks | `hb.encryption-sensitive-columns` |
 | Vue, Edge feature pages | Inertia React + Mantine | `hb.web-ui-stack` |
 | `react-router-dom` | Inertia navigation | `hb.web-ui-stack` |
 | CASL | `@adonisjs/bouncer` | `hb.official-side-effect-packages` |

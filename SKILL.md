@@ -28,7 +28,7 @@ Final answer markers: `selected-profile: <web|mixed|api-only>`, `override-status
 
 ## Hard Blockers
 
-Apply every matching `hard_blocker` from `rules/manifest.json`. See `references/rules.md` for the full catalog with statements. The sync core: `hb.official-packages`, `hb.data-stack`, `hb.validation-stack`, `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`, `hb.access-tokens-external`, `hb.web-ui-stack`, `hb.official-side-effect-packages`, `hb.web-api-controller-separation`, `hb.no-express-fastify-composition`, `hb.no-repository-layer`, `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`, `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`, `hb.no-client-form-stack`, `hb.no-custom-api-keys-default`, `hb.queue-stack`.
+Apply every matching `hard_blocker` from `rules/manifest.json`. See `references/rules.md` for the full catalog with statements. The sync core: `hb.official-packages`, `hb.data-stack`, `hb.validation-stack`, `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`, `hb.access-tokens-external`, `hb.web-ui-stack`, `hb.official-side-effect-packages`, `hb.web-api-controller-separation`, `hb.no-express-fastify-composition`, `hb.no-repository-layer`, `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`, `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`, `hb.no-client-form-stack`, `hb.no-custom-api-keys-default`, `hb.queue-stack`, `hb.encryption-sensitive-columns`.
 
 ## Enforced Defaults
 

@@ -62,7 +62,28 @@ export default class Post extends PostsSchema {
 
 ## Encrypting Sensitive Columns
 
-Use the framework-native encryption service for any sensitive data stored in the database (PII, external tokens, secrets). Encrypt with a `@beforeSave()` hook and expose a `decrypt` method on the model.
+**This is a hard blocker (`hb.encryption-sensitive-columns`).** The agent must proactively scan every model and migration for sensitive data — even when the user has not mentioned security. If any column matches a sensitive-data indicator, the agent must stop, flag the columns, explain the risk, and recommend encryption before proceeding.
+
+### Sensitive-data indicators
+
+Flag any column whose name or purpose matches:
+
+- Social security numbers, national ID numbers, tax identifiers (SSN, NIN, TIN, SIRET, etc.)
+- Credit card or bank account numbers
+- API keys, secret tokens, or credentials not managed by `@adonisjs/auth`
+- Passwords or security answers stored outside the auth hash pipeline
+- Medical or health records
+- Biometric data
+- Passport or driver license numbers
+- Personal phone numbers
+- Precise home addresses (street-level or more specific)
+- Dates of birth **when combined with other PII** in the same table
+
+When in doubt, flag and ask — it is better to over-flag than to let sensitive data slip through in plaintext.
+
+### Pattern
+
+Use the framework-native encryption service for any sensitive data stored in the database. Encrypt with a `@beforeSave()` hook and expose a `decrypt` method on the model.
 
 ```ts
 // excerpt

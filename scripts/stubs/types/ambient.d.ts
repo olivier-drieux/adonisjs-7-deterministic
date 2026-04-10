@@ -811,6 +811,12 @@ declare module '#validators/user' {
 // ---------------------------------------------------------------------------
 // #services/*, #policies/*, #transformers/*, #middleware/* — project modules (loose)
 // ---------------------------------------------------------------------------
+declare module '#services/payment_service' {
+  export default class PaymentService {
+    charge(orderId: number, amount: number, currency: string): Promise<void>
+  }
+}
+
 declare module '#services/post_service' {
   // `list` returns a paginator-shaped result so snippets can call
   // `.all()` and `.getMeta()` on it (see references/patterns/api-resource.md).
@@ -843,6 +849,13 @@ declare module '#transformers/user_transformer' {
   export default class UserTransformer extends BaseTransformer<unknown> {}
 }
 
+declare module '#start/env' {
+  const env: {
+    get(key: string, defaultValue?: string): string
+  }
+  export default env
+}
+
 declare module '#start/kernel' {
   export const middleware: {
     auth(opts?: { guards?: readonly string[] }): unknown
@@ -872,6 +885,36 @@ declare module '../../database/schema.js' {
 // CSS side-effect imports used in inertia/app.tsx snippets
 // ---------------------------------------------------------------------------
 declare module '*.css' {}
+
+// ---------------------------------------------------------------------------
+// @adonisjs/queue
+// ---------------------------------------------------------------------------
+declare module '@adonisjs/queue' {
+  export class Job<TPayload> {
+    payload: TPayload
+    execute(): Promise<void>
+    static options: { queue?: string; maxRetries?: number }
+    static dispatch<T>(payload: T): {
+      toQueue(name: string): unknown
+      priority(n: number): unknown
+      in(delay: string): unknown
+      group(name: string): unknown
+      with(adapter: string): unknown
+    }
+  }
+  export function defineConfig(config: unknown): unknown
+  export const drivers: {
+    redis(opts: { connectionName: string }): unknown
+    sync(): unknown
+  }
+}
+
+declare module '@adonisjs/queue/types' {
+  export interface JobOptions {
+    queue?: string
+    maxRetries?: number
+  }
+}
 
 // Vite build hook — dynamic import target in adonisrc.ts snippets
 declare module '@adonisjs/vite/build_hook' {

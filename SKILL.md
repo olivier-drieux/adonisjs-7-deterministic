@@ -28,7 +28,7 @@ Final answer markers: `selected-profile: <web|mixed|api-only>`, `override-status
 
 ## Hard Blockers
 
-Apply every matching `hard_blocker` from `rules/manifest.json`. See `references/rules.md` for the full catalog with statements. The sync core: `hb.official-packages`, `hb.data-stack`, `hb.validation-stack`, `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`, `hb.access-tokens-external`, `hb.web-ui-stack`, `hb.official-side-effect-packages`, `hb.web-api-controller-separation`, `hb.no-express-fastify-composition`, `hb.no-repository-layer`, `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`, `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`, `hb.no-client-form-stack`, `hb.no-custom-api-keys-default`.
+Apply every matching `hard_blocker` from `rules/manifest.json`. See `references/rules.md` for the full catalog with statements. The sync core: `hb.official-packages`, `hb.data-stack`, `hb.validation-stack`, `hb.auth-browser-stack`, `hb.guard-names`, `hb.browser-csrf`, `hb.access-tokens-external`, `hb.web-ui-stack`, `hb.official-side-effect-packages`, `hb.web-api-controller-separation`, `hb.no-express-fastify-composition`, `hb.no-repository-layer`, `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`, `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`, `hb.no-client-form-stack`, `hb.no-custom-api-keys-default`, `hb.queue-stack`.
 
 ## Enforced Defaults
 
@@ -55,7 +55,7 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 
 - **Source of truth**: `rules/manifest.json`, `references/rules.md`, `MAINTENANCE.md` (sync cadence and fix workflow).
 - **Setup**: `references/setup.md` (Node 24 / npm 11, starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks).
-- **Core references**: `routing.md`, `validation.md`, `lucid.md`, `auth.md`, `api.md`, `bouncer.md`, `mail.md`, `drive.md`, `events.md`, `inertia-libraries.md`, `rendering.md`, `transformers.md`, `testing.md`, `examples.md`.
+- **Core references**: `routing.md`, `validation.md`, `lucid.md`, `auth.md`, `api.md`, `bouncer.md`, `mail.md`, `drive.md`, `queue.md`, `events.md`, `inertia-libraries.md`, `rendering.md`, `transformers.md`, `testing.md`, `examples.md`.
 - **Patterns**: `patterns/crud-web.md`, `patterns/auth-flow.md`, `patterns/api-resource.md`, `patterns/frontend-bootstrap.md`, `patterns/advanced.md`.
 - **Distribution**: `assets/wrappers/` (per-agent Claude, Codex, VS Code), `assets/entrypoints/` (`copilot-instructions.md`, `AGENTS.md`).
 - **Validation**: `eval/cases/*.json`, `scripts/validate_all.mjs`.

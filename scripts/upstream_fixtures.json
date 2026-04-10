@@ -60,6 +60,12 @@
       "topic": "setup",
       "rule_id": "ed.runtime-prerequisites",
       "why": "Canonical v7 dev server invocation."
+    },
+    {
+      "pattern": "@adonisjs/queue",
+      "topic": "queue",
+      "rule_id": "hb.queue-stack",
+      "why": "Official v7 package for background job processing."
     }
   ],
   "anti_patterns": [

@@ -27,6 +27,7 @@ These patterns are **never** allowed by default. If the user explicitly requests
 | Renamed guard names | Fixed `web` and `api` guard names | `hb.guard-names` |
 | Disabling CSRF for Inertia | `enableXsrfCookie: true` | `hb.browser-csrf` |
 | Custom API-key auth | Official access tokens with expiration | `hb.no-custom-api-keys-default` |
+| Raw BullMQ, bee-queue, agenda, Redis polling for jobs | `@adonisjs/queue` Job classes + `node ace queue:work` | `hb.queue-stack` |
 | Vue, Edge feature pages | Inertia React + Mantine | `hb.web-ui-stack` |
 | `react-router-dom` | Inertia navigation | `hb.web-ui-stack` |
 | CASL | `@adonisjs/bouncer` | `hb.official-side-effect-packages` |

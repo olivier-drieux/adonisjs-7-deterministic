@@ -41,6 +41,7 @@ Each stops execution on conflict. Cite the rule id and ask before proceeding.
 - `hb.no-client-fetch-stack`: No raw fetch/axios/ky/SWR as default.
 - `hb.no-client-form-stack`: No @mantine/form, react-hook-form, formik, zod, yup, valibot.
 - `hb.no-custom-api-keys-default`: No custom API-key auth as default.
+- `hb.queue-stack`: Use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling.
 
 ## Canonical Build Order
 

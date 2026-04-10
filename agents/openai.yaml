@@ -13,7 +13,8 @@ interface:
     `hb.no-express-fastify-composition`, `hb.no-repository-layer`,
     `hb.no-edge-feature-rendering`, `hb.no-request-all-only`, `hb.no-any`,
     `hb.no-raw-io-and-timers`, `hb.no-client-fetch-stack`,
-    `hb.no-client-form-stack`, and `hb.no-custom-api-keys-default`. Ask
+    `hb.no-client-form-stack`, `hb.no-custom-api-keys-default`, and
+    `hb.queue-stack`. Ask
     exactly one short override question when a hard blocker conflicts.
     Final answers must include `selected-profile:`, `override-status:`,
     and `hard-blocker-compliance:`.

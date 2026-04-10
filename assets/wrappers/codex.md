@@ -49,6 +49,7 @@ Each stops execution on conflict. Cite the rule id, ask one override question, w
 - `hb.no-client-fetch-stack`: No raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack.
 - `hb.no-client-form-stack`: No `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
 - `hb.no-custom-api-keys-default`: No custom API-key auth as the default external auth path.
+- `hb.queue-stack`: Use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling.
 
 ## Override Handling
 

@@ -117,7 +117,8 @@
       "hb.no-raw-io-and-timers",
       "hb.no-client-fetch-stack",
       "hb.no-client-form-stack",
-      "hb.no-custom-api-keys-default"
+      "hb.no-custom-api-keys-default",
+      "hb.queue-stack"
     ]
   },
   "rules": [
@@ -329,6 +330,17 @@
       "conflict_behavior": "Stop, cite `hb.no-custom-api-keys-default`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
       "test_ids": ["ok_api_only_resource", "violation_custom_api_key"]
+    },
+    {
+      "id": "hb.queue-stack",
+      "tier": "hard_blocker",
+      "applies_to": ["all"],
+      "statement": "Use @adonisjs/queue for background job processing. Define jobs as classes extending Job<T> with typed payloads, dispatch via JobClass.dispatch(payload), and run workers with node ace queue:work. Do not use raw BullMQ, bee-queue, agenda, or ad hoc Redis polling as the default queue path.",
+      "required_patterns": ["@adonisjs/queue", "Job class", "dispatch("],
+      "forbidden_patterns": ["raw BullMQ as the default queue", "bee-queue", "agenda", "custom Redis job polling"],
+      "conflict_behavior": "Stop, cite `hb.queue-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "override_allowed": true,
+      "test_ids": ["ok_web_standard", "violation_raw_queue"]
     },
     {
       "id": "ed.source-hierarchy",

@@ -38,7 +38,7 @@
 - Use `@adonisjs/inertia/react` `Link` and `Form` wrappers with named routes. Pass route parameters via a flat `routeParams` prop: `<Link route="posts.show" routeParams={{ id: post.id }}>`. **`routeParams` is the correct prop name in v7 — never `params`.**
 - `Link` and `Form` trigger Inertia XHR navigation and expect an Inertia JSON response. For routes that return binary files (PDF, CSV, ZIP), use a native `<a href>` or `window.location.href` instead.
 - Use `@inertiajs/react` only for app boot and primitives not provided by Adonis wrappers, such as `Head`, `router`, `usePage`, or `useRemember`.
-- Use Mantine as the default component library and `@tabler/icons-react` as the default icon set.
+- Use Mantine as the default component library and `@tabler/icons-react` as the default icon set. Always use Mantine components instead of raw HTML elements when Mantine provides an equivalent (for example `<Button>` not `<button>`, `<TextInput>` not `<input>`, `<Card>` not `<div className="card">`). Use raw HTML or a specialized third-party component only when the UI need is genuinely complex and no Mantine component covers it.
 - Use `@mantine/notifications` for flash toasts and ephemeral success or info messages.
 - Use `@mantine/dates` only when the UI actually needs a date widget, and pair it with `dayjs`.
 - In `inertia/app.tsx`, use one fixed provider order: `MantineProvider`, `Notifications`, then `QueryClientProvider` only when TanStack Query is enabled.

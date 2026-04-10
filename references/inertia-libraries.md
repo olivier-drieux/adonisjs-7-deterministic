@@ -15,6 +15,29 @@
 | Client-side fetching | Tuyau + `@tanstack/react-query` | Exception path only after Inertia-first options are exhausted |
 | Advanced data grids | `@tanstack/react-table` | Use only when grid behavior exceeds simple table needs |
 
+## Mantine-first Component Rule
+
+Always prefer a Mantine component over a raw HTML element when Mantine provides an equivalent:
+
+| Instead of | Use |
+|---|---|
+| `<button>` | `<Button>` from `@mantine/core` |
+| `<input type="text">` | `<TextInput>` |
+| `<input type="number">` | `<NumberInput>` |
+| `<select>` | `<Select>` |
+| `<textarea>` | `<Textarea>` |
+| `<div>` as a card container | `<Card>` |
+| `<div>` as a vertical stack | `<Stack>` |
+| `<div>` as a horizontal row | `<Group>` |
+| `<dialog>` or custom modal | `<Modal>` |
+| `<ul>` as a dropdown menu | `<Menu>` |
+| `<table>` | `<Table>` from `@mantine/core` (or TanStack Table for advanced grids) |
+
+**Exception**: use raw HTML or a specialized third-party component when **all** of these conditions are met:
+1. The UI requirement is genuinely complex (rich text editor, drag-and-drop, canvas, code editor, etc.).
+2. No Mantine component covers the need, even with `styles`, `classNames`, or `renderRoot` customization.
+3. The third-party component does not replace the Mantine design system — it coexists within it.
+
 ## Forbidden By Default
 
 - `@mantine/form`

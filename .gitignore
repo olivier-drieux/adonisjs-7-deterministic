@@ -1,6 +1,9 @@
 # Temporary snippet files materialized by scripts/typecheck_snippets.mjs
 scripts/stubs/.snippets-cache/
 
+# LLM eval workspace (run_eval.mjs output — large, non-versioned)
+eval/workspace/
+
 # Node / npm
 node_modules/
 .npm/

@@ -9,6 +9,7 @@ const scripts = [
   'typecheck_snippets.mjs',
   'validate_rules.mjs',
   'validate_evals.mjs',
+  'validate_eval_expectations.mjs',
   'validate_sync.mjs',
   'check_upstream.mjs',
 ]

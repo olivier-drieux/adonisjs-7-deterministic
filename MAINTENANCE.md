@@ -100,15 +100,69 @@ Before considering a sync done:
 - [ ] `last_synced` bumped at the bottom of this file.
 - [ ] Commit message follows the repo convention and cites affected rule ids.
 
-## Running real evals (future — phase 3)
+## Running real evals
 
-Phase 3 of the improvement plan (`.claude/plans/drifting-stirring-boole.md`) will add `scripts/run_eval.mjs` and a real LLM benchmark pipeline reusing `skill-creator`'s `aggregate_benchmark.py`. Until that phase lands:
+`scripts/run_eval.mjs` launches real `claude -p` invocations against the eval cases, grades each response via a grader subagent, and produces a `summary.json` with pass rate, timing, and delta (with-skill vs baseline).
 
-- `eval/cases/*.json` remains a textual fixture suite scored by `scripts/score_eval.mjs`.
-- The textual layer is the pre-commit guard; LLM runs are the measurement layer.
-- No LLM runs are required during routine maintenance. They are recommended before a release or after a structural change to the doctrine.
+### Quick start (pilot — 2 cases, 1 run each)
 
-This section will be replaced with the concrete `run_eval.mjs` invocation once phase 3 is implemented.
+```sh
+node scripts/run_eval.mjs --cases ok_web_standard,violation_custom_api_key --runs-per-config 1
+```
+
+### Full run (all 25 cases, 2 runs each, with baseline comparison)
+
+```sh
+node scripts/run_eval.mjs --with-baseline --runs-per-config 2
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--cases id1,id2` | all 25 | Comma-separated case ids to run |
+| `--runs-per-config N` | 2 | Number of runs per configuration |
+| `--with-baseline` | off | Also run each case WITHOUT the skill for delta comparison |
+| `--model name` | sonnet | Model override: `sonnet`, `opus`, `haiku` |
+| `--timeout-ms N` | 300000 | Max wall-clock ms per run (5 min) |
+
+### Cost estimate
+
+Each run invokes `claude -p` twice (executor + grader). Approximate cost per full run with baseline:
+
+| Model | Approx. cost for 25 cases × 2 configs × 2 runs = 200 invocations |
+|---|---|
+| Sonnet 4.6 | ~$2–5 (API key) or ~5–10% of Max weekly quota |
+| Haiku 4.5 | ~$0.50–1 |
+| Opus 4.6 | ~$10–20 |
+
+### Output structure
+
+```
+eval/workspace/iteration-NNN/
+  eval-<case_id>/
+    with_skill/run-1/{transcript.md, timing.json, outputs/, grading.json}
+    without_skill/run-1/...   (only with --with-baseline)
+  summary.json
+```
+
+### Expected thresholds
+
+After a clean sync, expect:
+
+- `with_skill.pass_rate.mean ≥ 0.80`
+- `without_skill.pass_rate.mean ≤ 0.45` (baseline Claude without skill guidance)
+- `delta ≥ 0.35`
+
+A pass rate regression after a doctrine change signals a problem. Check the per-case `grading.json` files for the `eval_feedback.suggestions` field — the grader explains why expectations failed.
+
+### When to run
+
+- **Quarterly**: after each Context7 sync, to confirm the sync did not degrade skill effectiveness.
+- **Before release**: after any structural change to SKILL.md, wrappers, or the manifest.
+- **On demand**: when comparing two formulations of a rule (run both, pick the one with higher pass rate).
+
+No LLM runs are required during routine maintenance. The pre-commit validators (`validate_all.mjs`) remain the fast guard; `run_eval.mjs` is the measurement layer.
 
 ---
 

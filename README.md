@@ -39,7 +39,23 @@ Copy or symlink the folder to either:
 .claude/skills/adonisjs-7-deterministic
 ```
 
-Use [assets/wrappers/claude.md](./assets/wrappers/claude.md) if you also want a short wrapper for `CLAUDE.md` or a subagent prompt.
+Then copy the project-level CLAUDE.md to every AdonisJS project:
+
+```bash
+cp assets/entrypoints/CLAUDE.md /path/to/project/CLAUDE.md
+```
+
+This ensures the skill is always invoked, even if auto-matching misses. The `<!-- BEGIN/END adonisjs-7-deterministic:managed -->` markers protect the skill block from accidental edits — add your own project-specific instructions outside the markers.
+
+For company-wide enforcement, also add to `~/.claude/CLAUDE.md`:
+
+```markdown
+## AdonisJS projects
+
+For any project that contains `adonisrc.ts` or has `@adonisjs/core` in its `package.json` dependencies, always invoke the skill `$adonisjs-7-deterministic` before any implementation or review task. Do not start coding without the skill loaded.
+```
+
+Use [assets/wrappers/claude.md](./assets/wrappers/claude.md) if you also want a short wrapper for a subagent prompt.
 
 ### Cursor
 

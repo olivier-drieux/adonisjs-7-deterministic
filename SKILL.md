@@ -58,5 +58,5 @@ Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `a
 - **Setup**: `references/setup.md` (Node 24 / npm 11, starter kits, `node ace serve --hmr`, `adonisrc.ts` hooks).
 - **Core references**: `routing.md`, `validation.md`, `lucid.md`, `auth.md`, `api.md`, `bouncer.md`, `mail.md`, `drive.md`, `queue.md`, `events.md`, `inertia-libraries.md`, `rendering.md`, `transformers.md`, `testing.md`, `examples.md`.
 - **Patterns**: `patterns/crud-web.md`, `patterns/auth-flow.md`, `patterns/api-resource.md`, `patterns/frontend-bootstrap.md`, `patterns/advanced.md`.
-- **Distribution**: `assets/wrappers/` (per-agent Claude, Codex, VS Code), `assets/entrypoints/` (`copilot-instructions.md`, `AGENTS.md`).
+- **Distribution**: `assets/wrappers/` (per-agent Claude, Codex, VS Code), `assets/entrypoints/` (`CLAUDE.md`, `copilot-instructions.md`, `AGENTS.md`).
 - **Validation**: `eval/cases/*.json`, `scripts/validate_all.mjs`.

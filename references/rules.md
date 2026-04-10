@@ -10,7 +10,7 @@ Use this file as the human-readable index:
 
 ## Hard Blockers
 
-- `hb.official-packages`: official AdonisJS packages, official setup flows, and `node ace` generators come first.
+- `hb.official-packages`: before implementing any non-trivial feature, check https://packages.adonisjs.com/ for an existing package. Use official packages, setup flows, and `node ace` generators first. Do not reinvent what a published package provides.
 - `hb.data-stack`: Lucid for SQL persistence and Luxon `DateTime` for domain/model dates.
 - `hb.validation-stack`: VineJS with `vine.create(...)` as the root schema plus `request.validateUsing(...)`; no inline validation and no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: `@adonisjs/auth` plus session/cookie auth for browser-driven flows.
@@ -36,7 +36,7 @@ Use this file as the human-readable index:
 
 - `ed.source-hierarchy`: official docs/packages, then repo conventions, then personal preference.
 - `ed.application-profiles`: choose `web`, `mixed`, or `api-only` first and keep the profile stable.
-- `ed.feature-order`: package coverage, env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, UI.
+- `ed.feature-order`: check https://packages.adonisjs.com/ first, then env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, UI.
 - `ed.routing-and-kernel`: named routes, helpers, separate route groups, and middleware in `start/kernel.ts`.
 - `ed.inertia-shared-props`: middleware extends `BaseInertiaMiddleware`; share only `user`, `flash`, `errors`, and `app { name, env }`; augment `SharedProps` via `declare module '@adonisjs/inertia/types'`.
 - `ed.service-layer`: business logic in services with canonical verbs and domain returns.

@@ -34,6 +34,7 @@ Apply every matching `hard_blocker` from `rules/manifest.json`. See `references/
 
 When no `hard_blocker` is violated, apply every `enforced_default` from `rules/manifest.json`. See `references/rules.md#enforced-defaults` for the full list. Load-bearing reminders to keep in mind at all times:
 
+- **Before implementing any non-trivial feature**, check https://packages.adonisjs.com/ for an existing package. Do not code from scratch what a published AdonisJS package already provides (`hb.official-packages`).
 - Controllers are imported via `import { controllers } from '#generated/controllers'` and referenced by PascalCase resource name (`controllers.Posts`, not `controllers.PostsController`).
 - `@adonisjs/inertia/react` `Link` and `Form` components take a **`routeParams`** prop — never `params`.
 - HTTP validation uses `vine.create({...})` as the root schema. `vine.compile(vine.object(...))` is the v6 form and must not appear.

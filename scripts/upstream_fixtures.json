@@ -66,6 +66,12 @@
       "topic": "queue",
       "rule_id": "hb.queue-stack",
       "why": "Official v7 package for background job processing."
+    },
+    {
+      "pattern": "packages.adonisjs.com",
+      "topic": "official-packages",
+      "rule_id": "hb.official-packages",
+      "why": "The agent must check the AdonisJS packages registry before implementing any non-trivial feature from scratch."
     }
   ],
   "anti_patterns": [

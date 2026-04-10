@@ -22,7 +22,7 @@ This project uses a fail-closed deterministic doctrine for AdonisJS v7. Every co
 
 Each stops execution on conflict. Cite the rule id and ask before proceeding.
 
-- `hb.official-packages`: Use official AdonisJS packages and `node ace` generators first.
+- `hb.official-packages`: Check https://packages.adonisjs.com/ first. Use official packages and `node ace` generators. Do not reinvent what a published package provides.
 - `hb.data-stack`: Lucid for SQL persistence, Luxon DateTime for dates. No Prisma/Drizzle.
 - `hb.validation-stack`: VineJS with `vine.create(...)` as the root schema and `request.validateUsing(...)`. No inline validation, no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: `@adonisjs/auth` session/cookie for browser flows.

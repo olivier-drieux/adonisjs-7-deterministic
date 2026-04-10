@@ -30,7 +30,7 @@ Fail-closed doctrine for private AdonisJS v7 applications. This wrapper is self-
 
 Each stops execution on conflict. Cite the rule id, ask one override question, wait.
 
-- `hb.official-packages`: Use official AdonisJS packages and `node ace` generators first. No third-party replacements when an official package exists.
+- `hb.official-packages`: Before implementing any feature, check https://packages.adonisjs.com/ for an existing package. Use official packages and `node ace` generators first. Do not reinvent what a published package provides.
 - `hb.data-stack`: Use Lucid for SQL persistence and Luxon DateTime for model/domain dates. No Prisma, Drizzle, or plain Date for persisted domain dates.
 - `hb.validation-stack`: HTTP validation uses VineJS with `vine.create(...)` as the root schema and `request.validateUsing(...)`. No inline controller validation, and no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: Browser flows use `@adonisjs/auth` with session/cookie auth. No bearer-token-first browser flows.

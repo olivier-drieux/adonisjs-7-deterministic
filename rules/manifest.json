@@ -497,6 +497,17 @@
       "test_ids": ["ok_web_standard", "violation_client_fetch_stack", "violation_client_form_stack"]
     },
     {
+      "id": "ed.css-modules-styling",
+      "tier": "enforced_default",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Use CSS Modules (.module.css) as the default styling method for custom component styles. Apply styles to Mantine components via the className prop (root element) and the classNames prop (inner elements mapped by part name). Use Mantine CSS variables (--mantine-color-*, --mantine-spacing-*, --mantine-font-size-*, etc.) inside CSS Modules to stay consistent with the design system. Do not use Tailwind CSS, styled-components, Emotion css(), or global unscoped CSS as the default styling path. Inline style={{}} is acceptable only for truly dynamic runtime values (e.g. computed widths or positions), not for static visual styling.",
+      "required_patterns": [".module.css", "className", "classNames for Mantine inner elements"],
+      "forbidden_patterns": ["Tailwind CSS as the default styling path", "styled-components", "Emotion css()", "global unscoped CSS for component styling", "inline style={{}} for static visual styling"],
+      "conflict_behavior": "Apply CSS Modules as the default styling approach unless a repo-local standard already matches a compatible scoped-CSS alternative.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
       "id": "ed.generators-and-naming",
       "tier": "enforced_default",
       "applies_to": ["all"],

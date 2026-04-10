@@ -45,6 +45,7 @@
 - Use one authenticated app layout and one guest layout by default.
 - Mount flash notification plumbing once in the app shell or root authenticated layout, not per page.
 - Keep Mantine CSS imports in this order: core, notifications, then dates only when dates are used.
+- Use CSS Modules (`.module.css`) for all custom styling. Apply styles to Mantine components via `className` (root) and `classNames` (inner parts). Use Mantine CSS variables (`--mantine-color-*`, `--mantine-spacing-*`) inside CSS Modules. Do not use Tailwind CSS, styled-components, Emotion `css()`, or global unscoped CSS as the default styling path. Inline `style={{}}` is acceptable only for truly dynamic runtime values. See `inertia-libraries.md#css-modules-styling` for full guidance.
 - Standard web mutations redirect to a named route and use flash or session feedback.
 - Components render props and submit requests. They do not own business rules.
 - Use explicit JSON API endpoints only when the page truly needs an API interaction that should not be modeled as a normal Inertia form or page action.

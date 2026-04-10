@@ -46,7 +46,8 @@ Use this file as the human-readable index:
 - `ed.auth-session-and-shield-config`: canonical auth/session/shield/inertia defaults, including remember-me and cookie policy.
 - `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
 - `ed.inertia-filesystem-layout`: canonical `inertia/*` directory structure and server-owned business logic.
-- `ed.frontend-library-and-state-policy`: Mantine-first UI, limited `@inertiajs/react`, UI-only Zustand, Tuyau for explicit client fetches, TanStack only when justified.
+- `ed.frontend-library-and-state-policy`: Mantine-first UI, always use Mantine components over raw HTML when an equivalent exists, limited `@inertiajs/react`, UI-only Zustand, Tuyau for explicit client fetches, TanStack only when justified.
+- `ed.css-modules-styling`: CSS Modules (`.module.css`) for all custom styling. `className` for root, `classNames` for Mantine inner parts. Use Mantine CSS variables. No Tailwind, styled-components, Emotion, or global unscoped CSS.
 - `ed.generators-and-naming`: `node ace` generators and canonical names for routes, services, validators, policies, and commands. Reference controllers as `controllers.Posts` through `#generated/controllers`, not `controllers.PostsController`.
 - `ed.runtime-prerequisites`: Node.js ≥ 24, npm ≥ 11, `npm create adonisjs@latest ... -- --kit=<name>`, `node ace serve --hmr`.
 - `ed.adonisrc-hooks`: `adonisrc.ts` declares `hooks.init` with `indexEntities()` (mandatory), `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack; `buildStarting` wires `@adonisjs/vite/build_hook` for Vite apps.

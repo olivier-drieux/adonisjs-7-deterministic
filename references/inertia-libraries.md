@@ -38,6 +38,73 @@ Always prefer a Mantine component over a raw HTML element when Mantine provides 
 2. No Mantine component covers the need, even with `styles`, `classNames`, or `renderRoot` customization.
 3. The third-party component does not replace the Mantine design system — it coexists within it.
 
+## CSS Modules Styling
+
+Use CSS Modules (`.module.css`) as the default method for custom styling. Mantine itself is built on CSS Modules and its documentation recommends this approach as the most performant.
+
+### Applying styles to Mantine components
+
+```tsx
+// excerpt
+import { TextInput } from '@mantine/core'
+import classes from './PostForm.module.css'
+
+// Root element — use className
+<TextInput className={classes.input} />
+
+// Inner elements — use classNames with part-name keys
+<TextInput
+  classNames={{
+    root: classes.root,
+    input: classes.input,
+    label: classes.label,
+  }}
+/>
+```
+
+### Custom component styling
+
+```css
+/* PostCard.module.css */
+.card {
+  border-left: 3px solid var(--mantine-color-blue-6);
+  padding: var(--mantine-spacing-md);
+}
+
+.title {
+  font-size: var(--mantine-font-size-lg);
+  font-weight: 600;
+}
+```
+
+```tsx
+import { Card, Text } from '@mantine/core'
+import classes from './PostCard.module.css'
+
+export function PostCard({ title, body }: { title: string; body: string }) {
+  return (
+    <Card className={classes.card}>
+      <Text className={classes.title}>{title}</Text>
+      <Text>{body}</Text>
+    </Card>
+  )
+}
+```
+
+### Rules
+
+- Always use Mantine CSS variables (`--mantine-color-*`, `--mantine-spacing-*`, `--mantine-font-size-*`, `--mantine-breakpoint-*`) inside CSS Modules to stay consistent with the design system.
+- Use `data-*` attributes for state-based styling (`data-active`, `data-collapsed`, etc.) instead of dynamically generating class names.
+- Keep one `.module.css` file per component or per page when the styles are small.
+- Inline `style={{}}` is acceptable only for truly dynamic runtime values (computed widths, positions, progress bars). Never use it for static visual styling.
+
+### Forbidden styling paths
+
+- Tailwind CSS
+- styled-components
+- Emotion `css()`
+- Global unscoped CSS for component styling (global CSS is only for Mantine imports like `@mantine/core/styles.css`)
+
 ## Forbidden By Default
 
 - `@mantine/form`

@@ -882,9 +882,14 @@ declare module '../../database/schema.js' {
 }
 
 // ---------------------------------------------------------------------------
-// CSS side-effect imports used in inertia/app.tsx snippets
+// CSS imports — side-effect imports (core/styles.css) and CSS Modules
+// (*.module.css). CSS Modules return an object with string keys so that
+// `classes.card`, `classes.root` etc. typecheck in the snippets.
 // ---------------------------------------------------------------------------
-declare module '*.css' {}
+declare module '*.css' {
+  const classes: Record<string, string>
+  export default classes
+}
 
 // ---------------------------------------------------------------------------
 // @adonisjs/queue

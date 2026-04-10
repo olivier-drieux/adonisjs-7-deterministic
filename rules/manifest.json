@@ -453,6 +453,17 @@
       "test_ids": ["ok_web_standard"]
     },
     {
+      "id": "ed.encryption",
+      "tier": "enforced_default",
+      "applies_to": ["all"],
+      "statement": "Use the framework-native encryption service (import encryption from '@adonisjs/core/services/encryption') for encrypting sensitive data stored in the database (PII, tokens, secrets). Encrypt via Lucid @beforeSave() hooks and expose a decrypt method on the model. Keep APP_KEY secret, never commit it, and use a different key per environment. Do not use third-party encryption libraries or manual crypto when the built-in service covers the need.",
+      "required_patterns": ["@adonisjs/core/services/encryption", "@beforeSave()", "encryption.encrypt(", "encryption.decrypt("],
+      "forbidden_patterns": ["third-party encryption library when the built-in service covers the need", "manual node:crypto for application-level field encryption"],
+      "conflict_behavior": "Apply the built-in encryption service for sensitive database columns unless a specific compliance requirement demands a different algorithm or key management scheme.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
       "id": "ed.auth-session-and-shield-config",
       "tier": "enforced_default",
       "applies_to": ["all"],

@@ -60,6 +60,36 @@ export default class Post extends PostsSchema {
 - Use `firstOrFail`, `paginate`, `preload`, `withCount`, and scopes instead of hand-rolled helper layers.
 - Use Luxon `DateTime` across the model and domain boundary.
 
+## Encrypting Sensitive Columns
+
+Use the framework-native encryption service for any sensitive data stored in the database (PII, external tokens, secrets). Encrypt with a `@beforeSave()` hook and expose a `decrypt` method on the model.
+
+```ts
+// excerpt
+import { beforeSave } from '@adonisjs/lucid/orm'
+import encryption from '@adonisjs/core/services/encryption'
+
+export default class User extends UserSchema {
+  @beforeSave()
+  static encryptSensitiveData(user: User) {
+    if (user.$dirty.ssn && user.ssn) {
+      user.ssn = encryption.encrypt(user.ssn)
+    }
+  }
+
+  decryptSsn(): string | null {
+    if (!this.ssn) return null
+    return encryption.decrypt(this.ssn)
+  }
+}
+```
+
+- Encrypt only the columns that hold genuinely sensitive data — do not encrypt every column.
+- Encrypted columns are not searchable via SQL. If you need to search, keep a separate hashed index column or use a different strategy.
+- The encryption service uses `APP_KEY`. Keep `APP_KEY` secret, never commit it, and use a different key per environment. Losing or changing `APP_KEY` makes all encrypted data permanently unreadable.
+- Generate `APP_KEY` with `node ace generate:key`.
+- Do not use third-party encryption libraries or manual `node:crypto` when the built-in service covers the need.
+
 ## Transaction Rules
 
 - Open transactions inside services, not controllers.

@@ -43,6 +43,7 @@ Use this file as the human-readable index:
 - `ed.model-and-policy-layer`: model relations/hooks stay in models; policies stay explicit and default to `403`.
 - `ed.mail-events-transformers-exceptions`: dedicated mail classes, class-based events/listeners, transformers, and named exceptions.
 - `ed.config-and-env`: runtime config in `config/*`; env declarations in `start/env.ts`.
+- `ed.encryption`: use `@adonisjs/core/services/encryption` for sensitive database columns (PII, tokens, secrets). Encrypt via `@beforeSave()` hooks, decrypt via model methods. Keep `APP_KEY` secret and environment-specific.
 - `ed.auth-session-and-shield-config`: canonical auth/session/shield/inertia defaults, including remember-me and cookie policy.
 - `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
 - `ed.inertia-filesystem-layout`: canonical `inertia/*` directory structure and server-owned business logic.

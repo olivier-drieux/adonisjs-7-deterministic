@@ -35,6 +35,12 @@ const WORKSPACE_DIR = path.join(ROOT, 'eval', 'workspace')
 const CASES_DIR = path.join(ROOT, 'eval', 'cases')
 const EXPECTATIONS_DIR = path.join(ROOT, 'eval', 'expectations')
 const SKILL_NAME = 'adonisjs-7-deterministic'
+const SKILL_INSTALL_DIR = path.join(
+  process.env.HOME || process.env.USERPROFILE || '~',
+  '.claude',
+  'skills',
+  SKILL_NAME
+)
 
 function parseArgs() {
   const args = process.argv.slice(2)
@@ -134,6 +140,7 @@ function grade({ expectations, transcriptPath, runDir, model, timeoutMs }) {
     runDir: path.join(runDir, '_grader_work'),
     model,
     timeoutMs,
+    allowWrite: true,
   })
 
   // The grader should have written grading.json directly via the prompt.
@@ -249,6 +256,8 @@ async function main() {
           runDir,
           model: opts.model,
           timeoutMs: opts.timeoutMs,
+          permissionMode: 'acceptEdits',
+          addDirs: [ROOT, SKILL_INSTALL_DIR],
         })
 
         console.log(`    done in ${(execResult.durationMs / 1000).toFixed(1)}s (exit ${execResult.status})`)

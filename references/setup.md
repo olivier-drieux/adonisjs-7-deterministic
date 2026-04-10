@@ -70,17 +70,15 @@ import { generateRegistry } from '@tuyau/core/hooks'
 export default defineConfig({
   hooks: {
     init: [
-      // Always required — produces #generated/controllers.
-      indexEntities(),
+      // Indexes controllers (#generated/controllers), transformers
+      // (Data.* namespace via @generated/data), and Inertia SharedProps.
+      indexEntities({ transformers: { enabled: true, withSharedProps: true } }),
 
       // Inertia page indexing for type-safe inertia.render().
       indexPages({ framework: 'react' }),
 
       // Tuyau registry for createTuyau() and urlFor() on the client.
       generateRegistry(),
-
-      // Transformer types (Data.*) + typed Inertia SharedProps surface.
-      indexEntities({ transformers: { enabled: true, withSharedProps: true } }),
 
       // Bouncer authorization container + type inference.
       indexPolicies(),
@@ -95,7 +93,7 @@ export default defineConfig({
 
 ### Variant B — `api-only` profile
 
-Drop `indexPages` entirely (no Inertia pages to index), drop `withSharedProps` (no Inertia shared props), and drop the Vite `build_hook` unless the backend has its own Vite pipeline:
+Drop `indexPages` entirely (no Inertia pages to index), set `withSharedProps: false` (no Inertia shared props), and drop the Vite `build_hook` unless the backend has its own Vite pipeline:
 
 ```ts
 // adonisrc.ts (api-only)
@@ -107,10 +105,8 @@ import { generateRegistry } from '@tuyau/core/hooks'
 export default defineConfig({
   hooks: {
     init: [
-      // Always required — produces #generated/controllers.
-      indexEntities(),
-
-      // Transformer types (Data.*) — no SharedProps in an api-only app.
+      // Indexes controllers (#generated/controllers) and transformers
+      // (Data.* namespace). No SharedProps in an api-only app.
       indexEntities({ transformers: { enabled: true, withSharedProps: false } }),
 
       // Tuyau registry — optional, keep it only if an external client
@@ -126,10 +122,9 @@ export default defineConfig({
 
 ### What each hook produces
 
-- `indexEntities()` — discovers controllers and generates `#generated/controllers` (the barrel that exposes `controllers.Posts`, `controllers.Session`, etc.).
+- `indexEntities({ transformers: { enabled: true, withSharedProps } })` — discovers controllers and generates `#generated/controllers`; emits the `Data.*` namespace (`@generated/data`) for transformer types. `withSharedProps: true` additionally emits the typed Inertia `SharedProps` surface (use `false` in `api-only` apps). A single call is sufficient — the upgrade guide shows a bare `indexEntities()` + a second call with `transformers` for pedagogical clarity, but a single call with the full options does both jobs.
 - `indexPages({ framework: 'react' })` — indexes `inertia/pages/**/*` so `inertia.render('posts/index', ...)` is type-safe. **Only relevant in `web` and `mixed` profiles.**
 - `generateRegistry()` — produces `@generated/registry` consumed by `createTuyau(...)` and `urlFor(...)`.
-- `indexEntities({ transformers: { enabled: true, withSharedProps: <true|false> } })` — emits the `Data.*` namespace (`@generated/data`). `withSharedProps: true` additionally emits the typed Inertia `SharedProps` surface and must stay `false` in `api-only` apps.
 - `indexPolicies()` — registers bouncer policies for the container and type inference.
 - `@adonisjs/vite/build_hook` — wires Vite's production build into the assembler `buildStarting` phase. **Only relevant when the profile actually uses Vite** (typically `web` and `mixed`).
 

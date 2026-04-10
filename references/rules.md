@@ -10,7 +10,7 @@ Use this file as the human-readable index:
 
 ## Hard Blockers
 
-- `hb.official-packages`: before implementing any non-trivial feature, check https://packages.adonisjs.com/ for an existing package. Use official packages, setup flows, and `node ace` generators first. Do not reinvent what a published package provides.
+- `hb.official-packages`: before implementing any non-trivial feature, (1) check https://packages.adonisjs.com/ for an AdonisJS package, (2) if none found, search https://www.npmjs.com/ for a well-maintained npm package. Use AdonisJS packages first, then vetted npm packages, then custom code as last resort.
 - `hb.data-stack`: Lucid for SQL persistence and Luxon `DateTime` for domain/model dates.
 - `hb.validation-stack`: VineJS with `vine.create(...)` as the root schema plus `request.validateUsing(...)`; no inline validation and no `vine.compile(vine.object(...))` at the root.
 - `hb.auth-browser-stack`: `@adonisjs/auth` plus session/cookie auth for browser-driven flows.

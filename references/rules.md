@@ -47,6 +47,7 @@ Use this file as the human-readable index:
 - `ed.auth-session-and-shield-config`: canonical auth/session/shield/inertia defaults, including remember-me and cookie policy.
 - `ed.testing-layout`: `tests/functional` for request flows and `tests/unit` for isolated logic.
 - `ed.inertia-filesystem-layout`: canonical `inertia/*` directory structure and server-owned business logic.
+- `ed.inertia-page-typing`: Inertia page components MUST type props with `InertiaProps<{...}>` from `~/types` and `Data.<Resource>` from `@generated/data`. Never define inline interfaces for transformer-typed data.
 - `ed.frontend-library-and-state-policy`: Mantine-first UI, always use Mantine components over raw HTML when an equivalent exists, limited `@inertiajs/react`, UI-only Zustand, Tuyau for explicit client fetches, TanStack only when justified.
 - `ed.css-modules-styling`: CSS Modules (`.module.css`) for all custom styling. `className` for root, `classNames` for Mantine inner parts. Use Mantine CSS variables. No Tailwind, styled-components, Emotion, or global unscoped CSS.
 - `ed.generators-and-naming`: `node ace` generators and canonical names for routes, services, validators, policies, and commands. Reference controllers as `controllers.Posts` through `#generated/controllers`, not `controllers.PostsController`.

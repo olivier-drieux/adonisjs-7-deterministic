@@ -12,7 +12,7 @@ Use this skill to keep private AdonisJS v7 work on one stable, framework-native 
 ## Execution Protocol
 
 1. `select-profile`: Choose exactly one profile: `web`, `mixed`, or `api-only`.
-2. `load-targeted-references`: Read only the references needed for that profile and the current feature slice.
+2. `load-targeted-references`: Look up the feature slice in `sync_contract.reference_slices` (in `rules/manifest.json`) and read the listed references before writing any code. Mention which references were loaded.
 3. `list-applicable-hard-blockers`: Apply every matching `hard_blocker` from `rules/manifest.json`.
 4. `detect-conflicts`: Compare the request, repo conventions, and blockers against the source hierarchy before proceeding.
 5. `ask-one-override-question`: If a `hard_blocker` conflicts with the request, stop, cite the rule id, ask exactly one short override question, and wait.

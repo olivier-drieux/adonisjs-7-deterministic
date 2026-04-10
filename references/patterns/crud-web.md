@@ -55,6 +55,8 @@ export default class PostsController {
 }
 ```
 
+**Use this exact import/type shape for all Inertia pages.** Props must use `InertiaProps<{...}>` from `~/types` and reference data shapes via `Data.<Resource>` from `@generated/data`. Never define inline interfaces for data already typed by a transformer.
+
 ```tsx
 // inertia/pages/posts/index.tsx
 import { Form, Link } from '@adonisjs/inertia/react'

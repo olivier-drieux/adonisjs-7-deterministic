@@ -13,7 +13,7 @@
     },
     {
       "id": "load-targeted-references",
-      "instruction": "Read only the references needed for the selected profile and the active feature slice."
+      "instruction": "Look up the active feature slice in sync_contract.reference_slices and read the listed references before writing any code. If the slice is not listed, identify the closest match and read its references. Mention which references were loaded so drift is visible."
     },
     {
       "id": "list-applicable-hard-blockers",
@@ -120,7 +120,21 @@
       "hb.no-custom-api-keys-default",
       "hb.queue-stack",
       "hb.encryption-sensitive-columns"
-    ]
+    ],
+    "reference_slices": {
+      "_comment": "Maps feature slices to the references the agent MUST read before writing code for that slice. Used by the load-targeted-references protocol step.",
+      "inertia-page": ["references/rendering.md", "references/patterns/crud-web.md", "references/inertia-libraries.md"],
+      "api-endpoint": ["references/api.md", "references/validation.md", "references/transformers.md", "references/patterns/api-resource.md"],
+      "auth-flow": ["references/auth.md", "references/patterns/auth-flow.md"],
+      "lucid-model": ["references/lucid.md", "references/validation.md"],
+      "bouncer-policy": ["references/bouncer.md"],
+      "queue-job": ["references/queue.md"],
+      "mail": ["references/mail.md", "references/events.md"],
+      "drive-upload": ["references/drive.md", "references/validation.md"],
+      "frontend-bootstrap": ["references/rendering.md", "references/inertia-libraries.md", "references/patterns/frontend-bootstrap.md"],
+      "testing": ["references/testing.md"],
+      "events-listeners": ["references/events.md"]
+    }
   },
   "rules": [
     {
@@ -496,6 +510,17 @@
       "conflict_behavior": "Apply the canonical Inertia file layout by default.",
       "override_allowed": false,
       "test_ids": ["ok_web_standard"]
+    },
+    {
+      "id": "ed.inertia-page-typing",
+      "tier": "enforced_default",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Inertia page components MUST type their props with InertiaProps<{...}> from ~/types and reference data shapes via Data.<Resource> from @generated/data. Never define inline interfaces (e.g. interface Post { id: number; title: string }) for data already exposed by a transformer — use Data.Post (or Data.Post.Variants['forDetailedView'] for variant shapes) instead. This avoids type drift between the transformer output and the page contract.",
+      "required_patterns": ["InertiaProps<{", "Data.", "@generated/data"],
+      "forbidden_patterns": ["inline interface for data already typed by a transformer", "manually duplicated transformer shape in a page component"],
+      "conflict_behavior": "Apply the canonical InertiaProps + Data.* typing pattern by default.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard", "ok_shared_props_user_key", "ok_transformer_variants"]
     },
     {
       "id": "ed.frontend-library-and-state-policy",

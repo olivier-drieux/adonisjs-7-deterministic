@@ -29,10 +29,10 @@
 - SSR entry lives in `inertia/ssr.tsx` when SSR is enabled.
 - `config/inertia.ts` is the canonical place for Inertia runtime configuration. Keep one fixed root view and keep SSR disabled by default. In v7, the `entrypoint` option is removed and `history.encrypt` is renamed to the top-level `encryptHistory`. `sharedData` is also removed in favor of the Inertia middleware.
 - `app/middleware/inertia_middleware.ts` is the canonical place for shared props. The middleware **must extend `BaseInertiaMiddleware`** from `@adonisjs/inertia/inertia_middleware` so it can reuse `this.init(ctx)`, `this.dispose(ctx)`, and `this.getValidationErrors(ctx)`.
-- Shared props stay minimal: `user`, `flash`, `errors`, and `app`.
+- Core shared props are `user`, `flash`, and `errors`. These three top-level keys are the canonical baseline and must always be present.
 - `user` holds the transformed authenticated user (via `UserTransformer`) or `undefined`.
-- `app` stays flat and tiny: `name` and `env` only.
-- Share `user`, `flash`, `errors`, and `app` with `ctx.inertia.always(...)`.
+- Additional global shell metadata (app name, environment, locale, version, feature flags, tenant slug, etc.) is allowed, but it **must live under a single `app` namespace** — for example `app.name`, `app.env`, `app.locale`, `app.version`. Do not introduce arbitrary top-level keys outside the core (`user`, `flash`, `errors`, `app`). Page-specific data belongs in the controller's `inertia.render(...)` call, not in shared props.
+- Share the core keys and the `app` namespace with `ctx.inertia.always(...)`.
 - Augment the `SharedProps` type with `declare module '@adonisjs/inertia/types' { type MiddlewareSharedProps = InferSharedProps<InertiaMiddleware>; export interface SharedProps extends MiddlewareSharedProps {} }` at the bottom of the middleware file.
 - For browser-facing Inertia apps, keep Shield CSRF enabled with `enableXsrfCookie: true`.
 - Use `@adonisjs/inertia/react` `Link` and `Form` wrappers with named routes. Pass route parameters via a flat `routeParams` prop: `<Link route="posts.show" routeParams={{ id: post.id }}>`. **`routeParams` is the correct prop name in v7 — never `params`.**

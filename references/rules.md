@@ -38,7 +38,7 @@ Use this file as the human-readable index:
 - `ed.application-profiles`: choose `web`, `mixed`, or `api-only` first and keep the profile stable.
 - `ed.feature-order`: check https://packages.adonisjs.com/ first, then env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, UI.
 - `ed.routing-and-kernel`: named routes, helpers, separate route groups, and middleware in `start/kernel.ts`.
-- `ed.inertia-shared-props`: middleware extends `BaseInertiaMiddleware`; share only `user`, `flash`, `errors`, and `app { name, env }`; augment `SharedProps` via `declare module '@adonisjs/inertia/types'`.
+- `ed.inertia-shared-props`: middleware extends `BaseInertiaMiddleware`. Core shared props are `user`, `flash`, and `errors`. Additional global shell metadata is allowed but must live under the single `app` namespace (for example `app.name`, `app.env`, `app.locale`, `app.version`). Do not add arbitrary top-level keys outside the core. Augment `SharedProps` via `declare module '@adonisjs/inertia/types'`.
 - `ed.service-layer`: business logic in services with canonical verbs and domain returns.
 - `ed.validator-layer`: one validator per action, prefer explicit duplication over inheritance.
 - `ed.model-and-policy-layer`: model relations/hooks stay in models; policies stay explicit and default to `403`.
@@ -53,7 +53,7 @@ Use this file as the human-readable index:
 - `ed.generators-and-naming`: `node ace` generators and canonical names for routes, services, validators, policies, and commands. Reference controllers as `controllers.Posts` through `#generated/controllers`, not `controllers.PostsController`.
 - `ed.runtime-prerequisites`: Node.js ≥ 24, npm ≥ 11, `npm create adonisjs@latest ... -- --kit=<name>`, `node ace serve --hmr`.
 - `ed.adonisrc-hooks`: `adonisrc.ts` declares `hooks.init` with `indexEntities()` (mandatory), `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack; `buildStarting` wires `@adonisjs/vite/build_hook` for Vite apps.
-- `ed.api-contracts`: `serialize(...)` with transformers (the helper already produces the canonical `{ data }` / `{ data, meta }` envelope — do not add a second wrapper), flat `{ code, message }` errors, canonical status codes.
+- `ed.api-contracts`: framework doctrine — `serialize(...)` with a transformer produces the canonical AdonisJS v7 shape (`{ data }` for a resource, `{ data: [...] }` for a collection, `{ data, meta }` for a paginator). Do not double-wrap that output. This is **not** a universal rule that every endpoint must return `{ data }`: ad-hoc endpoints (signed URLs, counts, health, status) legitimately return their own typed shape. A uniform `{ data }` contract across every endpoint is an applicative-level choice, not a framework-level one, and the skill does not impose it. Errors stay flat `{ code, message }`; statuses: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.
 - `ed.query-pagination`: dedicated list validators, `page`, `perPage`, `q`, `sort`, `direction`, default `20`, max `100`.
 - `ed.transactions-side-effects-and-commands`: services orchestrate writes, transactions stay explicit, external I/O stays outside when possible, recurring Ace commands are idempotent.
 - `ed.web-mutations-and-browser-api-auth`: redirects plus flash for web mutations, session auth for browser-called `/api`, tokens for external APIs.

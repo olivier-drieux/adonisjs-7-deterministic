@@ -53,9 +53,9 @@ package coverage → env/config → migration → model → validator → policy
 - Named routes and route helpers, separate web and `/api` groups. Controllers via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`.
 - Services with canonical verbs: `list`, `findOrFail`, `create`, `update`, `delete`.
 - One validator per action built with `vine.create({...})`. One policy per protected resource. Prefer `denies(...)` checks.
-- Web mutations: redirect + flash. API: `serialize(...)` with transformers (already produces `{ data }` / `{ data, meta }`), flat `{ code, message }` errors.
-- Status codes: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found.
-- Shared Inertia props: only `user`, `flash`, `errors`, `app { name, env }`. Middleware extends `BaseInertiaMiddleware`.
+- Web mutations: redirect + flash. API (framework doctrine): `serialize(...)` with a transformer produces `{ data }` for a resource, `{ data: [...] }` for a collection, `{ data, meta }` for a paginator — never double-wrap it. This is **not** a universal rule that every endpoint must be `{ data }`: ad-hoc endpoints (signed URLs, counts, health probes, token-exchange responses) legitimately return their own typed shape. A uniform `{ data }` contract across every endpoint is an applicative-level choice, not a framework rule. Errors stay flat `{ code, message }`.
+- Status codes: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.
+- Shared Inertia props: core keys are `user`, `flash`, `errors`. Additional global shell metadata is allowed but must live under a single `app` namespace (for example `app.name`, `app.env`, `app.locale`, `app.version`); no arbitrary top-level keys outside the core. Middleware extends `BaseInertiaMiddleware`.
 - Page props typed with `InertiaProps<{...}>` from `~/types` and `Data.<Resource>` from `@generated/data`.
 - Inertia `Link` and `Form` take `routeParams={{ id }}` — never `params={{ id }}`.
 - SSR off by default. Mantine + Tabler icons. `@adonisjs/inertia/react` Link and Form.

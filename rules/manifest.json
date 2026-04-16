@@ -56,7 +56,7 @@
     },
     {
       "id": "mixed",
-      "statement": "Inertia React for pages plus a separate /api route group and separate API controllers; browser clients inside the same app stay on session auth even when they call /api."
+      "statement": "Five distinct surfaces — web (Inertia pages, session auth, CSRF on), api.internal (same-origin JSON from the app's own browser, session auth, CSRF on, prefix /api or /api/internal), api.external (external / mobile / machine clients, access tokens on api guard, CSRF off, prefix /api or /api/external), webhooks (inbound third-party JSON, per-provider signature verification, CSRF off, prefix /webhooks), and runtime (MCP tool servers, health/liveness/readiness probes, debug/introspection, local bridges, operator tooling — purpose-specific middleware, no session, no CSRF, no api guard by default; mounted on its own paths such as /mcp or /health). Classify every route by ROLE (caller, purpose), not URL prefix. Each surface has its own route group, middleware chain, and controllers; a single controller never straddles two surfaces. When two or more surfaces are mounted, split route declarations one file per surface — start/routes.ts for web, start/routes/<surface>.ts for each of the others (api_internal.ts, api_external.ts, webhooks.ts, runtime.ts) — registered in adonisrc.ts preloads (node ace make:preload routes/<surface> --environments=web)."
     },
     {
       "id": "api-only",
@@ -109,6 +109,7 @@
       "hb.web-ui-stack",
       "hb.official-side-effect-packages",
       "hb.web-api-controller-separation",
+      "hb.http-surface-inventory",
       "hb.no-express-fastify-composition",
       "hb.no-repository-layer",
       "hb.no-edge-feature-rendering",
@@ -134,6 +135,8 @@
       "frontend-bootstrap": ["references/rendering.md", "references/inertia-libraries.md", "references/patterns/frontend-bootstrap.md"],
       "client-fetch-exception": ["references/inertia-libraries.md", "references/api.md"],
       "raw-io-exception": ["references/patterns/advanced.md", "references/queue.md"],
+      "runtime-surface": ["references/routing.md", "references/setup.md", "references/examples.md"],
+      "http-surface-refactor": ["references/routing.md", "references/api.md", "references/examples.md", "references/setup.md"],
       "testing": ["references/testing.md"],
       "events-listeners": ["references/events.md"]
     }
@@ -242,12 +245,23 @@
       "id": "hb.web-api-controller-separation",
       "tier": "hard_blocker",
       "applies_to": ["mixed"],
-      "statement": "Never mix Inertia page actions and JSON API actions in the same controller. Mixed applications keep web controllers and API controllers separate.",
-      "required_patterns": ["separate web controllers", "separate API controllers"],
-      "forbidden_patterns": ["single controller handling both Inertia pages and JSON endpoints"],
+      "statement": "Mixed applications keep one controller per surface. A single controller never straddles two of the five surfaces — web, api.internal, api.external, webhooks, runtime. Never reuse an api.internal controller for api.external (or vice versa), and never fold /mcp, /health, or operator-bridge endpoints into an API controller: they belong in dedicated runtime controllers.",
+      "required_patterns": ["one controller per surface", "separate web, api.internal, api.external, webhooks, and runtime controllers"],
+      "forbidden_patterns": ["single controller serving two surfaces", "api controller handling /mcp or /health", "reusing api.internal controller for api.external"],
       "conflict_behavior": "Stop, cite `hb.web-api-controller-separation`, ask one override question, and wait for explicit one-off confirmation.",
       "override_allowed": true,
-      "test_ids": ["ok_mixed_browser_api", "violation_mixed_controller"]
+      "test_ids": ["ok_mixed_browser_api", "ok_mixed_multi_surface_routes", "violation_mixed_controller"]
+    },
+    {
+      "id": "hb.http-surface-inventory",
+      "tier": "hard_blocker",
+      "applies_to": ["mixed", "web", "api-only"],
+      "statement": "Before any routing refactor, split, or reorganization, run an exhaustive HTTP surface inventory. Read start/routes.ts and every file it transitively imports or that adonisrc.ts preloads. Enumerate every mounted route. Detect atypical declarations that a URL-prefix scan misses — router.on(...).renderInertia(...), router.any(...), router.route(path, verbs, ...), closure handlers, healthchecks (router.get('/health/live', ...)), MCP endpoints (router.post('/mcp', ...)), operator bridges. Classify every route by ROLE (caller, purpose), not URL prefix. Emit a written surface table (path, verb, handler, caller, surface) before writing any code. A route that does not fit web / api.internal / api.external / webhooks belongs to runtime — never silently absorb it into api.internal or api.external.",
+      "required_patterns": ["read start/routes.ts and every transitively imported file", "enumerate every mounted route", "detect atypical declarations (router.on, router.any, router.route, closures, healthchecks, /mcp)", "classify by ROLE (caller, purpose), not URL prefix", "emit a written surface table before writing code", "route that does not fit web/api.internal/api.external/webhooks belongs to runtime"],
+      "forbidden_patterns": ["routing refactor without inventory", "URL-prefix-only classification", "silently absorbing /mcp or /health into api.internal or api.external"],
+      "conflict_behavior": "Stop, cite `hb.http-surface-inventory`, run the inventory, emit the surface table, then ask one override question only if the inventory reveals a conflict with the request.",
+      "override_allowed": true,
+      "test_ids": ["ok_refactor_http_surface_inventory_mcp", "violation_refactor_skips_http_surface_inventory"]
     },
     {
       "id": "hb.no-express-fastify-composition",
@@ -396,12 +410,12 @@
       "id": "ed.routing-and-kernel",
       "tier": "enforced_default",
       "applies_to": ["all"],
-      "statement": "Use framework-native routing and kernel structure: router from @adonisjs/core/services/router, named routes, route helpers, separate web and /api groups, resource routes only for standard CRUD, and named middleware registered in start/kernel.ts.",
-      "required_patterns": ["named routes", "separate route groups", "named middleware"],
-      "forbidden_patterns": ["hardcoded route strings when helpers exist", "inline auth logic in route handlers"],
+      "statement": "Use framework-native routing and kernel structure: router from @adonisjs/core/services/router, named routes, route helpers, separate groups per surface, resource routes only for standard CRUD, and named middleware registered in start/kernel.ts. In mixed apps mounting two or more of the five surfaces, split route declarations one file per surface — start/routes.ts for web, start/routes/<surface>.ts for each of the others (api_internal.ts, api_external.ts, webhooks.ts, runtime.ts) — registered in adonisrc.ts preloads. Scaffold with `node ace make:preload routes/<surface> --environments=web`. Before any routing refactor, run the HTTP surface inventory required by hb.http-surface-inventory.",
+      "required_patterns": ["named routes", "separate route groups per surface", "named middleware", "one start/routes/<surface>.ts file per surface in mixed apps", "adonisrc.ts preloads references each surface route file"],
+      "forbidden_patterns": ["hardcoded route strings when helpers exist", "inline auth logic in route handlers", "single start/routes.ts stacking two or more surfaces in a mixed app"],
       "conflict_behavior": "Apply routing and middleware defaults unless repo-local conventions already match a compatible alternative.",
       "override_allowed": false,
-      "test_ids": ["ok_web_standard", "ok_mixed_browser_api"]
+      "test_ids": ["ok_web_standard", "ok_mixed_browser_api", "ok_mixed_multi_surface_routes"]
     },
     {
       "id": "ed.inertia-shared-props",
@@ -572,12 +586,12 @@
       "id": "ed.adonisrc-hooks",
       "tier": "enforced_default",
       "applies_to": ["all"],
-      "statement": "adonisrc.ts declares the v7 hooks pipeline under hooks.init: indexEntities() from @adonisjs/core is mandatory. Inertia apps add indexPages({ framework: 'react' }) from @adonisjs/inertia plus generateRegistry() from @tuyau/core/hooks and indexEntities({ transformers: { enabled: true, withSharedProps: true } }). Bouncer apps add indexPolicies() from @adonisjs/bouncer. Vite apps add @adonisjs/vite/build_hook under buildStarting. These hooks generate #generated/controllers, @generated/data, @generated/registry, and the typed shared-props surface.",
-      "required_patterns": ["hooks.init", "indexEntities()", "indexPages({ framework: 'react' })", "generateRegistry()", "indexPolicies()", "@adonisjs/vite/build_hook"],
-      "forbidden_patterns": ["adonisrc.ts without indexEntities()", "missing indexPages for Inertia apps", "missing generateRegistry for Tuyau-backed apps"],
+      "statement": "adonisrc.ts declares the v7 hooks pipeline under hooks.init: indexEntities() from @adonisjs/core is mandatory. Inertia apps add indexPages({ framework: 'react' }) from @adonisjs/inertia plus generateRegistry() from @tuyau/core/hooks and indexEntities({ transformers: { enabled: true, withSharedProps: true } }). Bouncer apps add indexPolicies() from @adonisjs/bouncer. Vite apps add @adonisjs/vite/build_hook under buildStarting. These hooks generate #generated/controllers, @generated/data, @generated/registry, and the typed shared-props surface. The preloads array carries every start/routes/<surface>.ts file introduced by a mixed app with two or more of the five surfaces (including start/routes/runtime.ts for /mcp, /health, and operator bridges). AdonisJS does not auto-import files under start/; the preloads array is the official mechanism.",
+      "required_patterns": ["hooks.init", "indexEntities()", "indexPages({ framework: 'react' })", "generateRegistry()", "indexPolicies()", "@adonisjs/vite/build_hook", "preloads array lists every start/routes/<surface>.ts file"],
+      "forbidden_patterns": ["adonisrc.ts without indexEntities()", "missing indexPages for Inertia apps", "missing generateRegistry for Tuyau-backed apps", "per-surface route files missing from preloads"],
       "conflict_behavior": "Apply the canonical hooks pipeline whenever Inertia, Tuyau, Bouncer, or Vite are in use.",
       "override_allowed": false,
-      "test_ids": ["ok_web_standard", "ok_api_only_resource"]
+      "test_ids": ["ok_web_standard", "ok_api_only_resource", "ok_mixed_multi_surface_routes"]
     },
     {
       "id": "ed.api-contracts",

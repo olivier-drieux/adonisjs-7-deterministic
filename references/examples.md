@@ -46,15 +46,16 @@ These few-shot examples show how the doctrine behaves in practice. Use them to c
 
 ---
 
-## Example 4 — Mixed App Controller Separation
+## Example 4 — Mixed App Controller Separation (4 surfaces)
 
 **User prompt**: Add a `/api/posts` JSON endpoint to the existing web app. I'll reuse the existing PostsController.
 
 **Expected behavior**:
 1. Select profile `mixed`.
-2. Detect conflict with `hb.web-api-controller-separation` — same controller for pages and API.
-3. Stop and ask: "This conflicts with `hb.web-api-controller-separation`. Mixed apps keep web and API controllers separate. Do you want a one-off override?"
-4. If not overridden: create a separate `ApiPostsController`.
+2. Clarify the target surface: is the caller the app's own browser (`api.internal`), an external client or mobile app (`api.external`), or a third-party webhook? Do not silently pick one.
+3. Detect conflict with `hb.web-api-controller-separation` — a single controller cannot straddle two of the four surfaces (`web`, `api.internal`, `api.external`, `webhooks`).
+4. Stop and ask: "This conflicts with `hb.web-api-controller-separation`. Mixed apps keep one controller per surface. Do you want a one-off override, or should I add a dedicated controller for the intended surface?"
+5. If not overridden: create a surface-scoped controller (for example `app/controllers/api/internal/posts_controller.ts` when the caller is the app's own browser) with its own route group, its own middleware chain, and the appropriate auth/CSRF policy for that surface.
 
 ---
 
@@ -81,6 +82,55 @@ These few-shot examples show how the doctrine behaves in practice. Use them to c
 1. Apply `ed.service-layer` — business logic in `app/services/post_service.ts`.
 2. Do NOT stop or ask — enforced defaults are applied automatically.
 3. Recommend `PostService.create(payload)` with canonical verbs.
+
+---
+
+## Example 6b — Multi-Surface Route Files (mixed with 4 surfaces)
+
+**User prompt**: Bootstrap the routes for a mixed app that mounts Inertia admin pages, an internal widget API, an external mobile API with access tokens, and inbound Stripe webhooks.
+
+**Expected behavior**:
+1. Select profile `mixed`.
+2. Recognize that two or more of the four surfaces are mounted → `ed.routing-and-kernel` requires splitting routes into one file per surface.
+3. Do NOT stop or ask — this is an enforced default, applied automatically.
+4. Produce the canonical layout:
+   - `start/routes.ts` — `web` surface only (Inertia page routes).
+   - `start/routes/api_internal.ts` — `.prefix('/api/internal')` + `middleware.auth()` (session).
+   - `start/routes/api_external.ts` — `.prefix('/api/external')` + `middleware.auth({ guards: ['api'] })`.
+   - `start/routes/webhooks.ts` — `.prefix('/webhooks')` + per-provider signature middleware.
+5. Scaffold the three additional files with `node ace make:preload routes/<surface> --environments=web`.
+6. Register each additional surface file in the `adonisrc.ts` `preloads` array, noting that AdonisJS does not auto-import files under `start/`.
+7. Never stack two surfaces in the same file.
+8. Final markers:
+   - `selected-profile: mixed`
+   - `override-status: none`
+   - `hard-blocker-compliance: pass`
+
+---
+
+## Example 6c — HTTP Surface Inventory Catches a Hidden `/mcp` Route
+
+**User prompt**: Split `start/routes.ts` in my mixed app into one file per surface. I want `start/routes/api_internal.ts` and `start/routes/api_external.ts` — webhooks already live in `start/routes/webhooks.ts`.
+
+**Expected behavior**:
+1. Select profile `mixed`.
+2. Recognize that `hb.http-surface-inventory` applies as a hard blocker before any routing refactor.
+3. Do NOT start splitting immediately. First read `start/routes.ts` and every file it transitively imports, plus every file listed in `adonisrc.ts` `preloads`.
+4. Detect atypical declarations that a URL-prefix scan would miss — `router.on(...).renderInertia(...)`, `router.any(...)`, closures, healthchecks, and crucially a hidden `router.post('/mcp', [controllers.McpServer, 'handle'])` sitting in `start/routes.ts` outside any `/api` group.
+5. Produce a written surface table BEFORE writing code. Rows include every route, classified by ROLE. The `/mcp` route is marked as `runtime` surface — its caller is an MCP host subprocess, not the app's own browser.
+6. Propose a **5-file layout**, not the 3-file layout the user asked for:
+   - `start/routes.ts` — `web` surface only (Inertia page routes).
+   - `start/routes/api_internal.ts` — internal JSON for the app's own browser.
+   - `start/routes/api_external.ts` — external JSON for mobile/machine clients.
+   - `start/routes/webhooks.ts` — already present.
+   - `start/routes/runtime.ts` — `/mcp` + health probes + any other operator bridges.
+7. Explicitly reject absorbing `/mcp` into `api_internal.ts` just because it returns JSON — MCP is `runtime`, not `api.internal`, because the caller is a local subprocess, not a same-origin browser.
+8. Register the additional surface files in `adonisrc.ts` `preloads` and scaffold with `node ace make:preload routes/<surface> --environments=web`.
+9. Cite `hb.http-surface-inventory` and `hb.web-api-controller-separation` in the reasoning.
+10. Final markers:
+    - `selected-profile: mixed`
+    - `override-status: none`
+    - `hard-blocker-compliance: pass`
 
 ---
 

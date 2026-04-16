@@ -1,0 +1,25 @@
+{
+  "id": "ok_mixed_multi_surface_routes",
+  "prompt": "Use $adonisjs-7-deterministic to bootstrap the routing layout for a mixed application that mounts all four surfaces: Inertia React pages for the admin, an internal JSON API called by the same browser for widgets, an external JSON API for a mobile app using access tokens, and inbound Stripe webhooks.",
+  "profile_expected": "mixed",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: none",
+    "hard-blocker-compliance: pass",
+    "start/routes.ts",
+    "start/routes/api_internal.ts",
+    "start/routes/api_external.ts",
+    "start/routes/webhooks.ts",
+    "preloads",
+    "node ace make:preload"
+  ],
+  "forbidden_patterns": [
+    "selected-profile: api-only",
+    "override-status: requested",
+    "single start/routes.ts for all four surfaces",
+    "routes/api.ts holding both api.internal and api.external"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": false
+}

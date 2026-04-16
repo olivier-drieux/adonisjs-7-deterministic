@@ -6,7 +6,7 @@ This project uses a fail-closed deterministic doctrine for AdonisJS v7. Every co
 
 Before writing any code, determine the application profile:
 - **web**: Inertia React pages, session/cookie auth, no JSON-first page architecture.
-- **mixed**: Inertia React pages + separate `/api` group with separate API controllers. Browser clients stay on session auth.
+- **mixed**: five distinct surfaces — `web` (Inertia pages, session auth, CSRF on), `api.internal` (same-origin JSON from the app's own browser, session auth, CSRF on, prefix `/api` or `/api/internal`), `api.external` (external / mobile / machine clients, access tokens on `api` guard, CSRF off, prefix `/api` or `/api/external`), `webhooks` (inbound third-party JSON, per-provider signature verification, CSRF off, prefix `/webhooks`), and `runtime` (MCP tool servers, health/liveness/readiness probes, debug/introspection, local bridges, operator tooling — purpose-specific middleware, no session, no CSRF, no `api` guard by default; mounted on its own paths such as `/mcp` or `/health`). Classify every route by ROLE (caller, purpose), not URL prefix. Each surface has its own route group, middleware chain, and controllers; a single controller never straddles two surfaces. When two or more surfaces are mounted, route declarations are split one file per surface — `start/routes.ts` for `web`, `start/routes/<surface>.ts` for each of the others (`api_internal.ts`, `api_external.ts`, `webhooks.ts`, `runtime.ts`) — registered in `adonisrc.ts` `preloads` (`node ace make:preload routes/<surface> --environments=web`).
 - **api-only**: No Inertia pages. `router.resource(...).apiOnly()` for CRUD.
 
 ## Hard Blockers — Forbidden Patterns
@@ -42,7 +42,9 @@ These patterns are **never** allowed by default. If the user explicitly requests
 | `fetch(`, `axios`, `ky`, `SWR` | Inertia props/redirects, Tuyau when justified. Exceptions (not defaults, isolated in a typed helper + justified + rule id cited): incremental streaming (NDJSON/SSE/ReadableStream); multipart/progress uploads. | `hb.no-client-fetch-stack` |
 | `@mantine/form`, `react-hook-form`, `formik` | `@adonisjs/inertia/react` Form + VineJS | `hb.no-client-form-stack` |
 | `zod`, `yup`, `valibot` | Server-side VineJS validation | `hb.no-client-form-stack` |
-| Mixed page+API controller | Separate web and API controllers | `hb.web-api-controller-separation` |
+| A single controller serving two of the five surfaces | One controller per surface: `web`, `api.internal`, `api.external`, `webhooks`, `runtime`. `/mcp`, `/health`, and operator bridges never get folded into an API controller | `hb.web-api-controller-separation` |
+| A single `start/routes.ts` stacking two or more surfaces in a mixed app | One route file per surface — `start/routes.ts` for `web`, `start/routes/<surface>.ts` for each of the others (including `start/routes/runtime.ts` for `/mcp`, `/health`, operator bridges) — registered in `adonisrc.ts` `preloads` | `ed.routing-and-kernel` |
+| Routing refactor without reading `start/routes.ts` and enumerating every mounted route (including `router.on`, `router.any`, `router.route`, closures, healthchecks, `/mcp`) | Run the HTTP surface inventory first — read `start/routes.ts` and every file it transitively imports + `adonisrc.ts` preloads, enumerate every route, detect atypical declarations, classify each route by ROLE (caller, purpose) not URL prefix, emit a written surface table before writing code. A route that does not fit `web` / `api.internal` / `api.external` / `webhooks` belongs to `runtime` — never silently absorbed into `api.internal` or `api.external` | `hb.http-surface-inventory` |
 
 ## Canonical Build Order
 
@@ -50,7 +52,7 @@ package coverage → env/config → migration → model → validator → policy
 
 ## Key Defaults
 
-- Named routes and route helpers, separate web and `/api` groups. Controllers via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`.
+- Named routes and route helpers, separate web and `/api` groups. Controllers via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`. In `mixed` apps mounting two or more of the five surfaces, split routes one file per surface (`start/routes.ts` for `web`; `start/routes/<surface>.ts` for each of the others — including `start/routes/runtime.ts` for `/mcp`, `/health`, and operator bridges — registered via `adonisrc.ts` `preloads`). Before any routing refactor, run the HTTP surface inventory required by `hb.http-surface-inventory`.
 - Services with canonical verbs: `list`, `findOrFail`, `create`, `update`, `delete`.
 - One validator per action built with `vine.create({...})`. One policy per protected resource. Prefer `denies(...)` checks.
 - Web mutations: redirect + flash. API (framework doctrine): `serialize(...)` with a transformer produces `{ data }` for a resource, `{ data: [...] }` for a collection, `{ data, meta }` for a paginator — never double-wrap it. This is **not** a universal rule that every endpoint must be `{ data }`: ad-hoc endpoints (signed URLs, counts, health probes, token-exchange responses) legitimately return their own typed shape. A uniform `{ data }` contract across every endpoint is an applicative-level choice, not a framework rule. Errors stay flat `{ code, message }`.
@@ -66,7 +68,7 @@ package coverage → env/config → migration → model → validator → policy
 - Node.js ≥ 24, npm ≥ 11.
 - Scaffold: `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. All four kits produce a flat AdonisJS application.
 - Dev server: `node ace serve --hmr`.
-- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack.
+- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack. The `preloads` array carries every `start/routes/<surface>.ts` file introduced by a `mixed` app with two or more of the five surfaces — including `start/routes/runtime.ts` for `/mcp`, `/health`, and operator bridges.
 
 ## Source of Truth
 

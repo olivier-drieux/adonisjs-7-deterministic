@@ -129,3 +129,28 @@ export default defineConfig({
 - `@adonisjs/vite/build_hook` — wires Vite's production build into the assembler `buildStarting` phase. **Only relevant when the profile actually uses Vite** (typically `web` and `mixed`).
 
 Omitting any required hook breaks generated imports (`#generated/controllers`, `@generated/data`, `@generated/registry`). If those imports fail to resolve, the first step is to check this file, not the consumer.
+
+## adonisrc.ts `preloads` — per-surface route files
+
+`adonisrc.ts` also carries a `preloads` array for bootstrap files that AdonisJS must load on boot. In this doctrine, `preloads` is the mechanism used to register the per-surface route files introduced when a `mixed` application mounts two or more of the five surfaces (`web`, `api.internal`, `api.external`, `webhooks`, `runtime`). See `references/routing.md#multi-surface-route-files` for the full rule.
+
+```ts
+// excerpt
+// adonisrc.ts — mixed app with web + api.internal + api.external + webhooks + runtime
+export default defineConfig({
+  preloads: [
+    () => import('#start/routes/api_internal'),
+    () => import('#start/routes/api_external'),
+    () => import('#start/routes/webhooks'),
+    () => import('#start/routes/runtime'),
+  ],
+  hooks: {
+    // indexEntities(), indexPages(...), generateRegistry(), indexPolicies()
+  },
+})
+```
+
+- `start/routes.ts` is still loaded automatically and holds the `web` surface.
+- Each additional surface file (`start/routes/api_internal.ts`, `start/routes/api_external.ts`, `start/routes/webhooks.ts`, `start/routes/runtime.ts`) must appear in `preloads` — AdonisJS does NOT auto-import files under `start/`.
+- Scaffold with `node ace make:preload routes/<surface> --environments=web`. The command creates the file and registers it in `preloads` automatically.
+- Pure `web` apps, pure `api-only` apps, and `mixed` apps with only one surface on top of `web` may keep a single `start/routes.ts`; no `preloads` route entries are required.

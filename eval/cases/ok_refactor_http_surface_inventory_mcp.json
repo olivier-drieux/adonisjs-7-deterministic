@@ -1,0 +1,36 @@
+{
+  "id": "ok_refactor_http_surface_inventory_mcp",
+  "prompt": "Use $adonisjs-7-deterministic to refactor the routing of an existing mixed app. Today `start/routes.ts` holds everything: Inertia pages, a `/api/...` group for internal JSON called from the same browser, a `/api/external/...` group for a mobile client on access tokens, Stripe webhooks under `/webhooks/stripe`, a `router.post('/mcp', ...)` MCP tool server with its own bearer-token middleware, and `router.get('/health/live', ...)` / `router.get('/health/ready', ...)` probes. Split the routes correctly across files and update `adonisrc.ts` preloads.",
+  "profile_expected": "mixed",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: mixed",
+    "override-status: none",
+    "hard-blocker-compliance: pass",
+    "hb.http-surface-inventory",
+    "HTTP surface inventory",
+    "start/routes.ts",
+    "start/routes/api_internal.ts",
+    "start/routes/api_external.ts",
+    "start/routes/webhooks.ts",
+    "start/routes/runtime.ts",
+    "/mcp",
+    "/health",
+    "runtime",
+    "role",
+    "surface table",
+    "preloads",
+    "node ace make:preload"
+  ],
+  "forbidden_patterns": [
+    "selected-profile: api-only",
+    "override-status: requested",
+    "absorb /mcp into api_internal.ts",
+    "fold /mcp into api.internal",
+    "fold /health into api.external",
+    "classify by URL prefix",
+    "single start/routes.ts for all five surfaces"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": false
+}

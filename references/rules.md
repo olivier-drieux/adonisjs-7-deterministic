@@ -19,7 +19,8 @@ Use this file as the human-readable index:
 - `hb.access-tokens-external`: external clients use official access tokens with explicit expiration.
 - `hb.web-ui-stack`: Inertia React plus Mantine for web UI; no second client router.
 - `hb.official-side-effect-packages`: `@adonisjs/bouncer`, `@adonisjs/mail`, and `@adonisjs/drive` when those concerns apply.
-- `hb.web-api-controller-separation`: mixed apps never reuse one controller for pages and JSON API endpoints.
+- `hb.web-api-controller-separation`: mixed apps keep one controller per surface. A mixed app has five distinct surfaces (`web`, `api.internal`, `api.external`, `webhooks`, `runtime`); a single controller never straddles two of them, and `/mcp` / `/health` / bridges never get folded into an API controller.
+- `hb.http-surface-inventory`: before any routing refactor, split, or reorganization, run an exhaustive HTTP surface inventory — read `start/routes.ts` and every transitive import, enumerate every mounted route (including atypical ones: `router.on`, `router.any`, `router.route`, closures, healthchecks, `/mcp` endpoints), and classify each by ROLE (caller, purpose), not URL prefix. Emit a written surface table before writing code. A route that does not fit `web` / `api.internal` / `api.external` / `webhooks` belongs to the `runtime` surface — never silently absorb it into `api.internal` or `api.external`.
 - `hb.no-express-fastify-composition`: no Express/Fastify-style composition inside an AdonisJS app.
 - `hb.no-repository-layer`: no repository layer over Lucid for ordinary app code.
 - `hb.no-edge-feature-rendering`: Edge is only allowed for the minimal Inertia boot layout.

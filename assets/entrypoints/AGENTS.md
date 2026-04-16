@@ -6,7 +6,7 @@ This project uses a fail-closed deterministic doctrine for AdonisJS v7. Every co
 
 1. **select-profile**: Choose exactly one profile before designing the solution.
    - `web`: Inertia React pages, session/cookie auth, no JSON-first page architecture.
-   - `mixed`: Inertia React pages + separate `/api` group with separate API controllers. Browser clients stay on session auth even when hitting `/api`.
+   - `mixed`: five distinct surfaces — `web` (Inertia pages, session auth, CSRF on), `api.internal` (same-origin JSON from the app's own browser, session auth, CSRF on, prefix `/api` or `/api/internal`), `api.external` (external / mobile / machine clients, access tokens on `api` guard, CSRF off, prefix `/api` or `/api/external`), `webhooks` (inbound third-party JSON, per-provider signature verification, CSRF off, prefix `/webhooks`), and `runtime` (MCP tool servers, health/liveness/readiness probes, debug/introspection, local bridges, operator tooling — purpose-specific middleware, no session, no CSRF, no `api` guard by default; mounted on its own paths such as `/mcp` or `/health`). Classify every route by ROLE (caller, purpose), not URL prefix. Each surface has its own route group, middleware chain, and controllers; a single controller never straddles two surfaces. When two or more surfaces are mounted, route declarations are split one file per surface — `start/routes.ts` for `web`, `start/routes/<surface>.ts` for the others (`api_internal.ts`, `api_external.ts`, `webhooks.ts`, `runtime.ts`) — registered in `adonisrc.ts` `preloads` (`node ace make:preload routes/<surface> --environments=web`).
    - `api-only`: No Inertia pages. Use `router.resource(...).apiOnly()` for CRUD.
 2. **list-applicable-hard-blockers**: Apply every matching hard blocker below.
 3. **detect-conflicts**: Compare the request against the blockers before proceeding.
@@ -31,7 +31,8 @@ Each stops execution on conflict. Cite the rule id and ask before proceeding.
 - `hb.access-tokens-external`: Official access tokens with explicit expiration for external clients.
 - `hb.web-ui-stack`: Inertia React + Mantine. No `react-router-dom`.
 - `hb.official-side-effect-packages`: `@adonisjs/bouncer`, `@adonisjs/mail`, `@adonisjs/drive`.
-- `hb.web-api-controller-separation`: Separate web and API controllers in mixed apps.
+- `hb.web-api-controller-separation`: Mixed apps keep one controller per surface. A single controller never straddles two of the five surfaces (`web`, `api.internal`, `api.external`, `webhooks`, `runtime`). `/mcp`, `/health`, and operator bridges never get folded into an API controller.
+- `hb.http-surface-inventory`: Before any routing refactor, split, or reorganization, run an exhaustive HTTP surface inventory. Read `start/routes.ts` and every file it transitively imports (plus `adonisrc.ts` preloads). Enumerate every mounted route. Detect atypical declarations (`router.on`, `router.any`, `router.route`, closures, healthchecks, `/mcp` endpoints, operator bridges). Classify each route by ROLE (caller, purpose), not URL prefix. Emit a written surface table before writing code. A route that does not fit `web` / `api.internal` / `api.external` / `webhooks` belongs to `runtime` — never absorb it into `api.internal` or `api.external`.
 - `hb.no-express-fastify-composition`: Framework-native patterns only.
 - `hb.no-repository-layer`: No repository layer over Lucid.
 - `hb.no-edge-feature-rendering`: Edge only for `inertia_layout.edge`.
@@ -50,7 +51,7 @@ package coverage → env/config → migration → model → validator → policy
 
 ## Key Defaults
 
-- Named routes, route helpers, separate web and `/api` groups. Controllers imported via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`, not `controllers.PostsController`.
+- Named routes, route helpers, separate web and `/api` groups. Controllers imported via `import { controllers } from '#generated/controllers'` and referenced as `controllers.Posts`, not `controllers.PostsController`. In `mixed` apps mounting two or more of the five surfaces, split routes one file per surface (`start/routes.ts` for `web`, `start/routes/<surface>.ts` for the others — including `start/routes/runtime.ts` for `/mcp`, `/health`, and operator bridges — registered via `adonisrc.ts` `preloads`). Before any routing refactor, run the HTTP surface inventory required by `hb.http-surface-inventory`.
 - Services: `list`, `findOrFail`, `create`, `update`, `delete`.
 - One validator per action (built with `vine.create({...})`). One policy per resource. `denies(...)` checks.
 - Web: redirect + flash. API (framework doctrine): `serialize(...)` with a transformer emits `{ data }` / `{ data: [...] }` / `{ data, meta }` — never double-wrap it. This is not a universal rule that every endpoint must be `{ data }`: ad-hoc endpoints (signed URLs, counts, health probes, token-exchange responses) legitimately return their own typed shape. A uniform `{ data }` contract across every endpoint is applicative-level, not framework-level. Errors stay flat `{ code, message }`. Statuses: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.
@@ -65,7 +66,7 @@ package coverage → env/config → migration → model → validator → policy
 - Node.js ≥ 24, npm ≥ 11. TypeScript 5.9/6.0, Vite 7 for Inertia stacks.
 - Scaffold: `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`. All four kits produce a flat AdonisJS application.
 - Dev server: `node ace serve --hmr`.
-- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack.
+- `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory), plus `indexPages({ framework: 'react' })`, `generateRegistry()`, and `indexPolicies()` per stack. The `preloads` array carries every `start/routes/<surface>.ts` file introduced by a `mixed` app with two or more of the five surfaces — including `start/routes/runtime.ts` for `/mcp`, `/health`, and operator bridges. AdonisJS does not auto-import files under `start/`.
 
 ## Source of Truth
 

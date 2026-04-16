@@ -40,6 +40,8 @@ When no `hard_blocker` is violated, apply every `enforced_default` from `rules/m
 - HTTP validation uses `vine.create({...})` as the root schema. `vine.compile(vine.object(...))` is the v6 form and must not appear.
 - Inertia shared props live in a middleware that `extends BaseInertiaMiddleware` and shares only `user`, `flash`, `errors`, and `app { name, env }`.
 - The framework `serialize(...)` helper already produces the canonical `{ data }` / `{ data, meta }` envelope — do not wrap it in a second custom envelope.
+- `hb.no-client-fetch-stack` has two documented exceptions: incremental streaming (NDJSON / SSE / ReadableStream) and multipart / progress uploads. Both must be isolated in a typed helper module, justified by a real Tuyau or Inertia limitation, and cite the rule id plus the exception clause. They are not alternative defaults.
+- `hb.no-raw-io-and-timers` has two documented exceptions: short-lived temp-bridge files under `os.tmpdir()` for Ace / CLI / MCP subprocess integration, and bounded timers inside jobs / commands / integrations that run **outside** the HTTP request lifecycle. Both must be isolated, justified, and cite the rule id plus the exception clause.
 - `adonisrc.ts` must declare `hooks.init` with `indexEntities()` (mandatory) plus the per-stack hooks that generate `#generated/controllers`, `@generated/data`, and `@generated/registry`.
 
 Advisory tie-breakers also live in the manifest: `adv.controller-boundaries`, `adv.prefer-adonis-primitives`, `adv.small-duplication`, `adv.service-when-unsure`, `adv.keep-doctrine-observable`, and `adv.verify-api-before-use`.

@@ -25,8 +25,8 @@ Use this file as the human-readable index:
 - `hb.no-edge-feature-rendering`: Edge is only allowed for the minimal Inertia boot layout.
 - `hb.no-request-all-only`: `request.all()` and `request.only()` never replace validation.
 - `hb.no-any`: no `any`.
-- `hb.no-raw-io-and-timers`: no raw `nodemailer`, no persistent raw `fs`, no ad hoc timers in HTTP runtime.
-- `hb.no-client-fetch-stack`: no raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack.
+- `hb.no-raw-io-and-timers`: no raw `nodemailer`, no persistent raw `fs`, no ad hoc timers in HTTP runtime. Documented exceptions (isolated, justified, not the default path): short-lived temp-bridge files under `os.tmpdir()` for CLI/MCP/Ace subprocess integration, and bounded timers inside jobs/commands/integrations that run **outside** the HTTP request lifecycle.
+- `hb.no-client-fetch-stack`: no raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack. Documented exceptions (isolated in a typed helper, justified by a real stack limitation, not the default path): incremental streaming (NDJSON/SSE/ReadableStream) that Tuyau and Inertia partial reloads cannot express, and multipart/progress uploads the typed client does not cover.
 - `hb.no-client-form-stack`: no `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
 - `hb.no-custom-api-keys-default`: no custom API-key auth as the default external auth path.
 - `hb.queue-stack`: use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling as the default queue path.

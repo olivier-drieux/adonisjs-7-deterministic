@@ -9,6 +9,22 @@ export const PATTERNS_DIR = path.join(REFERENCES_DIR, 'patterns')
 export const FENCE_RE = /^```(ts|tsx|typescript)\s*$/
 export const PARTIAL_MARKERS = new Set(['// excerpt', '// partial snippet', '// partial example'])
 
+// Doctrine-exception markers: a block may opt out of specific rule-tagged forbidden
+// patterns by declaring `// doctrine-exception: <rule-id>` anywhere inside it.
+// This is how the documented exceptions for `hb.no-client-fetch-stack` (streaming,
+// multipart uploads) and `hb.no-raw-io-and-timers` (temp-bridge files, bounded
+// timers outside HTTP) are expressed as real, validator-visible code.
+export const DOCTRINE_EXCEPTION_RE = /\/\/\s*doctrine-exception:\s*([a-z0-9.-]+)/i
+
+export function collectDoctrineExceptions(block) {
+  const exceptions = new Set()
+  for (const line of block.text.split('\n')) {
+    const match = line.match(DOCTRINE_EXCEPTION_RE)
+    if (match) exceptions.add(match[1])
+  }
+  return exceptions
+}
+
 function collectMdFiles(dir) {
   if (!fs.existsSync(dir)) return []
   return fs

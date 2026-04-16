@@ -299,3 +299,92 @@ const postsQuery = useQuery({
 - Keep this pattern out of ordinary page CRUD flows.
 - Prefer a controller-rendered Inertia page unless the data interaction is explicitly client-driven.
 - Add `QueryClientProvider` only on projects or features that use this pattern.
+
+## Documented Exceptions to `hb.no-client-fetch-stack`
+
+`hb.no-client-fetch-stack` forbids raw `fetch`, `axios`, `ky`, and `SWR` as the **default** client data stack. There are two narrow scenarios where a raw-`fetch` call is allowed — and only because Tuyau and Inertia cannot express them today. These are exceptions, not alternative defaults.
+
+### Scenario 1 — Incremental streaming responses (NDJSON / SSE / ReadableStream)
+
+Use when the endpoint streams a long-lived response that the client must consume incrementally as bytes arrive: NDJSON for long-running job progress, Server-Sent Events for a live feed, or a raw `ReadableStream` for a generated artifact. Tuyau currently returns parsed JSON and Inertia partial reloads return a single page snapshot, so neither can express true incremental consumption.
+
+Allowed shape:
+
+```ts
+// excerpt
+// inertia/stream-client.ts — isolated typed helper, NOT the default data stack
+// doctrine-exception: hb.no-client-fetch-stack — streaming (NDJSON/SSE/ReadableStream)
+export async function streamJobProgress(
+  jobId: string,
+  onEvent: (event: { type: 'progress' | 'done'; value: number }) => void,
+  signal: AbortSignal
+): Promise<void> {
+  const response = await fetch(`/api/jobs/${jobId}/progress`, {
+    headers: { Accept: 'application/x-ndjson' },
+    signal,
+  })
+  if (!response.ok || !response.body) throw new Error('stream failed')
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
+  let buffer = ''
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) return
+    buffer += value
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? ''
+    for (const line of lines) if (line) onEvent(JSON.parse(line))
+  }
+}
+```
+
+Requirements:
+- The call lives in a dedicated, typed helper module (for example `inertia/stream-client.ts`). It is not inlined in a component.
+- The helper exposes a typed API (`streamJobProgress(...)`), not a raw `fetch` surface.
+- The comment cites `hb.no-client-fetch-stack` and names the streaming exception so future readers understand the non-default status.
+- CRUD, list, and form flows do **not** use this pattern — they go through Tuyau or Inertia.
+
+### Scenario 2 — Multipart / progress uploads
+
+Use when the feature needs `multipart/form-data` with live upload progress (percentage, cancel, resumable chunks). Tuyau's typed client does not expose the `XMLHttpRequest` `upload.onprogress` surface, and Inertia's `Form` does not emit byte-level progress events.
+
+Allowed shape:
+
+```ts
+// excerpt
+// inertia/upload-client.ts — isolated typed helper
+// doctrine-exception: hb.no-client-fetch-stack — multipart/progress uploads
+export function uploadWithProgress(
+  url: string,
+  file: File,
+  onProgress: (percent: number) => void,
+  signal: AbortSignal
+): Promise<{ id: string }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100))
+    }
+    xhr.onload = () => (xhr.status < 300 ? resolve(JSON.parse(xhr.responseText)) : reject())
+    xhr.onerror = reject
+    signal.addEventListener('abort', () => xhr.abort())
+    const form = new FormData()
+    form.append('file', file)
+    xhr.send(form)
+  })
+}
+```
+
+Requirements:
+- Same isolation rule as streaming — one typed helper, not a direct `fetch`/`XMLHttpRequest` call in components.
+- Comment cites `hb.no-client-fetch-stack` and names the multipart-upload exception.
+- Ordinary file uploads that do not need progress go through a normal Inertia `Form` with a file field.
+
+### Non-scenarios — still forbidden
+
+- Using raw `fetch` to avoid configuring Tuyau.
+- Using `axios` because "it feels familiar".
+- Reaching for `SWR` or `ky` because they look lighter than TanStack Query.
+- Calling `fetch` from inside a React component body (even inside an effect) with no typed helper.
+
+If the need does not match one of the two documented scenarios above, the hard blocker applies. Do not invent a third exception without updating this doctrine first.

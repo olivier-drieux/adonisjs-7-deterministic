@@ -1,0 +1,19 @@
+{
+  "id": "ok_raw_io_cli_temp_bridge_exception",
+  "prompt": "Use $adonisjs-7-deterministic to add an Ace command `media:transcode` that invokes the local `ffmpeg` binary. The input audio arrives as a Buffer and ffmpeg only accepts a real filesystem path, so the command must stage a short-lived temporary file, run ffmpeg on it, and remove it when the subprocess exits. Design the command.",
+  "profile_expected": "api-only",
+  "expected_mode": "proceed",
+  "required_patterns": [
+    "selected-profile: api-only",
+    "override-status: none",
+    "hard-blocker-compliance: pass",
+    "hb.no-raw-io-and-timers",
+    "os.tmpdir"
+  ],
+  "forbidden_patterns": [
+    "override-status: requested",
+    "setInterval"
+  ],
+  "must_ask_override": false,
+  "must_name_rule": true
+}

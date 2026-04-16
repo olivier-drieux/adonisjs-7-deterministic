@@ -38,8 +38,8 @@ These patterns are **never** allowed by default. If the user explicitly requests
 | Repository layer over Lucid | Direct model + service usage | `hb.no-repository-layer` |
 | Edge for feature rendering | Only `inertia_layout.edge` boot layout | `hb.no-edge-feature-rendering` |
 | `any` type | Concrete types | `hb.no-any` |
-| `nodemailer`, raw `fs`, `setInterval` in HTTP | Official packages, Ace commands, listeners | `hb.no-raw-io-and-timers` |
-| `fetch(`, `axios`, `ky`, `SWR` | Inertia props/redirects, Tuyau when justified | `hb.no-client-fetch-stack` |
+| `nodemailer`, raw `fs`, `setInterval` in HTTP | Official packages, Ace commands, listeners. Exceptions (not defaults, isolated + justified + rule id cited): `os.tmpdir()` temp-bridge files for Ace/CLI/MCP subprocess integration; bounded timers outside the HTTP request lifecycle. | `hb.no-raw-io-and-timers` |
+| `fetch(`, `axios`, `ky`, `SWR` | Inertia props/redirects, Tuyau when justified. Exceptions (not defaults, isolated in a typed helper + justified + rule id cited): incremental streaming (NDJSON/SSE/ReadableStream); multipart/progress uploads. | `hb.no-client-fetch-stack` |
 | `@mantine/form`, `react-hook-form`, `formik` | `@adonisjs/inertia/react` Form + VineJS | `hb.no-client-form-stack` |
 | `zod`, `yup`, `valibot` | Server-side VineJS validation | `hb.no-client-form-stack` |
 | Mixed page+API controller | Separate web and API controllers | `hb.web-api-controller-separation` |

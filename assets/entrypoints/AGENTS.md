@@ -37,8 +37,8 @@ Each stops execution on conflict. Cite the rule id and ask before proceeding.
 - `hb.no-edge-feature-rendering`: Edge only for `inertia_layout.edge`.
 - `hb.no-request-all-only`: No `request.all()` or `request.only()`.
 - `hb.no-any`: No `any` type.
-- `hb.no-raw-io-and-timers`: No raw nodemailer, raw fs, ad hoc timers in HTTP.
-- `hb.no-client-fetch-stack`: No raw fetch/axios/ky/SWR as default.
+- `hb.no-raw-io-and-timers`: No raw nodemailer, raw fs, ad hoc timers in HTTP. Documented exceptions (not defaults): temp-bridge files under `os.tmpdir()` for Ace/CLI/MCP subprocess integration; bounded timers outside the HTTP request lifecycle. Must be isolated, justified, rule id cited.
+- `hb.no-client-fetch-stack`: No raw fetch/axios/ky/SWR as default. Documented exceptions (not defaults): incremental streaming (NDJSON/SSE/ReadableStream); multipart/progress uploads. Must live in a typed helper, be justified, and cite the rule id.
 - `hb.no-client-form-stack`: No @mantine/form, react-hook-form, formik, zod, yup, valibot.
 - `hb.no-custom-api-keys-default`: No custom API-key auth as default.
 - `hb.queue-stack`: Use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling.

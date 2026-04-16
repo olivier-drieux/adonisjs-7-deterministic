@@ -4,6 +4,7 @@ import process from 'node:process'
 
 import {
   DOC_FILES,
+  collectDoctrineExceptions,
   extractBlocks,
   hasImport,
   isPartial,
@@ -42,18 +43,22 @@ const FORBIDDEN_SNIPPET_PATTERNS = [
   {
     pattern: /(?<![a-zA-Z])fetch\(/,
     message: 'uses raw `fetch`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+    rule: 'hb.no-client-fetch-stack',
   },
   {
     pattern: /\baxios\b/,
     message: 'uses `axios`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+    rule: 'hb.no-client-fetch-stack',
   },
   {
     pattern: /\bky\(/,
     message: 'uses `ky`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+    rule: 'hb.no-client-fetch-stack',
   },
   {
     pattern: /\bSWR\b/,
     message: 'uses `SWR`; use Inertia props or the typed Tuyau client when explicit client fetching is justified',
+    rule: 'hb.no-client-fetch-stack',
   },
   {
     pattern: /from\s+['"]react-router-dom['"]/,
@@ -66,10 +71,12 @@ const FORBIDDEN_SNIPPET_PATTERNS = [
   {
     pattern: /from\s+['"](node:fs|fs\/promises)['"]/,
     message: 'uses raw persistent `fs`; use `@adonisjs/drive` for application file storage',
+    rule: 'hb.no-raw-io-and-timers',
   },
   {
     pattern: /\b(setInterval|setTimeout)\(/,
     message: 'uses ad hoc timer logic; move recurring work into idempotent Ace commands or listeners',
+    rule: 'hb.no-raw-io-and-timers',
   },
   {
     pattern: /\b(class|interface|type)\s+\w*Repository\b|from\s+['"][^'"]*repositories?[^'"]*['"]/,
@@ -103,6 +110,7 @@ function hasAnyTypeUsage(block) {
 
 function checkBlock(block) {
   const errors = []
+  const exceptions = collectDoctrineExceptions(block)
 
   if (/#validators\/[\w/]+_validator\b/.test(block.text)) {
     errors.push('uses deprecated `#validators/*_validator` import path')
@@ -120,7 +128,8 @@ function checkBlock(block) {
     errors.push('uses `any`; canonical snippets must keep concrete types')
   }
 
-  for (const { pattern, message } of FORBIDDEN_SNIPPET_PATTERNS) {
+  for (const { pattern, message, rule } of FORBIDDEN_SNIPPET_PATTERNS) {
+    if (rule && exceptions.has(rule)) continue
     if (pattern.test(block.text)) {
       errors.push(message)
     }

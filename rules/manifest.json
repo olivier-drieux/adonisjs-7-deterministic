@@ -132,6 +132,8 @@
       "mail": ["references/mail.md", "references/events.md"],
       "drive-upload": ["references/drive.md", "references/validation.md"],
       "frontend-bootstrap": ["references/rendering.md", "references/inertia-libraries.md", "references/patterns/frontend-bootstrap.md"],
+      "client-fetch-exception": ["references/inertia-libraries.md", "references/api.md"],
+      "raw-io-exception": ["references/patterns/advanced.md", "references/queue.md"],
       "testing": ["references/testing.md"],
       "events-listeners": ["references/events.md"]
     }
@@ -306,23 +308,23 @@
       "id": "hb.no-raw-io-and-timers",
       "tier": "hard_blocker",
       "applies_to": ["all"],
-      "statement": "Do not use raw nodemailer, raw persistent fs calls, or ad hoc timer logic inside the HTTP runtime.",
-      "required_patterns": ["official Mail and Drive", "Ace commands or events for recurring work"],
-      "forbidden_patterns": ["nodemailer", "persistent fs writes in app code", "setInterval in HTTP boot"],
-      "conflict_behavior": "Stop, cite `hb.no-raw-io-and-timers`, ask one override question, and wait for explicit one-off confirmation.",
+      "statement": "Do not use raw nodemailer, raw persistent fs calls, or ad hoc timer logic inside the HTTP runtime. Persistent application storage goes through @adonisjs/drive; application mail goes through @adonisjs/mail; recurring work goes through Ace commands, listeners, or @adonisjs/queue. Documented exceptions (still not the default path, still isolated, still explicit): (1) short-lived temporary files used as a bridge for an Ace command, a CLI subprocess, or an MCP tool integration — written under the OS temp directory (os.tmpdir()) with a cuid/uuid-suffixed path, cleaned up in a try/finally; (2) bounded timers (setTimeout/setInterval with a known upper bound, or AbortSignal.timeout) inside integrations, jobs, or Ace commands that run OUTSIDE the HTTP request/response lifecycle. The defaults remain forbidden for: (a) ad-hoc timers started during HTTP boot or inside a request handler; (b) persistent fs writes that store application data outside Drive. When an exception applies, the agent MUST name the rule, state which exception clause is invoked, justify why Drive/Mail/Queue/Scheduler cannot cover the case, and proceed without triggering an override flow.",
+      "required_patterns": ["official Mail and Drive", "Ace commands or events for recurring work", "os.tmpdir() for temporary bridge files", "bounded timers outside the HTTP runtime"],
+      "forbidden_patterns": ["nodemailer", "persistent fs writes in app code", "setInterval in HTTP boot", "unbounded timers in request handlers"],
+      "conflict_behavior": "Stop, cite `hb.no-raw-io-and-timers`, ask one override question, and wait for explicit one-off confirmation. Exception path: name the rule, name the exception clause (temp-bridge file in os.tmpdir() or bounded timer outside the HTTP runtime), justify the limitation, keep the call isolated; no override question is required when the exception clause genuinely applies.",
       "override_allowed": true,
-      "test_ids": ["ok_web_standard", "violation_raw_io"]
+      "test_ids": ["ok_web_standard", "ok_raw_io_cli_temp_bridge_exception", "violation_raw_io"]
     },
     {
       "id": "hb.no-client-fetch-stack",
       "tier": "hard_blocker",
       "applies_to": ["web", "mixed", "frontend"],
-      "statement": "Do not use raw fetch, axios, ky, or SWR as the default client-side data stack for standard Inertia application work.",
-      "required_patterns": ["Inertia props and redirects first", "Tuyau only when explicit client fetching is justified"],
+      "statement": "Do not use raw fetch, axios, ky, or SWR as the default client-side data stack for standard Inertia application work. Documented exceptions (still not the default path, still isolated in a dedicated module, still justified by a real stack limitation): (1) incremental streaming — NDJSON, SSE, or a ReadableStream response that Tuyau's typed client and Inertia partial reloads cannot express; (2) multipart/progress uploads — when the typed client does not expose upload progress, abortable requests, or the exact multipart shape a backend or third-party endpoint requires. When an exception applies, the agent MUST still name the rule, state which exception clause is invoked, explain why Tuyau/Inertia cannot cover the case, isolate the raw call behind a small typed helper (never inline in page components), and proceed without triggering an override flow. Any other use of raw fetch/axios/ky/SWR remains a hard blocker.",
+      "required_patterns": ["Inertia props and redirects first", "Tuyau only when explicit client fetching is justified", "documented streaming exception", "documented upload exception"],
       "forbidden_patterns": ["fetch(", "axios", "ky", "SWR"],
-      "conflict_behavior": "Stop, cite `hb.no-client-fetch-stack`, ask one override question, and wait for explicit one-off confirmation.",
+      "conflict_behavior": "Stop, cite `hb.no-client-fetch-stack`, ask one override question, and wait for explicit one-off confirmation. Exception path: name the rule, name the exception clause (streaming or multipart upload), justify the stack limitation, keep the raw call isolated; no override question is required when the exception clause genuinely applies.",
       "override_allowed": true,
-      "test_ids": ["ok_web_standard", "violation_client_fetch_stack"]
+      "test_ids": ["ok_web_standard", "ok_client_fetch_streaming_exception", "violation_client_fetch_stack"]
     },
     {
       "id": "hb.no-client-form-stack",

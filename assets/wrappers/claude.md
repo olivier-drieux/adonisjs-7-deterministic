@@ -45,8 +45,8 @@ Each stops execution on conflict. Cite the rule id, ask one override question, w
 - `hb.no-edge-feature-rendering`: Edge is allowed only for the minimal `resources/views/inertia_layout.edge` boot layout.
 - `hb.no-request-all-only`: `request.all()` and `request.only()` never replace validation.
 - `hb.no-any`: No `any` in product code.
-- `hb.no-raw-io-and-timers`: No raw `nodemailer`, no persistent raw `fs`, no ad hoc timers in the HTTP runtime.
-- `hb.no-client-fetch-stack`: No raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack.
+- `hb.no-raw-io-and-timers`: No raw `nodemailer`, no persistent raw `fs`, no ad hoc timers in the HTTP runtime. Two documented exceptions (not defaults): short-lived temp-bridge files under `os.tmpdir()` for Ace / CLI / MCP subprocess integration, and bounded timers inside jobs / commands / integrations that run **outside** the HTTP request lifecycle. Exceptions must be isolated, justified, and cite the rule id.
+- `hb.no-client-fetch-stack`: No raw `fetch`, `axios`, `ky`, or `SWR` as the default client data stack. Two documented exceptions (not defaults): incremental streaming (NDJSON / SSE / ReadableStream) that Tuyau and Inertia partial reloads cannot express, and multipart / progress uploads the typed client does not cover. Exceptions must be isolated in a typed helper, justified, and cite the rule id.
 - `hb.no-client-form-stack`: No `@mantine/form`, `react-hook-form`, `formik`, `zod`, `yup`, or `valibot` as the default form stack.
 - `hb.no-custom-api-keys-default`: No custom API-key auth as the default external auth path.
 - `hb.queue-stack`: Use `@adonisjs/queue` for background jobs. No raw BullMQ, bee-queue, agenda, or ad hoc Redis polling.

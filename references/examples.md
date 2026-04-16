@@ -81,3 +81,40 @@ These few-shot examples show how the doctrine behaves in practice. Use them to c
 1. Apply `ed.service-layer` — business logic in `app/services/post_service.ts`.
 2. Do NOT stop or ask — enforced defaults are applied automatically.
 3. Recommend `PostService.create(payload)` with canonical verbs.
+
+---
+
+## Example 7 — Documented Exception (streaming NDJSON)
+
+**User prompt**: The API already exposes `/api/jobs/:id/progress` as an NDJSON stream. The Inertia page must render each progress event as it arrives.
+
+**Expected behavior**:
+1. Select profile `mixed`.
+2. Recognize that `hb.no-client-fetch-stack` applies as a hard blocker by default, but that this scenario matches the documented streaming exception (NDJSON / SSE / ReadableStream) — Tuyau returns parsed JSON and Inertia partial reloads only ship a single page snapshot, so neither can express incremental consumption.
+3. Do NOT trigger an override flow — the exception is part of the doctrine.
+4. Implement the call in a dedicated typed helper (for example `inertia/stream-client.ts`) with a typed API (`streamJobProgress(jobId, onEvent, signal)`), not inlined in the component.
+5. Add a code comment citing `hb.no-client-fetch-stack` and the streaming exception clause.
+6. Keep CRUD and list flows for the same page on Tuyau or Inertia.
+7. Final markers:
+   - `selected-profile: mixed`
+   - `override-status: none`
+   - `hard-blocker-compliance: pass`
+
+---
+
+## Example 8 — Documented Exception (temp-bridge file for Ace subprocess)
+
+**User prompt**: Add an Ace command that pipes an audio Buffer through the local `ffmpeg` binary. ffmpeg only accepts a filesystem path.
+
+**Expected behavior**:
+1. Select profile based on context (for example `api-only`).
+2. Recognize that `hb.no-raw-io-and-timers` applies as a hard blocker by default, but that this scenario matches the documented temp-bridge exception — Drive is about persistent application storage, not an ephemeral subprocess bridge.
+3. Do NOT trigger an override flow — the exception is part of the doctrine.
+4. Implement the command so the file path is built from `os.tmpdir()` with a collision-safe suffix (`randomUUID`, `cuid`, or equivalent) and the file is removed in a `finally` block.
+5. Keep the raw `fs` call inside the Ace command — never call it from an HTTP controller, middleware, or Inertia page action.
+6. Add a code comment citing `hb.no-raw-io-and-timers` and the temp-bridge exception clause.
+7. Do NOT use `setInterval`, unbounded polling, or raw `nodemailer` for side effects.
+8. Final markers:
+   - `selected-profile: api-only`
+   - `override-status: none`
+   - `hard-blocker-compliance: pass`

@@ -539,6 +539,17 @@
       "test_ids": ["ok_web_standard", "ok_shared_props_user_key", "ok_transformer_variants"]
     },
     {
+      "id": "ed.inertia-component-decomposition",
+      "tier": "enforced_default",
+      "applies_to": ["web", "mixed", "frontend"],
+      "statement": "Never define a React component (function or class) inside another component's render body. A component declared inside another function is a new identity on every render, so React unmounts and remounts the entire sub-tree, loses local state, re-runs effects, and defeats memoization. Keep small, single-use, stateless helper components at module scope (top of the same file, outside the parent) when they are under ~20 lines. Extract to inertia/components/**/* as a dedicated file as soon as the helper has its own state, effects, is reused by more than one page, or grows past ~20 lines. Render-prop callbacks — functions passed as children that return JSX, e.g. <Form>{({ errors }) => (...)}</Form> — are not component definitions and remain allowed.",
+      "required_patterns": ["sub-components declared at module scope", "extract reusable helpers to inertia/components/"],
+      "forbidden_patterns": ["function component declared inside another component body", "class component declared inside another component body", "component recreated on every render because it is nested inside the parent function"],
+      "conflict_behavior": "Apply the component-decomposition defaults by default. Flag nested component declarations in review even when the page otherwise works.",
+      "override_allowed": false,
+      "test_ids": ["ok_web_standard"]
+    },
+    {
       "id": "ed.frontend-library-and-state-policy",
       "tier": "enforced_default",
       "applies_to": ["web", "mixed", "frontend"],

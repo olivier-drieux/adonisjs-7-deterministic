@@ -54,3 +54,51 @@
 - If TanStack Query is enabled, use conservative defaults: `retry: 1`, `refetchOnWindowFocus: false`, and `staleTime: 30_000`.
 
 For the full allowed and forbidden library matrix, read [inertia-libraries.md](inertia-libraries.md).
+
+## Component Decomposition
+
+Inertia pages and layouts often need helper sub-components. The default trap is to declare them inside the parent's render body so everything stays in one function. Do not do that.
+
+- **Never** define a React component (function or class) inside another component's render body. A component declared inside another function is a new identity on every render, so React unmounts and remounts the whole sub-tree, loses local state, re-runs effects, and defeats `React.memo`.
+- Keep **small, single-use, stateless** helper components at **module scope** — top of the same file, outside the parent — when they stay under ~20 lines.
+- **Extract** the helper to its own file under `inertia/components/**/*` as soon as it has any of: local state, effects, reuse across more than one page, or growth past ~20 lines.
+- Render-prop callbacks — functions passed as children that return JSX, e.g. `<Form>{({ errors }) => (...)}</Form>` — are **not** component definitions. They stay allowed.
+- Naming: module-scope page helpers use PascalCase and are **not** exported; extracted reusable components are exported by name from `inertia/components/**/*`.
+
+Wrong — nested component declaration (remounts every render):
+
+```tsx
+// excerpt
+// inertia/pages/posts/index.tsx — WRONG
+export default function PostsIndex({ posts }: Props) {
+  function PostCard({ post }: { post: Data.Post }) {
+    return <Card withBorder>{post.title}</Card>
+  }
+
+  return <Stack>{posts.map((p) => <PostCard key={p.id} post={p} />)}</Stack>
+}
+```
+
+Right — small helper at module scope in the same page file:
+
+```tsx
+// excerpt
+// inertia/pages/posts/index.tsx
+function PostCard({ post }: { post: Data.Post }) {
+  return <Card withBorder>{post.title}</Card>
+}
+
+export default function PostsIndex({ posts }: Props) {
+  return <Stack>{posts.map((p) => <PostCard key={p.id} post={p} />)}</Stack>
+}
+```
+
+Right — extract to `inertia/components/**/*` when the helper has state, effects, or is reused:
+
+```tsx
+// excerpt
+// inertia/components/post_card.tsx
+export function PostCard({ post }: { post: Data.Post }) {
+  // ...local state, effects, or reused across pages
+}
+```

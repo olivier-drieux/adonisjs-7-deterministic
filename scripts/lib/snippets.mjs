@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { ROOT } from './catalog.mjs'
+import { SKILL_ROOT } from './catalog.mjs'
 
-export const REFERENCES_DIR = path.join(ROOT, 'references')
+export const REFERENCES_DIR = path.join(SKILL_ROOT, 'references')
 export const PATTERNS_DIR = path.join(REFERENCES_DIR, 'patterns')
 
 export const FENCE_RE = /^```(ts|tsx|typescript)\s*$/
@@ -35,7 +35,7 @@ function collectMdFiles(dir) {
 }
 
 export const DOC_FILES = [
-  path.join(ROOT, 'SKILL.md'),
+  path.join(SKILL_ROOT, 'SKILL.md'),
   ...collectMdFiles(REFERENCES_DIR),
   ...collectMdFiles(PATTERNS_DIR),
 ]

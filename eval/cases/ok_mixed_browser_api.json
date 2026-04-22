@@ -1,6 +1,6 @@
 {
   "id": "ok_mixed_browser_api",
-  "prompt": "Use $adonisjs-7-deterministic to add a mixed application feature with Inertia React pages for admins and a separate /api reporting group that is still called by the browser session for internal widgets.",
+  "prompt": "Use $adonisjs-ai-doctrine to add a mixed application feature with Inertia React pages for admins and a separate /api reporting group that is still called by the browser session for internal widgets.",
   "profile_expected": "mixed",
   "expected_mode": "proceed",
   "required_patterns": [

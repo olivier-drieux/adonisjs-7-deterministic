@@ -3,11 +3,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { assert, loadManifest, missingTerms, ROOT, WRAPPERS_DIR } from './lib/catalog.mjs'
+import { assert, loadManifest, missingTerms, SKILL_ROOT, WRAPPERS_DIR } from './lib/catalog.mjs'
 
 const manifest = loadManifest()
-const skillPath = path.join(ROOT, 'SKILL.md')
-const openAiPath = path.join(ROOT, 'agents', 'openai.yaml')
+const skillPath = path.join(SKILL_ROOT, 'SKILL.md')
+const openAiPath = path.join(SKILL_ROOT, 'agents', 'openai.yaml')
 const wrapperPaths = [
   path.join(WRAPPERS_DIR, 'codex.md'),
   path.join(WRAPPERS_DIR, 'claude.md'),
@@ -51,7 +51,7 @@ const promptTerms = [
 ]
 
 const missingInPrompt = missingTerms(openAiText, promptTerms)
-assert(missingInPrompt.length === 0, `agents/openai.yaml is missing sync terms: ${missingInPrompt.join(', ')}`)
+assert(missingInPrompt.length === 0, `skills/adonisjs-ai-doctrine/agents/openai.yaml is missing sync terms: ${missingInPrompt.join(', ')}`)
 
 const wrapperTerms = [
   ...manifest.sync_contract.required_wrapper_terms,
@@ -65,4 +65,4 @@ for (const wrapperPath of wrapperPaths) {
   assert(missing.length === 0, `${path.basename(wrapperPath)} is missing sync terms: ${missing.join(', ')}`)
 }
 
-console.log(`Sync validation passed: SKILL.md, agents/openai.yaml, and ${wrapperPaths.length} wrappers are aligned.`)
+console.log(`Sync validation passed: SKILL.md, skills/adonisjs-ai-doctrine/agents/openai.yaml, and ${wrapperPaths.length} wrappers are aligned.`)

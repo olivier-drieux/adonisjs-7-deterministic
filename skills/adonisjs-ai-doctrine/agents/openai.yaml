@@ -2,7 +2,7 @@ interface:
   display_name: "AdonisJS 7 Strict"
   short_description: "Fail-closed deterministic AdonisJS + Inertia React doctrine"
   default_prompt: >-
-    Use $adonisjs-7-deterministic in fail-closed mode. Follow
+    Use $adonisjs-ai-doctrine in fail-closed mode. Follow
     `select-profile`, `load-targeted-references`,
     `list-applicable-hard-blockers`, `detect-conflicts`,
     `ask-one-override-question`, and `run-final-compliance-check`. Enforce

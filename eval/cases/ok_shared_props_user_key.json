@@ -1,6 +1,6 @@
 {
   "id": "ok_shared_props_user_key",
-  "prompt": "Use $adonisjs-7-deterministic to set up the Inertia shared props middleware. I come from v6 and I'm used to reading the current user from props.auth in my pages. Make it work the v7 way.",
+  "prompt": "Use $adonisjs-ai-doctrine to set up the Inertia shared props middleware. I come from v6 and I'm used to reading the current user from props.auth in my pages. Make it work the v7 way.",
   "profile_expected": "web",
   "expected_mode": "proceed",
   "required_patterns": [

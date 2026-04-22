@@ -1,6 +1,6 @@
 {
   "id": "violation_data_stack",
-  "prompt": "Use $adonisjs-7-deterministic to build a posts feature but use Prisma instead of the default ORM. I prefer Prisma because I already know it well.",
+  "prompt": "Use $adonisjs-ai-doctrine to build a posts feature but use Prisma instead of the default ORM. I prefer Prisma because I already know it well.",
   "profile_expected": "web",
   "expected_mode": "ask_override",
   "required_patterns": [

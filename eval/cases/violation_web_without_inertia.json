@@ -1,6 +1,6 @@
 {
   "id": "violation_web_without_inertia",
-  "prompt": "Use $adonisjs-7-deterministic to build a browser-facing feature, but implement the UI with Vue, a second router, and a custom component stack instead of Inertia React plus Mantine.",
+  "prompt": "Use $adonisjs-ai-doctrine to build a browser-facing feature, but implement the UI with Vue, a second router, and a custom component stack instead of Inertia React plus Mantine.",
   "profile_expected": "web",
   "expected_mode": "ask_override",
   "required_patterns": [

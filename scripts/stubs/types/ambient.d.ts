@@ -1,5 +1,5 @@
 // ============================================================================
-// Ambient module stubs for the adonisjs-7-deterministic snippet typechecker.
+// Ambient module stubs for the adonisjs-ai-doctrine snippet typechecker.
 //
 // These stubs are intentionally minimal: they declare only the surface the
 // canonical snippets actually touch, and they tighten the doctrine-critical

@@ -1,0 +1,13 @@
+{
+  "name": "adonisjs-ai-doctrine",
+  "description": "Fail-closed multi-agent skill pack for private AdonisJS v7 applications. Forces deterministic, framework-native structure with official AdonisJS packages.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Olivier Drieux",
+    "email": "software-dev@linkweb.fr"
+  },
+  "homepage": "https://gitlab.com/Linkweb-Tech/adonisjs-ai-doctrine",
+  "repository": "https://gitlab.com/Linkweb-Tech/adonisjs-ai-doctrine.git",
+  "license": "MIT",
+  "keywords": ["adonisjs", "adonisjs-v7", "inertia", "react", "mantine", "doctrine", "ai", "skill"]
+}

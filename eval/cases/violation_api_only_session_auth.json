@@ -1,6 +1,6 @@
 {
   "id": "violation_api_only_session_auth",
-  "prompt": "Use $adonisjs-7-deterministic in api-only mode to build an invoices API. Use session-based auth for the API endpoints because the mobile app will send cookies.",
+  "prompt": "Use $adonisjs-ai-doctrine in api-only mode to build an invoices API. Use session-based auth for the API endpoints because the mobile app will send cookies.",
   "profile_expected": "api-only",
   "expected_mode": "ask_override",
   "required_patterns": [

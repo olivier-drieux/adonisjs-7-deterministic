@@ -1,4 +1,4 @@
-# Plan d'amélioration du skill adonisjs-7-deterministic
+# Plan d'amélioration du skill adonisjs-ai-doctrine
 
 ## Changements implémentés
 

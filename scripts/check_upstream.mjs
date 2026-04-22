@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// Local invariant check for the adonisjs-7-deterministic skill.
+// Local invariant check for the adonisjs-ai-doctrine skill.
 //
 // Reads scripts/upstream_fixtures.json and asserts that:
 //
@@ -25,11 +25,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { ROOT, relativeFromRoot, readJsonDocument } from './lib/catalog.mjs'
+import { ROOT, SKILL_ROOT, relativeFromRoot, readJsonDocument } from './lib/catalog.mjs'
 
 const FIXTURES_PATH = path.join(ROOT, 'scripts', 'upstream_fixtures.json')
-const SKILL_PATH = path.join(ROOT, 'SKILL.md')
-const REFERENCES_DIR = path.join(ROOT, 'references')
+const SKILL_PATH = path.join(SKILL_ROOT, 'SKILL.md')
+const REFERENCES_DIR = path.join(SKILL_ROOT, 'references')
 const PATTERNS_DIR = path.join(REFERENCES_DIR, 'patterns')
 
 // Files where anti-patterns may legitimately appear as quoted counter-examples

@@ -1,6 +1,6 @@
 {
   "id": "violation_client_fetch_stack",
-  "prompt": "Use $adonisjs-7-deterministic to build a normal Inertia page, but fetch all server data from the component with axios, raw fetch, and SWR instead of Inertia props or a typed client.",
+  "prompt": "Use $adonisjs-ai-doctrine to build a normal Inertia page, but fetch all server data from the component with axios, raw fetch, and SWR instead of Inertia props or a typed client.",
   "profile_expected": "web",
   "expected_mode": "ask_override",
   "required_patterns": [

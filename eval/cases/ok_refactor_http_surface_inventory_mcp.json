@@ -1,6 +1,6 @@
 {
   "id": "ok_refactor_http_surface_inventory_mcp",
-  "prompt": "Use $adonisjs-7-deterministic to refactor the routing of an existing mixed app. Today `start/routes.ts` holds everything: Inertia pages, a `/api/...` group for internal JSON called from the same browser, a `/api/external/...` group for a mobile client on access tokens, Stripe webhooks under `/webhooks/stripe`, a `router.post('/mcp', ...)` MCP tool server with its own bearer-token middleware, and `router.get('/health/live', ...)` / `router.get('/health/ready', ...)` probes. Split the routes correctly across files and update `adonisrc.ts` preloads.",
+  "prompt": "Use $adonisjs-ai-doctrine to refactor the routing of an existing mixed app. Today `start/routes.ts` holds everything: Inertia pages, a `/api/...` group for internal JSON called from the same browser, a `/api/external/...` group for a mobile client on access tokens, Stripe webhooks under `/webhooks/stripe`, a `router.post('/mcp', ...)` MCP tool server with its own bearer-token middleware, and `router.get('/health/live', ...)` / `router.get('/health/ready', ...)` probes. Split the routes correctly across files and update `adonisrc.ts` preloads.",
   "profile_expected": "mixed",
   "expected_mode": "proceed",
   "required_patterns": [

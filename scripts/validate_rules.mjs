@@ -37,15 +37,17 @@ assert(
 )
 
 assert(manifest.sync_contract && typeof manifest.sync_contract === 'object', 'sync_contract is required')
-assert(Array.isArray(manifest.sync_contract.required_headings) && manifest.sync_contract.required_headings.length === 7, 'sync_contract.required_headings must contain 7 headings')
+assert(Array.isArray(manifest.sync_contract.required_headings) && manifest.sync_contract.required_headings.length === 8, 'sync_contract.required_headings must contain 8 headings')
 assert(Array.isArray(manifest.sync_contract.required_prompt_terms) && manifest.sync_contract.required_prompt_terms.length > 0, 'sync_contract.required_prompt_terms must be a non-empty array')
 assert(Array.isArray(manifest.sync_contract.required_wrapper_terms) && manifest.sync_contract.required_wrapper_terms.length > 0, 'sync_contract.required_wrapper_terms must be a non-empty array')
 assert(Array.isArray(manifest.sync_contract.output_markers) && manifest.sync_contract.output_markers.length === 3, 'sync_contract.output_markers must contain 3 markers')
 assert(Array.isArray(manifest.sync_contract.core_blocker_ids) && manifest.sync_contract.core_blocker_ids.length > 0, 'sync_contract.core_blocker_ids must be a non-empty array')
 
 const validTiers = new Set(['hard_blocker', 'enforced_default', 'advisory'])
+const validRationales = new Set(['framework-doctrine', 'stack-lockin', 'team-discipline'])
 const ruleIds = new Set()
 const hardBlockerIds = new Set()
+const stackLockinHardBlockerIds = new Set()
 const referencedEvalIds = new Set()
 
 for (const rule of manifest.rules) {
@@ -54,6 +56,10 @@ for (const rule of manifest.rules) {
   ruleIds.add(rule.id)
 
   assert(validTiers.has(rule.tier), `invalid tier for ${rule.id}: ${rule.tier}`)
+  assert(
+    validRationales.has(rule.enforcement_rationale),
+    `${rule.id} must declare enforcement_rationale ∈ {framework-doctrine, stack-lockin, team-discipline} (got: ${rule.enforcement_rationale ?? 'missing'})`
+  )
   assert(Array.isArray(rule.applies_to) && rule.applies_to.length > 0, `${rule.id} must declare applies_to`)
   assert(typeof rule.statement === 'string' && rule.statement.length > 0, `${rule.id} must declare statement`)
   assert(Array.isArray(rule.required_patterns), `${rule.id} must declare required_patterns`)
@@ -78,9 +84,29 @@ for (const rule of manifest.rules) {
       rule.test_ids.some((testId) => testId.startsWith('violation_')),
       `${rule.id} needs at least one violation_* test`
     )
+    if (rule.enforcement_rationale === 'stack-lockin') {
+      stackLockinHardBlockerIds.add(rule.id)
+    }
   } else {
     assert(!rule.override_allowed, `${rule.id} must not allow override flow`)
   }
+}
+
+// Regression guard: every stack-lockin rule that was deliberately placed at hard_blocker tier
+// must stay there. The override-flow friction on stack-lockin hard blockers is the feature, not
+// a calibration mistake. If you are tempted to downgrade one to enforced_default, read the
+// "Design Intent" section of SKILL.md and REVIEWING.md first.
+const REQUIRED_STACK_LOCKIN_HARD_BLOCKERS = new Set([
+  'hb.web-ui-stack',
+  'hb.no-edge-feature-rendering',
+  'hb.no-client-fetch-stack',
+  'hb.no-client-form-stack',
+])
+for (const requiredId of REQUIRED_STACK_LOCKIN_HARD_BLOCKERS) {
+  assert(
+    stackLockinHardBlockerIds.has(requiredId),
+    `${requiredId} must remain a stack-lockin hard_blocker (see SKILL.md Design Intent and REVIEWING.md). Downgrading defeats the purpose of the skill.`
+  )
 }
 
 for (const blockerId of manifest.sync_contract.core_blocker_ids) {

@@ -1,4 +1,4 @@
-# adonisjs-7-deterministic
+# adonisjs-ai-doctrine
 
 Fail-closed multi-agent skill pack for private AdonisJS v7 applications. Forces deterministic, framework-native structure with official AdonisJS packages across every AI coding agent (Claude Code, Codex, Cursor, GitHub Copilot, VS Code).
 
@@ -41,106 +41,128 @@ The agent cannot skip steps, cannot silently deviate, and must report what it di
 ## Repository structure
 
 ```
-SKILL.md                          Runtime protocol (61 lines)
+.claude-plugin/
+  plugin.json                     Claude Code plugin manifest
+  marketplace.json                Single-plugin marketplace catalog (source: ".")
 MAINTENANCE.md                    Quarterly sync workflow + Context7 queries
-rules/manifest.json               50 rules, 3 profiles, 11 reference slices
 
-references/
-  routing.md, validation.md, lucid.md, auth.md, api.md,
-  bouncer.md, mail.md, drive.md, queue.md, events.md,
-  inertia-libraries.md, rendering.md, transformers.md,
-  testing.md, setup.md, rules.md, examples.md
-  patterns/
-    crud-web.md, auth-flow.md, api-resource.md,
-    frontend-bootstrap.md, advanced.md
+skills/
+  adonisjs-ai-doctrine/       Installed skill root (what Claude Code reads)
+    SKILL.md                      Runtime protocol
+    rules/manifest.json           Rules, profiles, reference slices
+    references/                   routing.md, validation.md, lucid.md, auth.md,
+                                  api.md, bouncer.md, mail.md, drive.md,
+                                  queue.md, events.md, inertia-libraries.md,
+                                  rendering.md, transformers.md, testing.md,
+                                  setup.md, rules.md, examples.md
+      patterns/                   crud-web.md, auth-flow.md, api-resource.md,
+                                  frontend-bootstrap.md, advanced.md
+    assets/
+      wrappers/                   claude.md, codex.md, vscode.instructions.md
+      entrypoints/                CLAUDE.md, AGENTS.md, copilot-instructions.md,
+                                  .cursorrules
+    agents/openai.yaml
 
-eval/
-  cases/         27 eval fixtures (ok_* + violation_*)
-  expectations/  27 grader assertion files
+eval/                             Dev tooling — not shipped in plugin install
+  cases/                          Eval fixtures (ok_* + violation_*)
+  expectations/                   Grader assertion files
 
-scripts/
-  validate_all.mjs              7 validators in one command
-  validate_snippets.mjs         Regex guard (72 blocks)
-  typecheck_snippets.mjs        tsc --noEmit via stubs (41 blocks)
-  validate_rules.mjs            Manifest schema + coverage
-  validate_evals.mjs            Eval fixture schema
+scripts/                          Dev tooling — not shipped in plugin install
+  validate_all.mjs                7 validators in one command
+  validate_snippets.mjs           Regex guard
+  typecheck_snippets.mjs          tsc --noEmit via stubs
+  validate_rules.mjs              Manifest schema + coverage
+  validate_evals.mjs              Eval fixture schema
   validate_eval_expectations.mjs  1:1 case↔expectation mapping
-  validate_sync.mjs             SKILL.md ↔ wrappers ↔ manifest
-  check_upstream.mjs            12 fingerprints, 8 anti-patterns
-  run_eval.mjs                  Real LLM benchmark (claude -p)
-  score_eval.mjs                Score a captured response
-  stubs/                        TypeScript stubs for snippet typecheck
-
-assets/
-  wrappers/      claude.md, codex.md, vscode.instructions.md
-  entrypoints/   CLAUDE.md, AGENTS.md, copilot-instructions.md, .cursorrules
+  validate_sync.mjs               SKILL.md ↔ wrappers ↔ manifest
+  check_upstream.mjs              Positive fingerprints + anti-patterns
+  run_eval.mjs                    Real LLM benchmark (claude -p)
+  score_eval.mjs                  Score a captured response
+  stubs/                          TypeScript stubs for snippet typecheck
 ```
 
 ## Install
 
-### Claude Code (recommended)
+### Claude Code (recommended — plugin + marketplace)
 
-**Step 1 — Install the skill globally:**
+This repo is shipped as a Claude Code plugin and self-declared marketplace. One install command, one update command, no manual clone.
 
-```bash
-# Clone or symlink to the global skills directory
-git clone https://github.com/olivier-drieux/adonisjs-7-deterministic.git \
-  ~/.claude/skills/adonisjs-7-deterministic
+**Step 1 — Add the marketplace:**
+
+```
+/plugin marketplace add https://gitlab.com/Linkweb-Tech/adonisjs-ai-doctrine.git
 ```
 
-**Step 2 — Enable company-wide auto-invocation:**
+**Step 2 — Install the plugin:**
 
-Add to `~/.claude/CLAUDE.md` (create the file if it doesn't exist):
+```
+/plugin install adonisjs-ai-doctrine@adonisjs-ai-doctrine
+```
+
+**Step 3 — Enable auto-invocation (optional):**
+
+Add to `~/.claude/CLAUDE.md` (create if missing):
 
 ```markdown
 ## AdonisJS projects
 
-For any project that contains `adonisrc.ts` or has `@adonisjs/core` in its `package.json` dependencies, always invoke the skill `$adonisjs-7-deterministic` before any implementation or review task. Do not start coding without the skill loaded.
+For any project that contains `adonisrc.ts` or has `@adonisjs/core` in its `package.json` dependencies, always invoke the skill `$adonisjs-ai-doctrine` before any implementation or review task. Do not start coding without the skill loaded.
 ```
 
-**Step 3 — (Optional) Copy the project-level CLAUDE.md to each project:**
+**Step 4 — (Optional) Drop the project-level CLAUDE.md into each Adonis project:**
 
 ```bash
-cp ~/.claude/skills/adonisjs-7-deterministic/assets/entrypoints/CLAUDE.md \
+cp ~/.claude/plugins/adonisjs-ai-doctrine/assets/entrypoints/CLAUDE.md \
   /path/to/my-adonis-project/CLAUDE.md
 ```
 
-This embeds the critical reminders (package registry check, InertiaProps typing, encryption, queue, CSS Modules, Mantine-first) directly in the project. The `<!-- BEGIN/END adonisjs-7-deterministic:managed -->` markers protect the skill block — add project-specific instructions outside the markers.
+The `<!-- BEGIN/END adonisjs-ai-doctrine:managed -->` markers protect the skill block — add project-specific instructions outside them.
+
+**Updating:**
+
+```
+/plugin marketplace update adonisjs-ai-doctrine
+/plugin update
+```
+
+Pulls the latest `main`, no manual `git pull` needed.
 
 ### Codex
 
 ```bash
-cp -r . ~/.codex/skills/adonisjs-7-deterministic
+git clone https://gitlab.com/Linkweb-Tech/adonisjs-ai-doctrine.git /tmp/adonisjs-skill
+cp -r /tmp/adonisjs-skill/skills/adonisjs-ai-doctrine ~/.codex/skills/
 ```
 
 Then invoke with:
 
 ```
-Use $adonisjs-7-deterministic to implement this AdonisJS 7 feature.
+Use $adonisjs-ai-doctrine to implement this AdonisJS 7 feature.
 ```
 
 ### Cursor
 
 ```bash
-cp assets/entrypoints/.cursorrules /path/to/project/.cursorrules
+cp skills/adonisjs-ai-doctrine/assets/entrypoints/.cursorrules /path/to/project/.cursorrules
 ```
 
 ### GitHub Copilot
 
 ```bash
 mkdir -p /path/to/project/.github
-cp assets/entrypoints/copilot-instructions.md /path/to/project/.github/copilot-instructions.md
+cp skills/adonisjs-ai-doctrine/assets/entrypoints/copilot-instructions.md \
+  /path/to/project/.github/copilot-instructions.md
 ```
 
 ### Codex / opencode / Other Agents
 
 ```bash
-cp assets/entrypoints/AGENTS.md /path/to/project/AGENTS.md
+cp skills/adonisjs-ai-doctrine/assets/entrypoints/AGENTS.md /path/to/project/AGENTS.md
 ```
 
 ### VS Code (generic instructions)
 
-Use [assets/wrappers/vscode.instructions.md](./assets/wrappers/vscode.instructions.md) as `.github/instructions/*.instructions.md`.
+Use [skills/adonisjs-ai-doctrine/assets/wrappers/vscode.instructions.md](./skills/adonisjs-ai-doctrine/assets/wrappers/vscode.instructions.md) as `.github/instructions/*.instructions.md`.
 
 ## Validation
 
@@ -193,9 +215,9 @@ The skill must stay in sync with the AdonisJS v7 upstream docs. The full process
 
 If two files disagree:
 
-1. `rules/manifest.json` — canonical machine-readable rules
-2. `SKILL.md` — short runtime protocol
-3. `references/*.md` — long-form rationale
-4. `assets/wrappers/*.md` — condensed per-agent copies
+1. `skills/adonisjs-ai-doctrine/rules/manifest.json` — canonical machine-readable rules
+2. `skills/adonisjs-ai-doctrine/SKILL.md` — short runtime protocol
+3. `skills/adonisjs-ai-doctrine/references/*.md` — long-form rationale
+4. `skills/adonisjs-ai-doctrine/assets/wrappers/*.md` — condensed per-agent copies
 
 Higher numbers defer to lower numbers.

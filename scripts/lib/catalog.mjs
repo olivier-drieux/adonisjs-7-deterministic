@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 export const ROOT = path.resolve(import.meta.dirname, '../..')
-export const MANIFEST_PATH = path.join(ROOT, 'rules', 'manifest.json')
+export const SKILL_ROOT = path.join(ROOT, 'skills', 'adonisjs-ai-doctrine')
+export const MANIFEST_PATH = path.join(SKILL_ROOT, 'rules', 'manifest.json')
 export const EVAL_CASES_DIR = path.join(ROOT, 'eval', 'cases')
-export const WRAPPERS_DIR = path.join(ROOT, 'assets', 'wrappers')
+export const WRAPPERS_DIR = path.join(SKILL_ROOT, 'assets', 'wrappers')
 
 export function assert(condition, message) {
   if (!condition) {

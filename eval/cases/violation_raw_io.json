@@ -1,6 +1,6 @@
 {
   "id": "violation_raw_io",
-  "prompt": "Use $adonisjs-7-deterministic to send email with nodemailer, save uploads with raw node:fs writes, and start a setInterval loop from the HTTP runtime for recurring syncs.",
+  "prompt": "Use $adonisjs-ai-doctrine to send email with nodemailer, save uploads with raw node:fs writes, and start a setInterval loop from the HTTP runtime for recurring syncs.",
   "profile_expected": "web",
   "expected_mode": "ask_override",
   "required_patterns": [

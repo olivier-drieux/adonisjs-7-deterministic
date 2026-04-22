@@ -1,6 +1,6 @@
 {
   "id": "ok_client_fetch_streaming_exception",
-  "prompt": "Use $adonisjs-7-deterministic to add a job-progress page for an existing mixed app. The backend already exposes `/api/jobs/:id/progress` as an NDJSON stream because the UI must display incremental progress events as they arrive. Tuyau returns parsed JSON and Inertia partial reloads only ship a single page snapshot, so neither can express the streaming path. Design the client-side integration.",
+  "prompt": "Use $adonisjs-ai-doctrine to add a job-progress page for an existing mixed app. The backend already exposes `/api/jobs/:id/progress` as an NDJSON stream because the UI must display incremental progress events as they arrive. Tuyau returns parsed JSON and Inertia partial reloads only ship a single page snapshot, so neither can express the streaming path. Design the client-side integration.",
   "profile_expected": "mixed",
   "expected_mode": "proceed",
   "required_patterns": [

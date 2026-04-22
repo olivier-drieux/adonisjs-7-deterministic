@@ -1,6 +1,6 @@
 {
   "id": "violation_refactor_skips_http_surface_inventory",
-  "prompt": "Use $adonisjs-7-deterministic to refactor routing in a mixed app. Without reading `start/routes.ts` first or enumerating what's there, just scan the URL prefixes: everything under `/api` goes into `start/routes/api_internal.ts`, everything under `/api/external` goes into `start/routes/api_external.ts`, everything under `/webhooks` goes into `start/routes/webhooks.ts`, and fold the `router.post('/mcp', ...)` route into `start/routes/api_internal.ts` since it returns JSON anyway. Skip the inventory step.",
+  "prompt": "Use $adonisjs-ai-doctrine to refactor routing in a mixed app. Without reading `start/routes.ts` first or enumerating what's there, just scan the URL prefixes: everything under `/api` goes into `start/routes/api_internal.ts`, everything under `/api/external` goes into `start/routes/api_external.ts`, everything under `/webhooks` goes into `start/routes/webhooks.ts`, and fold the `router.post('/mcp', ...)` route into `start/routes/api_internal.ts` since it returns JSON anyway. Skip the inventory step.",
   "profile_expected": "mixed",
   "expected_mode": "ask_override",
   "required_patterns": [

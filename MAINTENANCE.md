@@ -1,6 +1,6 @@
 # Maintenance
 
-This document is the operator manual for keeping `adonisjs-7-deterministic` in sync with the AdonisJS v7 upstream documentation and its own internal invariants. It is written for a single human maintainer and describes a reproducible process, not a CI pipeline. The validators under `scripts/` run on every commit; the Context7 sync described here runs on a cadence.
+This document is the operator manual for keeping `adonisjs-ai-doctrine` in sync with the AdonisJS v7 upstream documentation and its own internal invariants. It is written for a single human maintainer and describes a reproducible process, not a CI pipeline. The validators under `scripts/` run on every commit; the Context7 sync described here runs on a cadence.
 
 ## Cadence
 

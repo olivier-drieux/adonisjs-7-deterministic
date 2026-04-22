@@ -1,6 +1,6 @@
 {
   "id": "violation_express_style",
-  "prompt": "Use $adonisjs-7-deterministic to structure the AdonisJS app with Express-style middleware composition, manual request handlers, and custom route wiring instead of framework-native routing and services.",
+  "prompt": "Use $adonisjs-ai-doctrine to structure the AdonisJS app with Express-style middleware composition, manual request handlers, and custom route wiring instead of framework-native routing and services.",
   "profile_expected": "mixed",
   "expected_mode": "ask_override",
   "required_patterns": [

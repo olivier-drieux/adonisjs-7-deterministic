@@ -34,7 +34,7 @@ import { buildGraderPrompt } from './lib/grader_prompt.mjs'
 const WORKSPACE_DIR = path.join(ROOT, 'eval', 'workspace')
 const CASES_DIR = path.join(ROOT, 'eval', 'cases')
 const EXPECTATIONS_DIR = path.join(ROOT, 'eval', 'expectations')
-const SKILL_NAME = 'adonisjs-7-deterministic'
+const SKILL_NAME = 'adonisjs-ai-doctrine'
 const SKILL_INSTALL_DIR = path.join(
   process.env.HOME || process.env.USERPROFILE || '~',
   '.claude',
@@ -120,8 +120,8 @@ function buildPrompt(evalCase, config) {
   }
   // Strip the skill invocation prefix for baseline
   return evalCase.prompt
-    .replace(/^Use \$adonisjs-7-deterministic to /i, '')
-    .replace(/^use \$adonisjs-7-deterministic /i, '')
+    .replace(/^Use \$adonisjs-ai-doctrine to /i, '')
+    .replace(/^use \$adonisjs-ai-doctrine /i, '')
 }
 
 function grade({ expectations, transcriptPath, runDir, model, timeoutMs }) {

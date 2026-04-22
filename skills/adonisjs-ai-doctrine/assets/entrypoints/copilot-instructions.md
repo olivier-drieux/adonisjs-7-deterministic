@@ -72,4 +72,4 @@ package coverage → env/config → migration → model → validator → policy
 
 ## Source of Truth
 
-For the complete rules, see the `adonisjs-7-deterministic` skill pack in this repository.
+For the complete rules, see the `adonisjs-ai-doctrine` skill pack in this repository.

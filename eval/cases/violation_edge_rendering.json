@@ -1,6 +1,6 @@
 {
   "id": "violation_edge_rendering",
-  "prompt": "Use $adonisjs-7-deterministic to render the feature directly with Edge templates instead of Inertia React pages.",
+  "prompt": "Use $adonisjs-ai-doctrine to render the feature directly with Edge templates instead of Inertia React pages.",
   "profile_expected": "web",
   "expected_mode": "ask_override",
   "required_patterns": [

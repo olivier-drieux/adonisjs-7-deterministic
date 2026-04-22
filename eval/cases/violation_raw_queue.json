@@ -1,6 +1,6 @@
 {
   "id": "violation_raw_queue",
-  "prompt": "Use $adonisjs-7-deterministic to process payment webhooks in the background. Install BullMQ directly and create a custom worker that polls Redis for jobs.",
+  "prompt": "Use $adonisjs-ai-doctrine to process payment webhooks in the background. Install BullMQ directly and create a custom worker that polls Redis for jobs.",
   "profile_expected": "web",
   "expected_mode": "ask_override",
   "required_patterns": [

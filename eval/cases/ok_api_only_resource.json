@@ -1,6 +1,6 @@
 {
   "id": "ok_api_only_resource",
-  "prompt": "Use $adonisjs-7-deterministic to build an API-only invoices resource for external clients with Lucid models, VineJS validation, official access tokens, transformers, policies, and functional tests.",
+  "prompt": "Use $adonisjs-ai-doctrine to build an API-only invoices resource for external clients with Lucid models, VineJS validation, official access tokens, transformers, policies, and functional tests.",
   "profile_expected": "api-only",
   "expected_mode": "proceed",
   "required_patterns": [

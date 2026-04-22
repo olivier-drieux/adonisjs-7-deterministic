@@ -66,6 +66,7 @@
   "sync_contract": {
     "required_headings": [
       "## Purpose",
+      "## Design Intent",
       "## Execution Protocol",
       "## Profile Selection",
       "## Hard Blockers",
@@ -145,6 +146,7 @@
     {
       "id": "hb.official-packages",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Before implementing any non-trivial feature, follow this lookup order: (1) check the AdonisJS packages registry at https://packages.adonisjs.com/ for an official or community AdonisJS package, (2) if nothing is found there, search https://www.npmjs.com/ for a well-maintained generic Node.js package that integrates cleanly with AdonisJS. Use official AdonisJS packages first, then vetted npm packages, then custom implementation as a last resort. Install AdonisJS packages with node ace add; install generic npm packages with npm install and wrap them in a service. Do not reinvent functionality that a published package already provides.",
       "required_patterns": ["check packages.adonisjs.com before implementing", "check npmjs.com if no AdonisJS package exists", "official packages first", "node ace add", "node ace configure", "node ace make:*"],
@@ -156,6 +158,7 @@
     {
       "id": "hb.data-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Use Lucid for SQL persistence and Luxon DateTime for model and domain dates.",
       "required_patterns": ["Lucid", "DateTime"],
@@ -167,6 +170,7 @@
     {
       "id": "hb.validation-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "HTTP validation uses VineJS with vine.create(...) as the root schema and request.validateUsing(...) inside controllers. Inline controller validation and ad hoc payload parsing are not allowed.",
       "required_patterns": ["VineJS", "vine.create(", "request.validateUsing(...)"],
@@ -178,6 +182,7 @@
     {
       "id": "hb.auth-browser-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["web", "mixed", "browser-flows"],
       "statement": "Use @adonisjs/auth for authentication, and keep browser-driven flows on session or cookie auth instead of bearer-token-first browser flows.",
       "required_patterns": ["@adonisjs/auth", "session auth", "cookie auth"],
@@ -189,6 +194,7 @@
     {
       "id": "hb.guard-names",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Keep auth guard names fixed to web for browser sessions and api for external access tokens.",
       "required_patterns": ["web guard", "api guard"],
@@ -200,6 +206,7 @@
     {
       "id": "hb.browser-csrf",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["web", "mixed", "browser-flows"],
       "statement": "Browser-facing Inertia applications keep Shield CSRF enabled with enableXsrfCookie: true.",
       "required_patterns": ["enableXsrfCookie: true"],
@@ -211,6 +218,7 @@
     {
       "id": "hb.access-tokens-external",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["api-only", "mixed", "external-api"],
       "statement": "External clients, mobile apps, scripts, and machine-to-machine integrations use official access tokens with explicit expiration when token auth is required.",
       "required_patterns": ["official access tokens", "explicit expiration"],
@@ -222,8 +230,9 @@
     {
       "id": "hb.web-ui-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "stack-lockin",
       "applies_to": ["web", "mixed", "frontend"],
-      "statement": "All web UI uses Inertia React and Mantine. Inertia owns navigation, so do not layer a second client router such as react-router-dom on top.",
+      "statement": "All web UI uses Inertia React and Mantine. Inertia owns navigation, so do not layer a second client router such as react-router-dom on top. STACK LOCK-IN — this rule exists so that adopting a different React component library (shadcn, Chakra, Radix, raw HTML) requires explicit override confirmation, not silent drift across the maintainer's projects. Reviewers: do not propose downgrading this rule's tier; the override friction is the intended behavior.",
       "required_patterns": ["Inertia React", "Mantine"],
       "forbidden_patterns": ["Vue or Edge feature rendering for web UI", "react-router-dom"],
       "conflict_behavior": "Stop, cite `hb.web-ui-stack`, ask one override question, and wait for explicit one-off confirmation.",
@@ -233,6 +242,7 @@
     {
       "id": "hb.official-side-effect-packages",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Use @adonisjs/bouncer for authorization, @adonisjs/mail for email, and @adonisjs/drive for persistent file storage and uploads when those concerns apply.",
       "required_patterns": ["@adonisjs/bouncer", "@adonisjs/mail", "@adonisjs/drive"],
@@ -244,6 +254,7 @@
     {
       "id": "hb.web-api-controller-separation",
       "tier": "hard_blocker",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["mixed"],
       "statement": "Mixed applications keep one controller per surface. A single controller never straddles two of the five surfaces — web, api.internal, api.external, webhooks, runtime. Never reuse an api.internal controller for api.external (or vice versa), and never fold /mcp, /health, or operator-bridge endpoints into an API controller: they belong in dedicated runtime controllers.",
       "required_patterns": ["one controller per surface", "separate web, api.internal, api.external, webhooks, and runtime controllers"],
@@ -255,6 +266,7 @@
     {
       "id": "hb.http-surface-inventory",
       "tier": "hard_blocker",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["mixed", "web", "api-only"],
       "statement": "Before any routing refactor, split, or reorganization, run an exhaustive HTTP surface inventory. Read start/routes.ts and every file it transitively imports or that adonisrc.ts preloads. Enumerate every mounted route. Detect atypical declarations that a URL-prefix scan misses — router.on(...).renderInertia(...), router.any(...), router.route(path, verbs, ...), closure handlers, healthchecks (router.get('/health/live', ...)), MCP endpoints (router.post('/mcp', ...)), operator bridges. Classify every route by ROLE (caller, purpose), not URL prefix. Emit a written surface table (path, verb, handler, caller, surface) before writing any code. A route that does not fit web / api.internal / api.external / webhooks belongs to runtime — never silently absorb it into api.internal or api.external.",
       "required_patterns": ["read start/routes.ts and every transitively imported file", "enumerate every mounted route", "detect atypical declarations (router.on, router.any, router.route, closures, healthchecks, /mcp)", "classify by ROLE (caller, purpose), not URL prefix", "emit a written surface table before writing code", "route that does not fit web/api.internal/api.external/webhooks belongs to runtime"],
@@ -266,6 +278,7 @@
     {
       "id": "hb.no-express-fastify-composition",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Do not compose an AdonisJS application like Express or Fastify. Use framework-native routes, middleware, services, policies, and container primitives instead.",
       "required_patterns": ["framework-native composition"],
@@ -277,6 +290,7 @@
     {
       "id": "hb.no-repository-layer",
       "tier": "hard_blocker",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Do not add repository layers on top of Lucid for ordinary application code.",
       "required_patterns": ["direct model and service usage"],
@@ -288,6 +302,7 @@
     {
       "id": "hb.no-edge-feature-rendering",
       "tier": "hard_blocker",
+      "enforcement_rationale": "stack-lockin",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Do not use Edge as a feature rendering layer. The only allowed Edge file in this doctrine is the minimal resources/views/inertia_layout.edge boot layout.",
       "required_patterns": ["minimal inertia_layout.edge only"],
@@ -299,6 +314,7 @@
     {
       "id": "hb.no-request-all-only",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Do not use request.all() or request.only() as substitutes for real validation.",
       "required_patterns": ["validated payloads"],
@@ -310,6 +326,7 @@
     {
       "id": "hb.no-any",
       "tier": "hard_blocker",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Do not introduce any in product code, snippets, or canonical patterns.",
       "required_patterns": ["concrete types"],
@@ -321,6 +338,7 @@
     {
       "id": "hb.no-raw-io-and-timers",
       "tier": "hard_blocker",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Do not use raw nodemailer, raw persistent fs calls, or ad hoc timer logic inside the HTTP runtime. Persistent application storage goes through @adonisjs/drive; application mail goes through @adonisjs/mail; recurring work goes through Ace commands, listeners, or @adonisjs/queue. Documented exceptions (still not the default path, still isolated, still explicit): (1) short-lived temporary files used as a bridge for an Ace command, a CLI subprocess, or an MCP tool integration — written under the OS temp directory (os.tmpdir()) with a cuid/uuid-suffixed path, cleaned up in a try/finally; (2) bounded timers (setTimeout/setInterval with a known upper bound, or AbortSignal.timeout) inside integrations, jobs, or Ace commands that run OUTSIDE the HTTP request/response lifecycle. The defaults remain forbidden for: (a) ad-hoc timers started during HTTP boot or inside a request handler; (b) persistent fs writes that store application data outside Drive. When an exception applies, the agent MUST name the rule, state which exception clause is invoked, justify why Drive/Mail/Queue/Scheduler cannot cover the case, and proceed without triggering an override flow.",
       "required_patterns": ["official Mail and Drive", "Ace commands or events for recurring work", "os.tmpdir() for temporary bridge files", "bounded timers outside the HTTP runtime"],
@@ -332,8 +350,9 @@
     {
       "id": "hb.no-client-fetch-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "stack-lockin",
       "applies_to": ["web", "mixed", "frontend"],
-      "statement": "Do not use raw fetch, axios, ky, or SWR as the default client-side data stack for standard Inertia application work. Documented exceptions (still not the default path, still isolated in a dedicated module, still justified by a real stack limitation): (1) incremental streaming — NDJSON, SSE, or a ReadableStream response that Tuyau's typed client and Inertia partial reloads cannot express; (2) multipart/progress uploads — when the typed client does not expose upload progress, abortable requests, or the exact multipart shape a backend or third-party endpoint requires. When an exception applies, the agent MUST still name the rule, state which exception clause is invoked, explain why Tuyau/Inertia cannot cover the case, isolate the raw call behind a small typed helper (never inline in page components), and proceed without triggering an override flow. Any other use of raw fetch/axios/ky/SWR remains a hard blocker.",
+      "statement": "Do not use raw fetch, axios, ky, or SWR as the default client-side data stack for standard Inertia application work. STACK LOCK-IN — Inertia props/redirects + Tuyau is the chosen client data path; alternative data libraries (TanStack Query, SWR, axios, ky) require explicit override confirmation, not silent adoption. Reviewers: do not propose downgrading this rule's tier — the override friction prevents unintentional drift toward client-side state management across the maintainer's projects. Documented exceptions (still not the default path, still isolated in a dedicated module, still justified by a real stack limitation): (1) incremental streaming — NDJSON, SSE, or a ReadableStream response that Tuyau's typed client and Inertia partial reloads cannot express; (2) multipart/progress uploads — when the typed client does not expose upload progress, abortable requests, or the exact multipart shape a backend or third-party endpoint requires. When an exception applies, the agent MUST still name the rule, state which exception clause is invoked, explain why Tuyau/Inertia cannot cover the case, isolate the raw call behind a small typed helper (never inline in page components), and proceed without triggering an override flow. Any other use of raw fetch/axios/ky/SWR remains a hard blocker.",
       "required_patterns": ["Inertia props and redirects first", "Tuyau only when explicit client fetching is justified", "documented streaming exception", "documented upload exception"],
       "forbidden_patterns": ["fetch(", "axios", "ky", "SWR"],
       "conflict_behavior": "Stop, cite `hb.no-client-fetch-stack`, ask one override question, and wait for explicit one-off confirmation. Exception path: name the rule, name the exception clause (streaming or multipart upload), justify the stack limitation, keep the raw call isolated; no override question is required when the exception clause genuinely applies.",
@@ -343,8 +362,9 @@
     {
       "id": "hb.no-client-form-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "stack-lockin",
       "applies_to": ["web", "mixed", "frontend"],
-      "statement": "Do not use @mantine/form, react-hook-form, formik, zod, yup, or valibot as the default form stack for standard Inertia forms.",
+      "statement": "Do not use @mantine/form, react-hook-form, formik, zod, yup, or valibot as the default form stack for standard Inertia forms. STACK LOCK-IN — @adonisjs/inertia/react Form + server-side VineJS validation is the chosen form path; alternative client form/schema libraries require explicit override confirmation. Reviewers: do not propose downgrading this rule's tier — the override friction prevents silent drift toward client-side validation duplication across the maintainer's projects.",
       "required_patterns": ["@adonisjs/inertia/react Form", "server-side VineJS validation"],
       "forbidden_patterns": ["@mantine/form", "react-hook-form", "formik", "zod", "yup", "valibot"],
       "conflict_behavior": "Stop, cite `hb.no-client-form-stack`, ask one override question, and wait for explicit one-off confirmation.",
@@ -354,6 +374,7 @@
     {
       "id": "hb.no-custom-api-keys-default",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["mixed", "api-only", "external-api"],
       "statement": "Do not default to custom API-key auth when official access tokens cover the requirement.",
       "required_patterns": ["official access tokens first"],
@@ -365,6 +386,7 @@
     {
       "id": "hb.queue-stack",
       "tier": "hard_blocker",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Use @adonisjs/queue for background job processing. Define jobs as classes extending Job<T> with typed payloads, dispatch via JobClass.dispatch(payload), and run workers with node ace queue:work. Do not use raw BullMQ, bee-queue, agenda, or ad hoc Redis polling as the default queue path.",
       "required_patterns": ["@adonisjs/queue", "Job class", "dispatch("],
@@ -376,6 +398,7 @@
     {
       "id": "ed.source-hierarchy",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Resolve design choices with this order: official docs and packages first, then repository conventions when the broader correction is out of scope, then personal preference. Never invent local conventions without reading the repo.",
       "required_patterns": ["official docs first", "repo conventions before personal preference"],
@@ -387,6 +410,7 @@
     {
       "id": "ed.application-profiles",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Select one canonical profile before implementation. Web means Inertia-only pages. Mixed means separate web and /api surfaces. API-only means no inertia pages. Browser clients inside the same app stay on session auth even when they call /api.",
       "required_patterns": ["web", "mixed", "api-only"],
@@ -398,6 +422,7 @@
     {
       "id": "ed.feature-order",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Follow the canonical build order unless a step is irrelevant: check https://packages.adonisjs.com/ for an existing package first, then env/config, migration, model, validator, policy, service, transformer, side effects, controller, routes, tests, then UI. The first step (package check) is mandatory for every non-trivial feature — do not skip it.",
       "required_patterns": ["check packages.adonisjs.com first", "env/config before feature code", "tests before UI is finalized"],
@@ -409,6 +434,7 @@
     {
       "id": "ed.routing-and-kernel",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Use framework-native routing and kernel structure: router from @adonisjs/core/services/router, named routes, route helpers, separate groups per surface, resource routes only for standard CRUD, and named middleware registered in start/kernel.ts. In mixed apps mounting two or more of the five surfaces, split route declarations one file per surface — start/routes.ts for web, start/routes/<surface>.ts for each of the others (api_internal.ts, api_external.ts, webhooks.ts, runtime.ts) — registered in adonisrc.ts preloads. Scaffold with `node ace make:preload routes/<surface> --environments=web`. Before any routing refactor, run the HTTP surface inventory required by hb.http-surface-inventory.",
       "required_patterns": ["named routes", "separate route groups per surface", "named middleware", "one start/routes/<surface>.ts file per surface in mixed apps", "adonisrc.ts preloads references each surface route file"],
@@ -420,6 +446,7 @@
     {
       "id": "ed.inertia-shared-props",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Shared Inertia props live in app/middleware/inertia_middleware.ts. The middleware extends BaseInertiaMiddleware from @adonisjs/inertia/inertia_middleware. Core shared keys are user (via UserTransformer), flash, and errors — these three top-level keys are the canonical baseline. Additional global shell metadata is allowed but must live under a single app namespace (for example app.name, app.env, app.locale, app.version); no arbitrary top-level keys outside the core. Page-specific data belongs in the controller's inertia.render(...) call, not in shared props. Augment SharedProps through declare module '@adonisjs/inertia/types'.",
       "required_patterns": ["extends BaseInertiaMiddleware", "user", "flash", "errors", "app namespace", "declare module '@adonisjs/inertia/types'"],
@@ -431,6 +458,7 @@
     {
       "id": "ed.service-layer",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Business logic lives in app/services with canonical verbs like list, findOrFail, create, update, and delete. Services take primitive ids unless a preloaded model is required for policy checks and return domain objects instead of HTTP payloads.",
       "required_patterns": ["service layer", "domain results"],
@@ -442,6 +470,7 @@
     {
       "id": "ed.validator-layer",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Use one validator file per resource or workflow and one compiled validator per action. Prefer small duplication over clever validator inheritance.",
       "required_patterns": ["one compiled validator per action"],
@@ -453,6 +482,7 @@
     {
       "id": "ed.model-and-policy-layer",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Keep relations, scopes, hooks, and date semantics in models. Use one policy per protected resource, prefer explicit denies(...) checks in controllers, and default authorization failures to 403 instead of 404.",
       "required_patterns": ["policy per protected resource", "403 authorization failures"],
@@ -464,6 +494,7 @@
     {
       "id": "ed.mail-events-transformers-exceptions",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Use dedicated mail classes, class-based events and listeners for secondary side effects, one transformer per resource, and named exceptions in app/exceptions with flat API { code, message } mapping and web redirect+flash handling.",
       "required_patterns": ["dedicated mail class", "listener for secondary side effects", "transformer per resource", "named exception"],
@@ -475,6 +506,7 @@
     {
       "id": "ed.config-and-env",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Runtime configuration lives in config/* and every new env variable must be declared in start/env.ts with type, required/optional state, defaults, and allowed values before feature code uses it.",
       "required_patterns": ["config/*", "start/env.ts"],
@@ -486,6 +518,7 @@
     {
       "id": "hb.encryption-sensitive-columns",
       "tier": "hard_blocker",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Proactively detect sensitive data in every model and migration. When a column matches a sensitive-data indicator (social security numbers, national ID numbers, tax identifiers, credit card or bank account numbers, API keys or secret tokens not managed by @adonisjs/auth, passwords or security answers stored outside the auth hash pipeline, medical or health records, biometric data, passport or driver license numbers, personal phone numbers, precise home addresses, dates of birth combined with other PII), stop and recommend encryption using the framework-native encryption service (import encryption from '@adonisjs/core/services/encryption'). Encrypt via Lucid @beforeSave() hooks and expose a decrypt method on the model. The agent MUST flag sensitive columns even when the user has not mentioned security — the user may not be aware that this data requires protection. If the user explicitly declines encryption for a flagged column, record the override. Keep APP_KEY secret, never commit it, and use a different key per environment. Do not use third-party encryption libraries or manual node:crypto when the built-in service covers the need.",
       "required_patterns": ["@adonisjs/core/services/encryption", "@beforeSave()", "encryption.encrypt(", "encryption.decrypt(", "sensitive-data detection"],
@@ -497,6 +530,7 @@
     {
       "id": "ed.auth-session-and-shield-config",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Keep config/auth.ts, config/session.ts, config/inertia.ts, and config/shield.ts aligned with the doctrine: web is the default guard, remember-me tokens are optional and stay at 30 days, sessions clear with the browser, cookies stay conservative, SSR is off by default, and browser Inertia apps keep the XSRF cookie enabled.",
       "required_patterns": ["web as default guard", "rememberMeTokensAge: 30 days", "clearWithBrowser: true", "sameSite: lax", "SSR off", "enableXsrfCookie: true"],
@@ -508,6 +542,7 @@
     {
       "id": "ed.testing-layout",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Put request flows in tests/functional and isolated logic in tests/unit. Inertia form flows assert redirects and flash/session effects; API routes assert JSON payload shape, canonical status codes, and auth behavior.",
       "required_patterns": ["tests/functional", "tests/unit"],
@@ -519,6 +554,7 @@
     {
       "id": "ed.inertia-filesystem-layout",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Use the canonical Inertia filesystem layout: inertia/pages, inertia/components, inertia/layouts, inertia/stores, inertia/theme.ts, inertia/app.tsx, optional inertia/ssr.tsx when SSR is enabled, and optional inertia/client.ts when explicit client fetching is justified. Export page components in PascalCase and keep business logic on the server.",
       "required_patterns": ["inertia/pages", "inertia/components", "inertia/layouts", "inertia/theme.ts", "inertia/app.tsx"],
@@ -530,6 +566,7 @@
     {
       "id": "ed.inertia-page-typing",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Inertia page components MUST type their props with InertiaProps<{...}> from ~/types and reference data shapes via Data.<Resource> from @generated/data. Never define inline interfaces (e.g. interface Post { id: number; title: string }) for data already exposed by a transformer — use Data.Post (or Data.Post.Variants['forDetailedView'] for variant shapes) instead. This avoids type drift between the transformer output and the page contract.",
       "required_patterns": ["InertiaProps<{", "Data.", "@generated/data"],
@@ -541,6 +578,7 @@
     {
       "id": "ed.inertia-component-decomposition",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Never define a React component (function or class) inside another component's render body. A component declared inside another function is a new identity on every render, so React unmounts and remounts the entire sub-tree, loses local state, re-runs effects, and defeats memoization. Keep small, single-use, stateless helper components at module scope (top of the same file, outside the parent) when they are under ~20 lines. Extract to inertia/components/**/* as a dedicated file as soon as the helper has its own state, effects, is reused by more than one page, or grows past ~20 lines. Render-prop callbacks — functions passed as children that return JSX, e.g. <Form>{({ errors }) => (...)}</Form> — are not component definitions and remain allowed.",
       "required_patterns": ["sub-components declared at module scope", "extract reusable helpers to inertia/components/"],
@@ -552,6 +590,7 @@
     {
       "id": "ed.frontend-library-and-state-policy",
       "tier": "enforced_default",
+      "enforcement_rationale": "stack-lockin",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Default to Mantine core, Mantine notifications, Tabler icons, and @adonisjs/inertia/react Link and Form wrappers. Always use Mantine components (Button, TextInput, Select, Card, Stack, Group, Modal, Menu, Table, etc.) instead of raw HTML elements when Mantine provides an equivalent. Use raw HTML or a specialized third-party component only when the UI need is genuinely complex, requires deep customization, and no Mantine component covers the requirement. Use @inertiajs/react only for boot-time primitives not provided by the Adonis wrapper. React local state, useReducer, and useRemember are the default state tools. Zustand is for shared UI-only state. @mantine/dates requires dayjs. Use Tuyau for explicit client fetching, TanStack Query only when truly needed, QueryClientProvider only when used, and TanStack Table only for advanced grids.",
       "required_patterns": ["@mantine/core", "@mantine/notifications", "@tabler/icons-react", "@adonisjs/inertia/react Link", "@adonisjs/inertia/react Form", "Tuyau when explicit client fetching is needed", "Mantine components instead of raw HTML when an equivalent exists"],
@@ -563,6 +602,7 @@
     {
       "id": "ed.css-modules-styling",
       "tier": "enforced_default",
+      "enforcement_rationale": "stack-lockin",
       "applies_to": ["web", "mixed", "frontend"],
       "statement": "Use CSS Modules (.module.css) as the default styling method for custom component styles. Apply styles to Mantine components via the className prop (root element) and the classNames prop (inner elements mapped by part name). Use Mantine CSS variables (--mantine-color-*, --mantine-spacing-*, --mantine-font-size-*, etc.) inside CSS Modules to stay consistent with the design system. Do not use Tailwind CSS, styled-components, Emotion css(), or global unscoped CSS as the default styling path. Inline style={{}} is acceptable only for truly dynamic runtime values (e.g. computed widths or positions), not for static visual styling.",
       "required_patterns": [".module.css", "className", "classNames for Mantine inner elements"],
@@ -574,6 +614,7 @@
     {
       "id": "ed.generators-and-naming",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Use node ace generators for controllers, validators, services, policies, mails, events, listeners, commands, transformers, and tests. Keep canonical naming for route names, policy abilities, services, validators, and command names. Reference controllers through the generated barrel: import { controllers } from '#generated/controllers' then use the PascalCase resource name (controllers.Posts), not a suffixed alias.",
       "required_patterns": ["node ace make:controller", "node ace make:validator", "node ace make:service", "#generated/controllers", "controllers.Posts", "verb-first command names"],
@@ -585,6 +626,7 @@
     {
       "id": "ed.runtime-prerequisites",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "AdonisJS v7 requires Node.js 24 or higher and npm 11 or higher. Use npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api> to scaffold new applications. Start the dev server with node ace serve --hmr for development.",
       "required_patterns": ["Node.js >= 24", "npm >= 11", "npm create adonisjs@latest", "node ace serve --hmr"],
@@ -596,6 +638,7 @@
     {
       "id": "ed.adonisrc-hooks",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "adonisrc.ts declares the v7 hooks pipeline under hooks.init: indexEntities() from @adonisjs/core is mandatory. Inertia apps add indexPages({ framework: 'react' }) from @adonisjs/inertia plus generateRegistry() from @tuyau/core/hooks and indexEntities({ transformers: { enabled: true, withSharedProps: true } }). Bouncer apps add indexPolicies() from @adonisjs/bouncer. Vite apps add @adonisjs/vite/build_hook under buildStarting. These hooks generate #generated/controllers, @generated/data, @generated/registry, and the typed shared-props surface. The preloads array carries every start/routes/<surface>.ts file introduced by a mixed app with two or more of the five surfaces (including start/routes/runtime.ts for /mcp, /health, and operator bridges). AdonisJS does not auto-import files under start/; the preloads array is the official mechanism.",
       "required_patterns": ["hooks.init", "indexEntities()", "indexPages({ framework: 'react' })", "generateRegistry()", "indexPolicies()", "@adonisjs/vite/build_hook", "preloads array lists every start/routes/<surface>.ts file"],
@@ -607,6 +650,7 @@
     {
       "id": "ed.api-contracts",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["mixed", "api-only", "api"],
       "statement": "Framework doctrine for API success payloads: serialize(...) with a transformer produces the canonical AdonisJS v7 shape ({ data } for a resource, { data: [...] } for a collection, { data, meta } for a paginator). Do not double-wrap that output. This is not a universal rule that every endpoint must return { data }: ad-hoc endpoints (signed URLs, counts, health probes, token-exchange responses) legitimately return their own typed shape. A uniform { data } contract across every endpoint is an applicative-level choice, not a framework-level one, and the skill does not impose it. Errors stay flat { code, message }; canonical statuses: 201 create, 200 update, 204 delete, 403 forbidden, 404 not found, 409 conflict.",
       "required_patterns": ["serialize(...)", "{ code, message }", "201/200/204/403/404/409"],
@@ -618,6 +662,7 @@
     {
       "id": "ed.query-pagination",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["mixed", "api-only", "api"],
       "statement": "For non-trivial list endpoints, create a dedicated query validator and validate page, perPage, q, sort, direction, and business filters. Default perPage to 20 and cap it at 100.",
       "required_patterns": ["page", "perPage", "q", "sort", "direction", "perPage default 20", "perPage max 100"],
@@ -629,6 +674,7 @@
     {
       "id": "ed.transactions-side-effects-and-commands",
       "tier": "enforced_default",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Create a service for non-trivial writes and orchestration. Open managed transactions in services when two or more writes must succeed together. Keep external I/O outside the transaction when possible. Use listeners for secondary side effects. Use Ace commands for imports, exports, backfills, recurring jobs, cleanup, syncs, and operator tasks, and keep recurring commands idempotent.",
       "required_patterns": ["service orchestration", "managed transaction", "idempotent commands"],
@@ -640,6 +686,7 @@
     {
       "id": "ed.web-mutations-and-browser-api-auth",
       "tier": "enforced_default",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Web mutations default to redirect plus flash/session feedback. JSON responses from web controllers are the exception. In mixed apps, browser-called /api endpoints stay on session auth unless an external client requirement exists. API-only apps serving external clients default to official access tokens.",
       "required_patterns": ["redirect + flash", "session auth for browser-called /api", "official access tokens for external clients"],
@@ -651,6 +698,7 @@
     {
       "id": "adv.controller-boundaries",
       "tier": "advisory",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Keep controllers thin and observable: no direct DB orchestration, Mail, Drive, transactions, or durable business logic in controllers beyond simple request coordination.",
       "required_patterns": ["thin controller"],
@@ -662,6 +710,7 @@
     {
       "id": "adv.prefer-adonis-primitives",
       "tier": "advisory",
+      "enforcement_rationale": "framework-doctrine",
       "applies_to": ["all"],
       "statement": "Prefer AdonisJS services, middleware, URL builders, test helpers, fakes, and container features over generic Node.js patterns when both options are viable.",
       "required_patterns": ["framework-native primitives"],
@@ -673,6 +722,7 @@
     {
       "id": "adv.small-duplication",
       "tier": "advisory",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Prefer small, explicit duplication over clever abstractions in validators, controllers, and support code when the abstraction would obscure the doctrine.",
       "required_patterns": ["small duplication"],
@@ -684,6 +734,7 @@
     {
       "id": "adv.service-when-unsure",
       "tier": "advisory",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "If you are unsure whether logic belongs in a service, create the service. The doctrine prefers service extraction over controller expansion for ambiguous cases.",
       "required_patterns": ["service extraction"],
@@ -695,6 +746,7 @@
     {
       "id": "adv.keep-doctrine-observable",
       "tier": "advisory",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Keep the doctrine observable: prefer rule ids, profile markers, and compliance markers in prompts, wrappers, and evaluations so drift can be tested quickly.",
       "required_patterns": ["rule ids", "compliance markers"],
@@ -706,6 +758,7 @@
     {
       "id": "adv.verify-api-before-use",
       "tier": "advisory",
+      "enforcement_rationale": "team-discipline",
       "applies_to": ["all"],
       "statement": "Before using a package API for the first time in a session, read the exported types or source to confirm the exact signature. AdonisJS ecosystem packages (@adonisjs/inertia/react Link and Form, Tuyau urlFor and client, pdfkit, @adonisjs/mail attach) have specific APIs that LLMs frequently hallucinate. Guessing a signature and fixing it later costs more than reading the type first.",
       "required_patterns": ["verify type signature before first use"],

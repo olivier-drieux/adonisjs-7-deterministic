@@ -70,4 +70,4 @@ package coverage → env/config → migration → model → validator → policy
 
 ## Source of Truth
 
-- `SKILL.md` and `rules/manifest.json` in the `adonisjs-7-deterministic` skill pack.
+- `SKILL.md` and `rules/manifest.json` in the `adonisjs-ai-doctrine` skill pack.

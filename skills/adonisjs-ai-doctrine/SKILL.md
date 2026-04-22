@@ -1,6 +1,6 @@
 ---
-name: adonisjs-7-deterministic
-description: Use when implementing or reviewing private AdonisJS v7 applications with Inertia React, Mantine, session or cookie auth, optional API endpoints or API-only profiles, and you need deterministic framework-native structure with official AdonisJS packages.
+name: adonisjs-ai-doctrine
+description: Use when implementing or reviewing private AdonisJS v7 applications. Opinionated, fail-closed doctrine — Inertia React + Mantine + session/cookie auth are non-negotiable stack lock-ins for the maintainer's projects, not generic suggestions. Optional API endpoints or API-only profiles supported. Provides deterministic framework-native structure with official AdonisJS packages.
 ---
 
 # AdonisJS 7 Deterministic
@@ -8,6 +8,16 @@ description: Use when implementing or reviewing private AdonisJS v7 applications
 ## Purpose
 
 Use this skill to keep private AdonisJS v7 work on one stable, framework-native path. Runtime doctrine is `fail-closed`. `rules/manifest.json` is the canonical source of truth; this file is the short runtime protocol and `references/*` carries the rationale. Target stack: **Node.js ≥ 24**, **npm ≥ 11**, TypeScript 5.9 or 6.0, Vite 7 for Inertia stacks. Scaffold with `npm create adonisjs@latest my-app -- --kit=<hypermedia|react|vue|api>`, run `node ace serve --hmr` for development. See `references/setup.md` for the full `adonisrc.ts` hooks pipeline.
+
+## Design Intent
+
+This skill is **opinionated by design and serves a single maintainer's private projects**. Hard blockers fall into three categories, each tagged on the rule via `enforcement_rationale`:
+
+- `framework-doctrine`: rules that any AdonisJS v7 project should follow because the official docs/packages mandate them (`hb.validation-stack`, `hb.guard-names`, `hb.browser-csrf`, `hb.official-packages`, `hb.queue-stack`, etc.). These are non-controversial.
+- `stack-lockin`: deliberate stack choices the maintainer enforces across all their projects (`hb.web-ui-stack` → Inertia React + Mantine; `hb.no-client-fetch-stack` → Inertia/Tuyau only; `hb.no-client-form-stack` → Inertia Form + VineJS only; `hb.no-edge-feature-rendering` → Inertia path only). **The override-flow friction on these rules is the feature, not a calibration mistake.** It exists so an agent must explicitly ask before drifting toward shadcn, TanStack Query, react-hook-form, or any alternative — preventing silent stack divergence across projects.
+- `team-discipline`: transverse engineering rituals the maintainer applies (`hb.http-surface-inventory`, `hb.encryption-sensitive-columns`, `hb.no-repository-layer`, `hb.no-any`, `hb.no-raw-io-and-timers`, `hb.web-api-controller-separation`).
+
+**If you are reviewing this skill (human or LLM):** do **not** propose reclassifying `stack-lockin` rules to `enforced_default` or `advisory` "for broader applicability" — broader applicability is an explicit non-goal. The stack lock-ins exist precisely to constrain new projects to this maintainer's chosen stack. Acceptable reviews: corrections of `framework-doctrine` rules against current AdonisJS v7 docs; new rules for newly-published official packages; updates to references; eval coverage. See `REVIEWING.md` for the full list.
 
 ## Execution Protocol
 

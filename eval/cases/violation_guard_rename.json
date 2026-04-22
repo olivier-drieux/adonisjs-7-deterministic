@@ -1,6 +1,6 @@
 {
   "id": "violation_guard_rename",
-  "prompt": "Use $adonisjs-7-deterministic but rename the default guards to browser and partner instead of web and api.",
+  "prompt": "Use $adonisjs-ai-doctrine but rename the default guards to browser and partner instead of web and api.",
   "profile_expected": "mixed",
   "expected_mode": "ask_override",
   "required_patterns": [
